@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بوابة المشرفين - متابعة الغياب</title>
+    <title>بوابة المشرفين - متابعة الغياب ورصد الحصص</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -13,49 +13,95 @@
 </head>
 <body class="text-gray-800">
 
+    <!-- نافذة تفاصيل الحصة المرصودة -->
+    <div id="periodModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-lg p-6 max-w-md w-full shadow-2xl">
+            <div class="flex justify-between items-center border-b pb-2 mb-3">
+                <h4 id="modalTitle" class="font-bold text-lg text-blue-800">تفاصيل الحصة</h4>
+                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-700 text-2xl font-bold">&times;</button>
+            </div>
+            <p class="text-sm mb-2 text-gray-600">المعلم المسجل: <span id="modalTeacher" class="font-bold text-gray-800"></span></p>
+            <div class="mb-4">
+                <p class="text-sm font-bold text-gray-700 mb-1">قائمة الطلاب الغائبين:</p>
+                <ul id="modalStudents" class="list-disc list-inside text-sm text-red-600 bg-red-50 p-3 rounded border border-red-200 max-h-48 overflow-y-auto"></ul>
+            </div>
+            <button onclick="closeModal()" class="w-full bg-blue-600 text-white py-2 rounded font-bold hover:bg-blue-700">إغلاق</button>
+        </div>
+    </div>
+
+    <!-- تسجيل الدخول -->
     <div id="loginScreen" class="min-h-screen flex items-center justify-center p-4">
         <div class="bg-white p-8 rounded-lg shadow-md w-96 max-w-full border-t-4 border-blue-600">
             <h1 class="text-2xl font-bold text-center text-blue-700 mb-6">بوابة المشرفين</h1>
-            
             <div class="mb-4">
                 <label class="block text-gray-700 font-bold mb-2">أدخل كلمة مرور المرحلة:</label>
                 <input type="password" id="passInput" class="w-full p-2 border rounded mb-4" placeholder="كلمة المرور (666, 1111, 2222, 33333)...">
             </div>
-
             <button onclick="loginSupervisor()" class="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded hover:bg-blue-700 transition">دخول لوحة التحكم</button>
             <p id="errorMsg" class="text-red-500 text-sm mt-3 text-center hidden"></p>
         </div>
     </div>
 
-    <div id="supervisorDashboard" class="hidden p-4 max-w-6xl mx-auto">
+    <!-- لوحة التحكم -->
+    <div id="supervisorDashboard" class="hidden p-4 max-w-7xl mx-auto">
         <div class="flex justify-between items-center mb-6 bg-white p-4 rounded shadow">
-            <h2 id="stageTitle" class="text-xl font-bold text-blue-800">لوحة المتابعة الإدارية</h2>
+            <div>
+                <h2 id="stageTitle" class="text-xl font-bold text-blue-800">لوحة المتابعة الإدارية</h2>
+                <p id="currentDateText" class="text-xs text-gray-500 mt-1"></p>
+            </div>
             <button onclick="location.reload()" class="bg-gray-200 px-3 py-1 rounded text-sm hover:bg-gray-300">تسجيل خروج</button>
         </div>
         
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 text-center">
+        <!-- بطاقات الإحصاء -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 text-center">
             <div class="bg-white p-4 rounded shadow border-t-4 border-blue-500">
-                <p class="text-sm text-gray-500">إجمالي طلاب المرحلة</p>
+                <p class="text-xs text-gray-500">إجمالي طلاب المرحلة</p>
                 <p id="statTotal" class="text-2xl font-bold">0</p>
             </div>
             <div class="bg-white p-4 rounded shadow border-t-4 border-green-500">
-                <p class="text-sm text-gray-500">الحضور الفعلي</p>
+                <p class="text-xs text-gray-500">الحضور الفعلي</p>
                 <p id="statPresent" class="text-2xl font-bold text-green-600">0</p>
             </div>
             <div class="bg-white p-4 rounded shadow border-t-4 border-red-500">
-                <p class="text-sm text-gray-500">الغياب الكلي</p>
+                <p class="text-xs text-gray-500">الغياب الكلي</p>
                 <p id="statAbsent" class="text-2xl font-bold text-red-600">0</p>
             </div>
             <div class="bg-white p-4 rounded shadow border-t-4 border-yellow-500">
-                <p class="text-sm text-gray-500">نسبة الغياب</p>
+                <p class="text-xs text-gray-500">نسبة الغياب</p>
                 <p id="statPercent" class="text-2xl font-bold text-yellow-600">0%</p>
             </div>
         </div>
 
-        <div class="bg-red-50 border border-red-200 p-4 rounded mb-8 shadow">
-            <h3 class="text-xl font-bold text-red-700 mb-4">⚠️ إنذارات الغياب المتكرر (5 أيام فأكثر)</h3>
+        <!-- مصفوفة رصد الحصص اليومية -->
+        <div class="bg-white p-4 rounded shadow mb-6">
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="text-lg font-bold text-blue-900">📊 مصفوفة رصد الحصص والغياب اليومي لجميع الصفوف</h3>
+                <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded font-bold">انقر على أي حصة خضراء لمعاينة التفاصيل</span>
+            </div>
             <div class="overflow-x-auto">
-                <table class="w-full text-sm text-right">
+                <table class="w-full text-xs text-center border-collapse border">
+                    <thead class="bg-gray-100 text-gray-700">
+                        <tr>
+                            <th class="p-2 border">الصف</th>
+                            <th class="p-2 border">الحصة 1</th>
+                            <th class="p-2 border">الحصة 2</th>
+                            <th class="p-2 border">الحصة 3</th>
+                            <th class="p-2 border">الحصة 4</th>
+                            <th class="p-2 border">الحصة 5</th>
+                            <th class="p-2 border">الحصة 6</th>
+                            <th class="p-2 border">الحصة 7</th>
+                        </tr>
+                    </thead>
+                    <tbody id="matrixTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- إنذارات الغياب المتكرر -->
+        <div class="bg-red-50 border border-red-200 p-4 rounded mb-6 shadow">
+            <h3 class="text-lg font-bold text-red-700 mb-3">⚠️ إنذارات الغياب المتكرر (5 أيام فأكثر)</h3>
+            <div class="overflow-x-auto">
+                <table class="w-full text-xs text-right">
                     <thead class="bg-red-200 text-red-800">
                         <tr><th class="p-2">الطالب</th><th class="p-2">الصف</th><th class="p-2">أيام الغياب</th><th class="p-2">إجراء</th></tr>
                     </thead>
@@ -64,10 +110,11 @@
             </div>
         </div>
 
+        <!-- جدول تفصيلي لكل الطلاب الغائبين -->
         <div class="bg-white p-4 rounded shadow">
-            <h3 class="text-xl font-bold text-gray-800 mb-4">سجل غياب وتأخير اليوم</h3>
+            <h3 class="text-lg font-bold text-gray-800 mb-3">سجل الغياب التفصيلي</h3>
             <div class="overflow-x-auto">
-                <table class="w-full text-sm text-right border-collapse">
+                <table class="w-full text-xs text-right border-collapse">
                     <thead class="bg-blue-100 text-blue-800 border-b">
                         <tr><th class="p-2">التاريخ</th><th class="p-2">الطالب</th><th class="p-2">الصف</th><th class="p-2">الحصة</th><th class="p-2">المعلم</th></tr>
                     </thead>
@@ -79,6 +126,7 @@
 
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbxlJnpJN9y9h04cOswtY3BGGwUS8rhybOisxDFkIQJ6_9nFSPMJeK-wiuFEECnBY3v5/exec";
+        let matrixDataStore = {};
 
         async function loginSupervisor() {
             const pass = document.getElementById('passInput').value;
@@ -103,45 +151,42 @@
                     document.getElementById('supervisorDashboard').classList.remove('hidden');
                     
                     document.getElementById('stageTitle').innerText = `لوحة المتابعة الإدارية (المرحلة: ${result.stage})`;
+                    const now = new Date();
+                    document.getElementById('currentDateText').innerText = `التاريخ: ${now.toLocaleDateString('ar-EG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`;
 
                     document.getElementById('statTotal').innerText = result.stats.total;
                     document.getElementById('statPresent').innerText = result.stats.present;
                     document.getElementById('statAbsent').innerText = result.stats.absent;
                     document.getElementById('statPercent').innerText = result.stats.percent + "%";
 
+                    // بناء مصفوفة الحصص اليومية
+                    buildMatrix(result.classes, result.data);
+
+                    // الإنذارات
                     const alertsBody = document.getElementById('alertsTableBody');
                     alertsBody.innerHTML = "";
                     if(result.alerts.length === 0) {
                         alertsBody.innerHTML = `<tr><td colspan="4" class="p-3 text-center text-gray-500">لا توجد إنذارات غياب متكرر حالياً</td></tr>`;
                     } else {
                         result.alerts.forEach(a => {
-                            const waMsg = encodeURIComponent(`المكرم ولي أمر الطالب/ ${a.studentName} (الصف ${a.className})، نود تنبيهكم لتجاوز ابنكم الحد المسموح للغياب. أيام الغياب: ${a.datesList}. يرجى مراجعة الإدارة.`);
-                            const waLink = `https://wa.me/?text=${waMsg}`;
-                            
+                            const waMsg = encodeURIComponent(`المكرم ولي أمر الطالب/ ${a.studentName} (الصف ${a.className})، نود إشعاركم بتجاوز ابنكم 5 أيام غياب. التواريخ: ${a.datesList}. يرجى مراجعة إدارة المدرسة.`);
                             alertsBody.innerHTML += `<tr class="border-b border-red-100">
-                                <td class="p-2 font-bold">${a.studentName}</td>
-                                <td class="p-2">${a.className}</td>
+                                <td class="p-2 font-bold">${a.studentName}</td><td class="p-2">${a.className}</td>
                                 <td class="p-2 text-red-600 font-bold">${a.totalAbsences} أيام</td>
-                                <td class="p-2">
-                                    <a href="${waLink}" target="_blank" class="bg-green-500 text-white px-2 py-1 rounded text-xs hover:bg-green-600">إنذار واتساب</a>
-                                </td>
+                                <td class="p-2"><a href="https://wa.me/?text=${waMsg}" target="_blank" class="bg-green-500 text-white px-2 py-1 rounded text-xs hover:bg-green-600">إنذار واتساب</a></td>
                             </tr>`;
                         });
                     }
 
+                    // جدول الغياب العام
                     const todayBody = document.getElementById('todayTableBody');
                     todayBody.innerHTML = "";
-                    if(result.data.length === 0) {
-                        todayBody.innerHTML = `<tr><td colspan="5" class="p-3 text-center text-gray-500">لم يتم تسجيل أي غياب اليوم حتى الآن</td></tr>`;
-                    } else {
-                        result.data.forEach(d => {
-                            todayBody.innerHTML += `<tr class="border-b">
-                                <td class="p-2">${d.date}</td><td class="p-2 font-bold">${d.studentName}</td>
-                                <td class="p-2">${d.className}</td><td class="p-2">الحصة ${d.period}</td>
-                                <td class="p-2">${d.teacher}</td>
-                            </tr>`;
-                        });
-                    }
+                    result.data.forEach(d => {
+                        todayBody.innerHTML += `<tr class="border-b">
+                            <td class="p-2">${d.date}</td><td class="p-2 font-bold">${d.studentName}</td>
+                            <td class="p-2">${d.className}</td><td class="p-2">الحصة ${d.period}</td><td class="p-2">${d.teacher}</td>
+                        </tr>`;
+                    });
 
                 } else {
                     errorMsg.innerText = result.message;
@@ -152,6 +197,67 @@
                 errorMsg.classList.remove('hidden');
             }
             btn.innerText = "دخول لوحة التحكم";
+        }
+
+        function buildMatrix(classesList, records) {
+            const tbody = document.getElementById('matrixTableBody');
+            tbody.innerHTML = "";
+            matrixDataStore = {};
+
+            // تجميع السجلات حسب الصف ورقم الحصة
+            records.forEach(r => {
+                const pNum = String(r.period).replace(/[^0-9]/g, '');
+                const key = `${r.className}_${pNum}`;
+                if (!matrixDataStore[key]) {
+                    matrixDataStore[key] = { teacher: r.teacher, students: [] };
+                }
+                if (r.studentName && !matrixDataStore[key].students.includes(r.studentName)) {
+                    matrixDataStore[key].students.push(r.studentName);
+                }
+            });
+
+            // استنتاج الصفوف لو كانت القائمة فارغة
+            let classes = classesList && classesList.length > 0 ? classesList : [...new Set(records.map(r => r.className))];
+            if (classes.length === 0) classes = ["الصف 1", "الصف 2", "الصف 3"];
+
+            classes.forEach(cName => {
+                let rowHtml = `<tr class="border-b"><td class="p-2 font-bold bg-gray-50 border">${cName}</td>`;
+                for (let p = 1; p <= 7; p++) {
+                    const key = `${cName}_${p}`;
+                    if (matrixDataStore[key]) {
+                        rowHtml += `<td class="p-1 border bg-green-50">
+                            <button onclick="showDetails('${key}', '${cName}', ${p})" class="bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded text-xs w-full">
+                                تم الرصد (${matrixDataStore[key].students.length})
+                            </button>
+                        </td>`;
+                    } else {
+                        rowHtml += `<td class="p-1 border bg-red-50 text-red-400 font-bold">لم يُرصد</td>`;
+                    }
+                }
+                rowHtml += `</tr>`;
+                tbody.innerHTML += rowHtml;
+            });
+        }
+
+        function showDetails(key, cName, periodNum) {
+            const data = matrixDataStore[key];
+            if (!data) return;
+            document.getElementById('modalTitle').innerText = `${cName} - الحصة ${periodNum}`;
+            document.getElementById('modalTeacher').innerText = data.teacher || "غير محدد";
+            const ul = document.getElementById('modalStudents');
+            ul.innerHTML = "";
+            if (data.students.length === 0) {
+                ul.innerHTML = `<li class="text-gray-500">لا يوجد غياب مسجل (الجميع حضور)</li>`;
+            } else {
+                data.students.forEach(s => {
+                    ul.innerHTML += `<li>${s}</li>`;
+                });
+            }
+            document.getElementById('periodModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('periodModal').classList.add('hidden');
         }
     </script>
 </body>
