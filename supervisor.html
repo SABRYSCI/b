@@ -24,22 +24,6 @@
 </head>
 <body class="text-gray-800 flex flex-col min-h-screen">
 
-    <!-- نافذة تفاصيل الحصة المنبثقة من المصفوفة -->
-    <div id="periodModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4 z-50 no-print">
-        <div class="bg-white rounded-lg p-6 max-w-md w-full shadow-2xl">
-            <div class="flex justify-between items-center border-b pb-2 mb-3">
-                <h4 id="modalTitle" class="font-bold text-lg text-blue-800">تفاصيل الحصة</h4>
-                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-700 text-2xl font-bold">&times;</button>
-            </div>
-            <p class="text-sm mb-2 text-gray-600">المعلم الراصد: <span id="modalTeacher" class="font-bold text-gray-800"></span></p>
-            <div class="mb-4">
-                <p class="text-sm font-bold text-gray-700 mb-2">قائمة الطلاب الغائبين:</p>
-                <div id="modalStudents" class="bg-red-50 p-3 rounded border border-red-200 max-h-56 overflow-y-auto"></div>
-            </div>
-            <button onclick="closeModal()" class="w-full bg-blue-600 text-white py-2 rounded font-bold hover:bg-blue-700">إغلاق</button>
-        </div>
-    </div>
-
     <!-- شاشة تسجيل الدخول -->
     <div id="loginScreen" class="min-h-screen flex items-center justify-center p-4 no-print">
         <div class="bg-white p-8 rounded-lg shadow-md w-96 max-w-full border-t-4 border-blue-600">
@@ -56,7 +40,7 @@
         </div>
     </div>
 
-    <!-- لوحة التحكم الرئيسية والتقرير -->
+    <!-- لوحة التحكم والتقرير -->
     <div id="supervisorDashboard" class="hidden p-4 max-w-7xl mx-auto flex-grow w-full">
         
         <!-- الترويسة وأزرار الإجراءات -->
@@ -67,7 +51,6 @@
                     <h2 id="stageTitle" class="text-xl font-bold text-blue-900">تقرير المتابعة الميدانية للحصص</h2>
                     <p id="currentDateText" class="text-xs text-gray-600 mt-1 font-semibold"></p>
                 </div>
-                <!-- زر الطباعة والخروج -->
                 <div class="flex gap-2 no-print">
                     <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm flex items-center gap-2 shadow transition">
                         🖨️ طباعة التقرير / حفظ PDF
@@ -84,7 +67,7 @@
                 <span class="text-xs text-gray-500 no-print">اضغط على رقم الحصة لتحديث التقرير والإحصاءات:</span>
             </div>
             
-            <!-- أزرار اختيار الحصة السريعة -->
+            <!-- أزرار اختيار الحصة -->
             <div class="grid grid-cols-4 md:grid-cols-7 gap-2 mb-6 no-print">
                 <button onclick="selectPeriod(1)" id="btnP1" class="period-btn py-2 border rounded text-sm font-bold bg-gray-50 hover:bg-blue-50 transition">الحصة 1</button>
                 <button onclick="selectPeriod(2)" id="btnP2" class="period-btn py-2 border rounded text-sm font-bold bg-gray-50 hover:bg-blue-50 transition">الحصة 2</button>
@@ -95,7 +78,7 @@
                 <button onclick="selectPeriod(7)" id="btnP7" class="period-btn py-2 border rounded text-sm font-bold bg-gray-50 hover:bg-blue-50 transition">الحصة 7</button>
             </div>
 
-            <!-- بطاقات ملخص الحصة المحددة بالألوان الفاتحة -->
+            <!-- بطاقات ملخص الحصة المحددة -->
             <div class="mb-6">
                 <h4 id="periodCardsTitle" class="text-sm font-bold text-gray-700 mb-3 border-r-2 border-blue-500 pr-2">إحصائيات الحصة المحددة:</h4>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
@@ -136,32 +119,10 @@
                 </table>
             </div>
 
-            <!-- قائمة مجمعة بأسماء كافة الغائبين في المرحلة لهذه الحصة -->
+            <!-- حصر الغائبين مجمع -->
             <div class="bg-slate-50 border border-slate-200 p-4 rounded-lg">
                 <h4 class="text-xs font-bold text-gray-700 mb-2">📋 حصر كافة الطلاب الغائبين في المرحلة مع صفوفهم:</h4>
                 <div id="pSumStudentNames" class="text-xs text-gray-700"></div>
-            </div>
-        </div>
-
-        <!-- مصفوفة متابعة الحصص العامة -->
-        <div class="bg-white p-4 rounded shadow mb-6 no-print">
-            <h3 class="text-md font-bold text-gray-800 mb-3">📊 مصفوفة متابعة الحصص لجميع صفوف المرحلة</h3>
-            <div class="overflow-x-auto">
-                <table class="w-full text-xs text-center border-collapse border border-gray-200">
-                    <thead class="bg-gray-100 text-gray-700">
-                        <tr>
-                            <th class="p-2 border border-gray-200">الصف</th>
-                            <th class="p-2 border border-gray-200">حصة 1</th>
-                            <th class="p-2 border border-gray-200">حصة 2</th>
-                            <th class="p-2 border border-gray-200">حصة 3</th>
-                            <th class="p-2 border border-gray-200">حصة 4</th>
-                            <th class="p-2 border border-gray-200">حصة 5</th>
-                            <th class="p-2 border border-gray-200">حصة 6</th>
-                            <th class="p-2 border border-gray-200">حصة 7</th>
-                        </tr>
-                    </thead>
-                    <tbody id="matrixTableBody"></tbody>
-                </table>
             </div>
         </div>
 
@@ -193,7 +154,32 @@
         const API_URL = "https://script.google.com/macros/s/AKfycbxlJnpJN9y9h04cOswtY3BGGwUS8rhybOisxDFkIQJ6_9nFSPMJeK-wiuFEECnBY3v5/exec";
         let globalData = null;
         let activePeriodNum = 1;
-        let matrixDataStore = {};
+
+        function isNoAbsenceText(name) {
+            if (!name) return true;
+            const s = String(name).trim();
+            return /لا\s*يوجد|لايوجد|حضور|الجميع/i.test(s);
+        }
+
+        function cleanClass(str) {
+            return String(str || '')
+                .replace(/[أإآ]/g, 'ا')
+                .replace(/ة/g, 'ه')
+                .replace(/ى/g, 'ي')
+                .replace(/[\s\-_/\\.]/g, '')
+                .trim();
+        }
+
+        function getClassTotal(cName) {
+            if (!globalData.classTotals) return 31;
+            const target = cleanClass(cName);
+            for (let k in globalData.classTotals) {
+                if (cleanClass(k) === target && globalData.classTotals[k] > 0) {
+                    return globalData.classTotals[k];
+                }
+            }
+            return 31; // قيمة افتراضية متوازنة في حال عدم رصد عدد الصف
+        }
 
         async function loginSupervisor() {
             const pass = document.getElementById('passInput').value;
@@ -222,7 +208,6 @@
                     const now = new Date();
                     document.getElementById('currentDateText').innerText = `اليوم والتاريخ: ${now.toLocaleDateString('ar-EG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`;
 
-                    buildMatrix();
                     selectPeriod(1);
 
                     const alertsBody = document.getElementById('alertsTableBody');
@@ -268,33 +253,40 @@
             let allAbsentList = [];
 
             globalData.classes.forEach(cName => {
-                const classTotal = (globalData.classTotals && globalData.classTotals[cName]) || 0;
+                const classTotal = getClassTotal(cName);
                 totalStageStudents += classTotal;
 
+                const targetClassKey = cleanClass(cName);
                 const records = globalData.data.filter(r => {
                     const p = String(r.period).replace(/[^0-9]/g, '');
-                    return r.className === cName && p === String(pNum);
+                    return cleanClass(r.className) === targetClassKey && p === String(pNum);
                 });
 
                 const isRecorded = records.length > 0;
                 let teacherName = isRecorded ? records[0].teacher : "-";
-                let absentNames = records.map(r => r.studentName);
-                let absCount = absentNames.length;
+                
+                // استبعاد عبارات "لا يوجد غياب" من قائمة الغائبين
+                let realAbsentNames = records
+                    .map(r => r.studentName)
+                    .filter(name => name && !isNoAbsenceText(name));
+
+                let absCount = realAbsentNames.length;
                 let presentCount = isRecorded ? Math.max(0, classTotal - absCount) : classTotal;
 
-                totalStageAbsents += absCount;
-                absentNames.forEach(name => {
-                    allAbsentList.push({ name: name, class: cName });
-                });
+                if (isRecorded) {
+                    totalStageAbsents += absCount;
+                    realAbsentNames.forEach(name => {
+                        allAbsentList.push({ name: name, class: cName });
+                    });
+                }
 
-                // تنسيق أسماء الطلاب كقائمة مرقمة تحت بعضها
                 let studentsListHtml = "";
-                if (absentNames.length > 0) {
+                if (realAbsentNames.length > 0) {
                     studentsListHtml = `<ol class="list-decimal list-inside space-y-1 text-red-600 font-medium">` +
-                        absentNames.map(n => `<li>${n}</li>`).join('') +
+                        realAbsentNames.map(n => `<li>${n}</li>`).join('') +
                         `</ol>`;
                 } else if (isRecorded) {
-                    studentsListHtml = `<span class="text-green-700 font-bold">الجميع حضور</span>`;
+                    studentsListHtml = `<span class="text-green-700 font-bold bg-green-50 px-2 py-0.5 rounded border border-green-200">✅ الجميع حضور (لا يوجد غياب)</span>`;
                 } else {
                     studentsListHtml = `<span class="text-gray-400">-</span>`;
                 }
@@ -314,7 +306,7 @@
                 `;
             });
 
-            // تحديث بطاقات ملخص الحصة العلوية
+            // تحديث بطاقات ملخص الحصة العلوية بأرقام دقيقة
             const totalStagePresent = Math.max(0, totalStageStudents - totalStageAbsents);
             const stagePercent = totalStageStudents > 0 ? ((totalStageAbsents / totalStageStudents) * 100).toFixed(1) : "0.0";
 
@@ -323,71 +315,15 @@
             document.getElementById('pSumAbsent').innerText = totalStageAbsents;
             document.getElementById('pSumPercent').innerText = stagePercent + "%";
 
-            // تحديث الحصر المجمع للغائبين كقائمة مرقمة واضحة
+            // قائمة حصر الطلاب الغائبين الفعلية
             const namesContainer = document.getElementById('pSumStudentNames');
             if (allAbsentList.length === 0) {
-                namesContainer.innerHTML = `<p class="text-gray-500 italic">لا يوجد غياب مسجل في هذه الحصة (الجميع حضور أو لم يتم رصد الحصة بعد).</p>`;
+                namesContainer.innerHTML = `<p class="text-green-700 font-bold italic">لا يوجد غياب مسجل في هذه الحصة (الجميع حضور).</p>`;
             } else {
                 namesContainer.innerHTML = `<ol class="list-decimal list-inside grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 font-medium">` +
                     allAbsentList.map(item => `<li class="bg-white p-2 rounded border border-gray-200 shadow-sm"><span class="font-bold text-gray-800">${item.name}</span> <span class="text-xs text-blue-600 font-bold mr-1">(${item.class})</span></li>`).join('') +
                     `</ol>`;
             }
-        }
-
-        function buildMatrix() {
-            const tbody = document.getElementById('matrixTableBody');
-            tbody.innerHTML = "";
-            matrixDataStore = {};
-
-            globalData.data.forEach(r => {
-                const pNum = String(r.period).replace(/[^0-9]/g, '');
-                const key = `${r.className}_${pNum}`;
-                if (!matrixDataStore[key]) {
-                    matrixDataStore[key] = { teacher: r.teacher, students: [] };
-                }
-                if (r.studentName && !matrixDataStore[key].students.includes(r.studentName)) {
-                    matrixDataStore[key].students.push(r.studentName);
-                }
-            });
-
-            globalData.classes.forEach(cName => {
-                let rowHtml = `<tr class="border-b border-gray-200"><td class="p-2 font-bold bg-gray-50 border border-gray-200">${cName}</td>`;
-                for (let p = 1; p <= 7; p++) {
-                    const key = `${cName}_${p}`;
-                    if (matrixDataStore[key]) {
-                        rowHtml += `<td class="p-1 border border-gray-200 bg-green-50">
-                            <button onclick="showDetails('${key}', '${cName}', ${p})" class="bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded text-xs w-full font-bold">
-                                تم (${matrixDataStore[key].students.length})
-                            </button>
-                        </td>`;
-                    } else {
-                        rowHtml += `<td class="p-1 border border-gray-200 bg-red-50 text-red-400 font-bold">لم يُرصد</td>`;
-                    }
-                }
-                rowHtml += `</tr>`;
-                tbody.innerHTML += rowHtml;
-            });
-        }
-
-        function showDetails(key, cName, periodNum) {
-            const data = matrixDataStore[key];
-            if (!data) return;
-            document.getElementById('modalTitle').innerText = `${cName} - الحصة ${periodNum}`;
-            document.getElementById('modalTeacher').innerText = data.teacher || "غير محدد";
-            const div = document.getElementById('modalStudents');
-            div.innerHTML = "";
-            if (data.students.length === 0) {
-                div.innerHTML = `<p class="text-green-700 font-bold">الجميع حضور</p>`;
-            } else {
-                div.innerHTML = `<ol class="list-decimal list-inside space-y-1 text-sm text-red-600 font-medium">` +
-                    data.students.map(s => `<li>${s}</li>`).join('') +
-                    `</ol>`;
-            }
-            document.getElementById('periodModal').classList.remove('hidden');
-        }
-
-        function closeModal() {
-            document.getElementById('periodModal').classList.add('hidden');
         }
     </script>
 </body>
