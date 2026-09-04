@@ -3,19 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بوابة المشرفين - المتابعة الميدانية للحصص</title>
+    <title>بوابة المشرفين - التقرير اليومي ورصد الحصص</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Tajawal', sans-serif; background-color: #f8fafc; }
         .hidden { display: none; }
         .active-period { background-color: #1d4ed8 !important; color: white !important; font-weight: bold; }
+        
+        @media print {
+            body { background: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            .shadow { box-shadow: none !important; border: 1px solid #cbd5e1 !important; }
+            table { page-break-inside: auto; }
+            tr { page-break-inside: avoid; page-break-after: auto; }
+            @page { size: A4; margin: 12mm; }
+        }
     </style>
 </head>
-<body class="text-gray-800">
+<body class="text-gray-800 flex flex-col min-h-screen">
 
-    <!-- نافذة منبثقة للمصفوفة -->
-    <div id="periodModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4 z-50">
+    <!-- نافذة منبثقة لتفاصيل الحصة من المصفوفة -->
+    <div id="periodModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4 z-50 no-print">
         <div class="bg-white rounded-lg p-6 max-w-md w-full shadow-2xl">
             <div class="flex justify-between items-center border-b pb-2 mb-3">
                 <h4 id="modalTitle" class="font-bold text-lg text-blue-800">تفاصيل الحصة</h4>
@@ -31,9 +41,12 @@
     </div>
 
     <!-- شاشة تسجيل الدخول -->
-    <div id="loginScreen" class="min-h-screen flex items-center justify-center p-4">
+    <div id="loginScreen" class="min-h-screen flex items-center justify-center p-4 no-print">
         <div class="bg-white p-8 rounded-lg shadow-md w-96 max-w-full border-t-4 border-blue-600">
-            <h1 class="text-2xl font-bold text-center text-blue-700 mb-6">بوابة المشرفين</h1>
+            <div class="text-center mb-4">
+                <img src="https://i.postimg.cc/K88X7RLb/trwysyh-dhhbyt.png" alt="شعار المدرسة" class="max-h-20 mx-auto object-contain mb-3">
+                <h1 class="text-2xl font-bold text-blue-700">بوابة المشرفين</h1>
+            </div>
             <div class="mb-4">
                 <label class="block text-gray-700 font-bold mb-2">أدخل كلمة مرور المرحلة:</label>
                 <input type="password" id="passInput" class="w-full p-2 border rounded mb-4 text-center font-bold tracking-widest" placeholder="666 / 1111 / 2222 / 33333">
@@ -43,65 +56,85 @@
         </div>
     </div>
 
-    <!-- لوحة التحكم الرئيسية -->
-    <div id="supervisorDashboard" class="hidden p-4 max-w-7xl mx-auto">
-        <div class="flex justify-between items-center mb-6 bg-white p-4 rounded shadow">
-            <div>
-                <h2 id="stageTitle" class="text-xl font-bold text-blue-800">لوحة المتابعة الإدارية</h2>
-                <p id="currentDateText" class="text-xs text-gray-500 mt-1"></p>
+    <!-- لوحة التحكم والتقرير -->
+    <div id="supervisorDashboard" class="hidden p-4 max-w-7xl mx-auto flex-grow w-full">
+        
+        <!-- ترويسة التقرير الرسمي (تظهر في الطباعة وأعلى الشاشة) -->
+        <div class="mb-6 text-center border-b pb-4 bg-white p-4 rounded shadow">
+            <img src="https://i.postimg.cc/K88X7RLb/trwysyh-dhhbyt.png" alt="ترويسة المدرسة" class="w-full max-h-28 object-contain mx-auto mb-3">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-2 mt-2">
+                <div>
+                    <h2 id="stageTitle" class="text-xl font-bold text-blue-900">تقرير المتابعة اليومي للمرحلة</h2>
+                    <p id="currentDateText" class="text-xs text-gray-600 mt-1 font-semibold"></p>
+                </div>
+                <div class="flex gap-2 no-print">
+                    <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm flex items-center gap-2 shadow">
+                        🖨️ طباعة التقرير / حفظ PDF
+                    </button>
+                    <button onclick="location.reload()" class="bg-gray-200 px-3 py-2 rounded text-sm hover:bg-gray-300 font-bold">خروج</button>
+                </div>
             </div>
-            <button onclick="location.reload()" class="bg-gray-200 px-3 py-1 rounded text-sm hover:bg-gray-300">تسجيل خروج</button>
         </div>
         
-        <!-- بطاقات الإحصاء العام للمرحلة -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 text-center">
-            <div class="bg-white p-4 rounded shadow border-t-4 border-blue-500">
-                <p class="text-xs text-gray-500">إجمالي طلاب المرحلة</p>
-                <p id="statTotal" class="text-2xl font-bold">0</p>
+        <!-- 1. جدول التحليل الإحصائي لصفوف المرحلة وصف المجموع العام -->
+        <div class="bg-white p-4 rounded shadow mb-6 border-t-4 border-blue-600">
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="font-bold text-base text-blue-900">📊 التقرير الإحصائي التحليلي لصفوف المرحلة</h3>
             </div>
-            <div class="bg-white p-4 rounded shadow border-t-4 border-green-500">
-                <p class="text-xs text-gray-500">الحضور الفعلي</p>
-                <p id="statPresent" class="text-2xl font-bold text-green-600">0</p>
-            </div>
-            <div class="bg-white p-4 rounded shadow border-t-4 border-red-500">
-                <p class="text-xs text-gray-500">الغياب الكلي</p>
-                <p id="statAbsent" class="text-2xl font-bold text-red-600">0</p>
-            </div>
-            <div class="bg-white p-4 rounded shadow border-t-4 border-yellow-500">
-                <p class="text-xs text-gray-500">نسبة الغياب العامة</p>
-                <p id="statPercent" class="text-2xl font-bold text-yellow-600">0%</p>
+            <div class="overflow-x-auto">
+                <table class="w-full text-sm text-center border-collapse border border-gray-300">
+                    <thead class="bg-blue-50 text-blue-900 font-bold">
+                        <tr>
+                            <th class="p-2 border border-gray-300">الصف</th>
+                            <th class="p-2 border border-gray-300">عدد الطلاب</th>
+                            <th class="p-2 border border-gray-300">الحضور الفعلي</th>
+                            <th class="p-2 border border-gray-300">الغياب الكلي</th>
+                            <th class="p-2 border border-gray-300">نسبة الغياب</th>
+                        </tr>
+                    </thead>
+                    <tbody id="stageBreakdownBody"></tbody>
+                    <tfoot class="bg-blue-900 text-white font-bold">
+                        <tr>
+                            <td class="p-2.5 border border-blue-950">المجموع العام للمرحلة</td>
+                            <td id="sumTotalCell" class="p-2.5 border border-blue-950 text-base">0</td>
+                            <td id="sumPresentCell" class="p-2.5 border border-blue-950 text-green-300 text-base">0</td>
+                            <td id="sumAbsentCell" class="p-2.5 border border-blue-950 text-red-300 text-base">0</td>
+                            <td id="sumPercentCell" class="p-2.5 border border-blue-950 text-yellow-300 text-base">0%</td>
+                        </tr>
+                    </tfoot>
+                </table>
             </div>
         </div>
 
-        <!-- أزرار فحص الحصص السريع -->
-        <div class="bg-white p-5 rounded shadow mb-6 border-r-4 border-blue-600">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-2">
-                <h3 class="font-bold text-lg text-blue-900">⚡ فحص الحصص اللحظي (اختر الحصة للمعاينة السريعة):</h3>
-                <span class="text-xs text-gray-500">يعرض حالة الرصد وأعداد الحضور والغياب لكل صف والمجموع العام</span>
+        <!-- 2. جدول رصد الحصص السريع والتحليلي -->
+        <div class="bg-white p-4 rounded shadow mb-6 border-r-4 border-blue-600">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-3 gap-2">
+                <h3 class="font-bold text-base text-blue-900">⚡ جدول رصد الحصص والغياب الفعلي:</h3>
+                <span class="text-xs text-gray-500 no-print">اختر الحصة للمعاينة الميدانية:</span>
             </div>
             
-            <div class="grid grid-cols-4 md:grid-cols-7 gap-2 mb-6">
-                <button onclick="selectPeriod(1)" id="btnP1" class="period-btn py-2 border rounded text-sm font-bold bg-gray-50 hover:bg-blue-100">الحصة 1</button>
-                <button onclick="selectPeriod(2)" id="btnP2" class="period-btn py-2 border rounded text-sm font-bold bg-gray-50 hover:bg-blue-100">الحصة 2</button>
-                <button onclick="selectPeriod(3)" id="btnP3" class="period-btn py-2 border rounded text-sm font-bold bg-gray-50 hover:bg-blue-100">الحصة 3</button>
-                <button onclick="selectPeriod(4)" id="btnP4" class="period-btn py-2 border rounded text-sm font-bold bg-gray-50 hover:bg-blue-100">الحصة 4</button>
-                <button onclick="selectPeriod(5)" id="btnP5" class="period-btn py-2 border rounded text-sm font-bold bg-gray-50 hover:bg-blue-100">الحصة 5</button>
-                <button onclick="selectPeriod(6)" id="btnP6" class="period-btn py-2 border rounded text-sm font-bold bg-gray-50 hover:bg-blue-100">الحصة 6</button>
-                <button onclick="selectPeriod(7)" id="btnP7" class="period-btn py-2 border rounded text-sm font-bold bg-gray-50 hover:bg-blue-100">الحصة 7</button>
+            <div class="grid grid-cols-4 md:grid-cols-7 gap-1.5 mb-4 no-print">
+                <button onclick="selectPeriod(1)" id="btnP1" class="period-btn py-1.5 border rounded text-xs font-bold bg-gray-50 hover:bg-blue-100">الحصة 1</button>
+                <button onclick="selectPeriod(2)" id="btnP2" class="period-btn py-1.5 border rounded text-xs font-bold bg-gray-50 hover:bg-blue-100">الحصة 2</button>
+                <button onclick="selectPeriod(3)" id="btnP3" class="period-btn py-1.5 border rounded text-xs font-bold bg-gray-50 hover:bg-blue-100">الحصة 3</button>
+                <button onclick="selectPeriod(4)" id="btnP4" class="period-btn py-1.5 border rounded text-xs font-bold bg-gray-50 hover:bg-blue-100">الحصة 4</button>
+                <button onclick="selectPeriod(5)" id="btnP5" class="period-btn py-1.5 border rounded text-xs font-bold bg-gray-50 hover:bg-blue-100">الحصة 5</button>
+                <button onclick="selectPeriod(6)" id="btnP6" class="period-btn py-1.5 border rounded text-xs font-bold bg-gray-50 hover:bg-blue-100">الحصة 6</button>
+                <button onclick="selectPeriod(7)" id="btnP7" class="period-btn py-1.5 border rounded text-xs font-bold bg-gray-50 hover:bg-blue-100">الحصة 7</button>
             </div>
 
             <!-- جدول تفاصيل الحصة المختارة -->
-            <div class="overflow-x-auto border rounded mb-4">
+            <div class="overflow-x-auto border border-gray-300 rounded mb-4">
                 <table class="w-full text-xs text-right border-collapse">
-                    <thead class="bg-blue-50 text-blue-900 font-bold border-b">
+                    <thead class="bg-blue-50 text-blue-900 font-bold border-b border-gray-300">
                         <tr>
-                            <th class="p-2 border">الصف</th>
-                            <th class="p-2 border">حالة الرصد</th>
-                            <th class="p-2 border">المعلم الراصد</th>
-                            <th class="p-2 border">عدد الطلاب</th>
-                            <th class="p-2 border">الحضور</th>
-                            <th class="p-2 border">الغياب</th>
-                            <th class="p-2 border">أسماء الغائبين</th>
+                            <th class="p-2 border border-gray-300">الصف</th>
+                            <th class="p-2 border border-gray-300">حالة الرصد</th>
+                            <th class="p-2 border border-gray-300">المعلم الراصد</th>
+                            <th class="p-2 border border-gray-300">عدد الطلاب</th>
+                            <th class="p-2 border border-gray-300">الحضور</th>
+                            <th class="p-2 border border-gray-300">الغياب</th>
+                            <th class="p-2 border border-gray-300">أسماء الغائبين</th>
                         </tr>
                     </thead>
                     <tbody id="periodTableBody"></tbody>
@@ -109,28 +142,28 @@
             </div>
 
             <!-- بطاقة المجموع العام للمرحلة في الحصة المختارة -->
-            <div class="bg-blue-900 text-white p-4 rounded-lg">
-                <h4 id="periodSummaryTitle" class="font-bold text-sm mb-3 border-b border-blue-700 pb-1">مجموع المرحلة في الحصة</h4>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-center mb-3">
-                    <div class="bg-blue-800 p-2 rounded">
-                        <span class="block text-xs text-blue-200">إجمالي طلاب المرحلة</span>
-                        <span id="pSumTotal" class="text-lg font-bold">0</span>
+            <div class="bg-blue-900 text-white p-3 rounded-lg">
+                <h4 id="periodSummaryTitle" class="font-bold text-xs mb-2 border-b border-blue-700 pb-1">مجموع المرحلة في الحصة</h4>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-center mb-2">
+                    <div class="bg-blue-800 p-1.5 rounded">
+                        <span class="block text-[11px] text-blue-200">الطلاب</span>
+                        <span id="pSumTotal" class="text-sm font-bold">0</span>
                     </div>
-                    <div class="bg-blue-800 p-2 rounded">
-                        <span class="block text-xs text-green-300">إجمالي الحاضرين</span>
-                        <span id="pSumPresent" class="text-lg font-bold text-green-400">0</span>
+                    <div class="bg-blue-800 p-1.5 rounded">
+                        <span class="block text-[11px] text-green-300">حضور</span>
+                        <span id="pSumPresent" class="text-sm font-bold text-green-400">0</span>
                     </div>
-                    <div class="bg-blue-800 p-2 rounded">
-                        <span class="block text-xs text-red-300">إجمالي الغائبين</span>
-                        <span id="pSumAbsent" class="text-lg font-bold text-red-400">0</span>
+                    <div class="bg-blue-800 p-1.5 rounded">
+                        <span class="block text-[11px] text-red-300">غياب</span>
+                        <span id="pSumAbsent" class="text-sm font-bold text-red-400">0</span>
                     </div>
-                    <div class="bg-blue-800 p-2 rounded">
-                        <span class="block text-xs text-yellow-200">نسبة الغياب في المرحلة</span>
-                        <span id="pSumPercent" class="text-lg font-bold text-yellow-300">0%</span>
+                    <div class="bg-blue-800 p-1.5 rounded">
+                        <span class="block text-[11px] text-yellow-200">نسبة الغياب</span>
+                        <span id="pSumPercent" class="text-sm font-bold text-yellow-300">0%</span>
                     </div>
                 </div>
                 <div>
-                    <span class="text-xs font-bold text-blue-200 block mb-1">أسماء كافة الغائبين في المرحلة مع صفوفهم:</span>
+                    <span class="text-[11px] font-bold text-blue-200 block mb-1">الطلاب الغائبون في الحصة مع صفوفهم:</span>
                     <div id="pSumStudentNames" class="text-xs bg-blue-950 p-2 rounded border border-blue-800 leading-relaxed">
                         لا يوجد غياب مسجل في هذه الحصة
                     </div>
@@ -138,8 +171,8 @@
             </div>
         </div>
 
-        <!-- مصفوفة رصد الحصص العامة -->
-        <div class="bg-white p-4 rounded shadow mb-6">
+        <!-- 3. مصفوفة متابعة الحصص (تظهر على الشاشة وتُخفى عند الطباعة لاختصار الورقة) -->
+        <div class="bg-white p-4 rounded shadow mb-6 no-print">
             <h3 class="text-md font-bold text-gray-800 mb-3">📊 مصفوفة متابعة الحصص لجميع صفوف المرحلة</h3>
             <div class="overflow-x-auto">
                 <table class="w-full text-xs text-center border-collapse border">
@@ -160,19 +193,29 @@
             </div>
         </div>
 
-        <!-- إنذارات الغياب المتكرر -->
+        <!-- 4. إنذارات الغياب المتكرر -->
         <div class="bg-red-50 border border-red-200 p-4 rounded mb-6 shadow">
-            <h3 class="text-md font-bold text-red-700 mb-3">⚠️ رادار إنذارات الغياب المتكرر (5 أيام فأكثر)</h3>
+            <h3 class="text-sm font-bold text-red-700 mb-2">⚠️ رادار إنذارات الغياب المتكرر (5 أيام فأكثر)</h3>
             <div class="overflow-x-auto">
-                <table class="w-full text-xs text-right">
+                <table class="w-full text-xs text-right border-collapse border border-red-200">
                     <thead class="bg-red-200 text-red-800">
-                        <tr><th class="p-2">الطالب</th><th class="p-2">الصف</th><th class="p-2">أيام الغياب</th><th class="p-2">إجراء</th></tr>
+                        <tr>
+                            <th class="p-2 border border-red-300">الطالب</th>
+                            <th class="p-2 border border-red-300">الصف</th>
+                            <th class="p-2 border border-red-300">أيام الغياب</th>
+                            <th class="p-2 border border-red-300 no-print">إجراء</th>
+                        </tr>
                     </thead>
                     <tbody id="alertsTableBody"></tbody>
                 </table>
             </div>
         </div>
     </div>
+
+    <!-- التذييل الدائم في الشاشة والطباعة -->
+    <footer class="text-center py-4 text-xs font-bold text-gray-600 border-t bg-white mt-auto">
+        تصميم: صبري محمد حمد 2026-2027م
+    </footer>
 
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbxlJnpJN9y9h04cOswtY3BGGwUS8rhybOisxDFkIQJ6_9nFSPMJeK-wiuFEECnBY3v5/exec";
@@ -203,33 +246,26 @@
                     document.getElementById('loginScreen').classList.add('hidden');
                     document.getElementById('supervisorDashboard').classList.remove('hidden');
                     
-                    document.getElementById('stageTitle').innerText = `لوحة المتابعة الإدارية (المرحلة: ${result.stage})`;
+                    document.getElementById('stageTitle').innerText = `تقرير المتابعة اليومي (المرحلة: ${result.stage})`;
                     const now = new Date();
                     document.getElementById('currentDateText').innerText = `اليوم والتاريخ: ${now.toLocaleDateString('ar-EG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`;
 
-                    document.getElementById('statTotal').innerText = result.stats.total;
-                    document.getElementById('statPresent').innerText = result.stats.present;
-                    document.getElementById('statAbsent').innerText = result.stats.absent;
-                    document.getElementById('statPercent').innerText = result.stats.percent + "%";
-
-                    // بناء المصفوفة
+                    buildStageBreakdown();
                     buildMatrix();
-
-                    // عرض الحصة 1 تلقائياً
                     selectPeriod(1);
 
-                    // إنذارات الغياب
                     const alertsBody = document.getElementById('alertsTableBody');
                     alertsBody.innerHTML = "";
                     if(result.alerts.length === 0) {
-                        alertsBody.innerHTML = `<tr><td colspan="4" class="p-3 text-center text-gray-500">لا توجد إنذارات غياب متكرر حالياً</td></tr>`;
+                        alertsBody.innerHTML = `<tr><td colspan="4" class="p-2 text-center text-gray-500">لا توجد إنذارات غياب متكرر حالياً</td></tr>`;
                     } else {
                         result.alerts.forEach(a => {
-                            const waMsg = encodeURIComponent(`المكرم ولي أمر الطالب/ ${a.studentName} (الصف ${a.className})، نود إشعاركم بتجاوز ابنكم 5 أيام غياب. التواريخ: ${a.datesList}. يرجى مراجعة إدارة المدرسة.`);
+                            const waMsg = encodeURIComponent(`المكرم ولي أمر الطالب/ ${a.studentName} (${a.className})، نود إشعاركم بتجاوز ابنكم 5 أيام غياب. التواريخ: ${a.datesList}. يرجى مراجعة إدارة المدرسة.`);
                             alertsBody.innerHTML += `<tr class="border-b border-red-100">
-                                <td class="p-2 font-bold">${a.studentName}</td><td class="p-2">${a.className}</td>
-                                <td class="p-2 text-red-600 font-bold">${a.totalAbsences} أيام</td>
-                                <td class="p-2"><a href="https://wa.me/?text=${waMsg}" target="_blank" class="bg-green-500 text-white px-2 py-1 rounded text-xs hover:bg-green-600">إنذار واتساب</a></td>
+                                <td class="p-2 border border-red-100 font-bold">${a.studentName}</td>
+                                <td class="p-2 border border-red-100">${a.className}</td>
+                                <td class="p-2 border border-red-100 text-red-600 font-bold">${a.totalAbsences} أيام</td>
+                                <td class="p-2 border border-red-100 no-print"><a href="https://wa.me/?text=${waMsg}" target="_blank" class="bg-green-500 text-white px-2 py-0.5 rounded text-[11px] hover:bg-green-600">إنذار واتساب</a></td>
                             </tr>`;
                         });
                     }
@@ -243,6 +279,49 @@
                 errorMsg.classList.remove('hidden');
             }
             btn.innerText = "دخول لوحة التحكم";
+        }
+
+        function buildStageBreakdown() {
+            const tbody = document.getElementById('stageBreakdownBody');
+            tbody.innerHTML = "";
+
+            let sumTotal = 0;
+            let sumAbsent = 0;
+
+            globalData.classes.forEach(cName => {
+                const cTotal = (globalData.classTotals && globalData.classTotals[cName]) || 0;
+                sumTotal += cTotal;
+
+                const classAbsentSet = new Set();
+                globalData.data.forEach(r => {
+                    if (r.className === cName && r.studentName) {
+                        classAbsentSet.add(r.studentName);
+                    }
+                });
+
+                const cAbsent = classAbsentSet.size;
+                sumAbsent += cAbsent;
+                const cPresent = cTotal > 0 ? Math.max(0, cTotal - cAbsent) : 0;
+                const cPercent = cTotal > 0 ? ((cAbsent / cTotal) * 100).toFixed(1) : "0.0";
+
+                tbody.innerHTML += `
+                    <tr class="border-b border-gray-200">
+                        <td class="p-2 border border-gray-300 font-bold text-gray-800">${cName}</td>
+                        <td class="p-2 border border-gray-300 font-semibold">${cTotal}</td>
+                        <td class="p-2 border border-gray-300 text-green-600 font-bold">${cPresent}</td>
+                        <td class="p-2 border border-gray-300 text-red-600 font-bold">${cAbsent}</td>
+                        <td class="p-2 border border-gray-300 font-bold ${parseFloat(cPercent) > 15 ? 'text-red-500' : 'text-yellow-600'}">${cPercent}%</td>
+                    </tr>
+                `;
+            });
+
+            const sumPresent = Math.max(0, sumTotal - sumAbsent);
+            const sumPercent = sumTotal > 0 ? ((sumAbsent / sumTotal) * 100).toFixed(1) : "0.0";
+
+            document.getElementById('sumTotalCell').innerText = sumTotal;
+            document.getElementById('sumPresentCell').innerText = sumPresent;
+            document.getElementById('sumAbsentCell').innerText = sumAbsent;
+            document.getElementById('sumPercentCell').innerText = sumPercent + "%";
         }
 
         function selectPeriod(pNum) {
@@ -261,10 +340,9 @@
             let allAbsentList = [];
 
             globalData.classes.forEach(cName => {
-                const classTotal = (globalData.classTotals && globalData.classTotals[cName]) || 30;
+                const classTotal = (globalData.classTotals && globalData.classTotals[cName]) || 0;
                 totalStageStudents += classTotal;
 
-                // مطابقة الحصة والصف
                 const records = globalData.data.filter(r => {
                     const p = String(r.period).replace(/[^0-9]/g, '');
                     return r.className === cName && p === String(pNum);
@@ -274,7 +352,7 @@
                 let teacherName = isRecorded ? records[0].teacher : "-";
                 let absentNames = records.map(r => r.studentName);
                 let absCount = absentNames.length;
-                let presentCount = isRecorded ? (classTotal - absCount) : classTotal;
+                let presentCount = isRecorded ? Math.max(0, classTotal - absCount) : classTotal;
 
                 totalStageAbsents += absCount;
                 absentNames.forEach(name => {
@@ -282,22 +360,21 @@
                 });
 
                 tbody.innerHTML += `
-                    <tr class="border-b">
-                        <td class="p-2 border font-bold bg-gray-50">${cName}</td>
-                        <td class="p-2 border">
-                            ${isRecorded ? '<span class="text-green-600 font-bold">✅ تم الرصد</span>' : '<span class="text-red-500 font-bold">❌ لم يُرصد</span>'}
+                    <tr class="border-b border-gray-200">
+                        <td class="p-2 border border-gray-300 font-bold bg-gray-50">${cName}</td>
+                        <td class="p-2 border border-gray-300 font-bold">
+                            ${isRecorded ? '<span class="text-green-600">✅ تم الرصد</span>' : '<span class="text-red-500">❌ لم يُرصد</span>'}
                         </td>
-                        <td class="p-2 border">${teacherName}</td>
-                        <td class="p-2 border font-bold">${classTotal}</td>
-                        <td class="p-2 border text-green-700 font-bold">${isRecorded ? presentCount : '-'}</td>
-                        <td class="p-2 border text-red-600 font-bold">${isRecorded ? absCount : '-'}</td>
-                        <td class="p-2 border text-gray-700">${absentNames.length > 0 ? absentNames.join(' ، ') : (isRecorded ? 'الجميع حضور' : '-')}</td>
+                        <td class="p-2 border border-gray-300">${teacherName}</td>
+                        <td class="p-2 border border-gray-300 font-bold">${classTotal}</td>
+                        <td class="p-2 border border-gray-300 text-green-700 font-bold">${isRecorded ? presentCount : '-'}</td>
+                        <td class="p-2 border border-gray-300 text-red-600 font-bold">${isRecorded ? absCount : '-'}</td>
+                        <td class="p-2 border border-gray-300 text-gray-700">${absentNames.length > 0 ? absentNames.join(' ، ') : (isRecorded ? 'الجميع حضور' : '-')}</td>
                     </tr>
                 `;
             });
 
-            // تحديث بطاقة المجموع
-            const totalStagePresent = totalStageStudents - totalStageAbsents;
+            const totalStagePresent = Math.max(0, totalStageStudents - totalStageAbsents);
             const stagePercent = totalStageStudents > 0 ? ((totalStageAbsents / totalStageStudents) * 100).toFixed(1) : 0;
 
             document.getElementById('pSumTotal').innerText = totalStageStudents;
@@ -307,7 +384,7 @@
 
             const namesContainer = document.getElementById('pSumStudentNames');
             if (allAbsentList.length === 0) {
-                namesContainer.innerText = "لا يوجد غياب مسجل في هذه الحصة (حضور كامل أو لم يتم الرصد بعد)";
+                namesContainer.innerText = "لا يوجد غياب مسجل في هذه الحصة";
             } else {
                 namesContainer.innerHTML = allAbsentList.map(item => `<span class="inline-block bg-blue-900 px-2 py-0.5 rounded m-0.5 border border-blue-700">${item}</span>`).join(' ');
             }
