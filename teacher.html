@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بوابة المعلمين - سجل الحصص والتقارير</title>
+    <title>بوابة المعلمين - رصد الغياب وكشوف الفصول</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
@@ -17,25 +17,13 @@
             .shadow { box-shadow: none !important; border: 1px solid #cbd5e1 !important; }
             table { page-break-inside: auto; }
             tr { page-break-inside: avoid; page-break-after: auto; }
-            @page { size: A4; margin: 10mm; }
+            @page { size: landscape; margin: 8mm; }
         }
     </style>
 </head>
 <body class="text-gray-800 flex flex-col min-h-screen justify-between">
 
-    <!-- نافذة منبثقة للجوال -->
-    <div id="mobileModal" class="fixed inset-0 bg-black bg-opacity-50 hidden flex items-center justify-center p-4 z-50 no-print">
-        <div class="bg-white rounded-lg p-5 max-w-sm w-full shadow-2xl">
-            <div class="flex justify-between items-center border-b pb-2 mb-3">
-                <h4 id="modalTitle" class="font-bold text-base text-green-900"></h4>
-                <button onclick="closeModal()" class="text-gray-400 hover:text-gray-700 text-2xl font-bold">&times;</button>
-            </div>
-            <div id="modalStudentsList" class="bg-red-50 p-3 rounded border border-red-200 max-h-56 overflow-y-auto text-sm text-red-700"></div>
-            <button onclick="closeModal()" class="w-full bg-green-600 text-white py-2 mt-4 rounded font-bold hover:bg-green-700 text-xs">إغلاق</button>
-        </div>
-    </div>
-
-    <!-- 1. شاشة تسجيل الدخول -->
+    <!-- شاشة تسجيل الدخول واختيار المعلم -->
     <div id="loginScreen" class="flex-grow flex items-center justify-center p-4 no-print">
         <div class="bg-white p-8 rounded-lg shadow-md w-96 max-w-full border-t-4 border-green-600 flex flex-col">
             <div class="text-center mb-5">
@@ -43,8 +31,14 @@
                 <h1 class="text-2xl font-bold text-green-700">بوابة المعلمين</h1>
             </div>
             
+            <!-- زر تسجيل الغياب برابط نموذج جوجل قبل اختيار المعلم -->
+            <a href="https://docs.google.com/forms/d/e/1FAIpQLSc3jkbqLEn55nOEfAtojiNxd53r4pyfvwba3aIQyPpy48rC3A/viewform" target="_blank" 
+               class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-4 rounded mb-5 flex items-center justify-center gap-2 shadow transition">
+                📝 تسجيل الغياب (نموذج الحضور)
+            </a>
+
             <div class="mb-4">
-                <label class="block text-gray-700 font-bold mb-2 text-sm">اختر اسم المعلم من القائمة:</label>
+                <label class="block text-gray-700 font-bold mb-2 text-sm">اختر اسم المعلم للمتابعة والطباعة:</label>
                 <select id="teacherSelect" class="w-full p-2.5 border rounded mb-4 text-sm bg-gray-50 focus:bg-white">
                     <option value="">-- اضغط للاختيار --</option>
                     <option value="سفيان محمد">التربية الإسلامية - سفيان محمد نورفل</option>
@@ -108,87 +102,115 @@
         </div>
     </div>
 
-    <!-- 2. لوحة تحكم المعلم والتقرير القابل للطباعة -->
-    <div id="teacherDashboard" class="hidden p-4 max-w-6xl mx-auto flex-grow w-full">
+    <!-- لوحة تحكم المعلم والكشوفات -->
+    <div id="teacherDashboard" class="hidden p-4 max-w-7xl mx-auto flex-grow w-full">
         
-        <!-- الترويسة والشعار -->
+        <!-- الترويسة والشعار الرسمي -->
         <div class="mb-6 bg-white p-4 rounded shadow border-b">
             <img src="https://i.postimg.cc/K88X7RLb/trwysyh-dhhbyt.png" alt="ترويسة المدرسة" class="w-full max-h-28 object-contain mx-auto mb-3">
             <div class="flex flex-col md:flex-row justify-between items-center gap-2 mt-2">
                 <div>
-                    <h2 id="teacherTitle" class="text-xl font-bold text-green-900">سجل متابعة غياب الطلاب</h2>
+                    <h2 id="teacherTitle" class="text-xl font-bold text-green-900">سجل متابعة وكشوف غياب الطلاب</h2>
                     <p id="currentDateText" class="text-xs text-gray-600 mt-1 font-semibold"></p>
                 </div>
                 <div class="flex gap-2 no-print">
-                    <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm flex items-center gap-2 shadow transition">
-                        🖨️ طباعة التقرير / حفظ PDF
-                    </button>
-                    <button onclick="location.reload()" class="bg-gray-200 px-3 py-2 rounded text-sm hover:bg-gray-300 font-bold">تغيير المعلم</button>
+                    <a href="https://docs.google.com/forms/d/e/1FAIpQLSc3jkbqLEn55nOEfAtojiNxd53r4pyfvwba3aIQyPpy48rC3A/viewform" target="_blank" 
+                       class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-3 rounded text-xs flex items-center gap-1 shadow">
+                        📝 تسجيل غياب جديد
+                    </a>
+                    <button onclick="location.reload()" class="bg-gray-200 px-3 py-2 rounded text-xs hover:bg-gray-300 font-bold">تغيير المعلم</button>
                 </div>
             </div>
         </div>
 
-        <!-- حصص اليوم مع خاصية الـ Hover -->
-        <div class="bg-white p-5 rounded shadow mb-6 border-r-4 border-green-600 no-print">
-            <div class="flex justify-between items-center mb-3">
-                <h3 class="font-bold text-base text-green-900">📅 حصص اليوم المسجلة (قف بالمؤشر على الحصة لإظهار الغائبين):</h3>
-                <span class="text-xs bg-green-50 text-green-700 border border-green-200 px-2 py-1 rounded font-bold">تحديث فوري</span>
-            </div>
-            <div id="todaySessionsContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3"></div>
+        <!-- أزرار التبديل بين العرضين -->
+        <div class="flex gap-2 mb-4 no-print">
+            <button onclick="switchTab('matrixTab')" id="btnTabMatrix" class="bg-green-700 text-white font-bold py-2 px-4 rounded text-xs shadow">
+                📊 كشف حضور وغياب صف (مصفوفة التواريخ)
+            </button>
+            <button onclick="switchTab('sessionsTab')" id="btnTabSessions" class="bg-white text-gray-700 font-bold py-2 px-4 rounded text-xs border hover:bg-gray-50 shadow">
+                📅 حصص اليوم وسجل الحالات التفصيلي
+            </button>
         </div>
 
-        <!-- فلترة التقرير -->
-        <div class="bg-white p-5 rounded shadow mb-6 border-t-4 border-green-600 no-print">
-            <h3 class="font-bold text-sm text-gray-700 mb-3 border-b pb-2">🔍 تحديد فترة ونطاق التقرير للطباعة:</h3>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                    <label class="block text-xs font-bold text-gray-600 mb-1">الفترة الزمنية:</label>
-                    <select id="timeFilter" class="w-full p-2 border rounded text-xs bg-gray-50 focus:bg-white" onchange="applyFilters()">
-                        <option value="today">اليوم فقط</option>
-                        <option value="week">آخر 7 أيام (أسبوع)</option>
-                        <option value="month">آخر 30 يوماً (شهر)</option>
-                        <option value="all" selected>كافة الفترات المسجلة</option>
-                    </select>
+        <!-- 1. تبويب كشف حضور وغياب الصف الشامل (المطلوب) -->
+        <div id="matrixTabContent" class="space-y-4">
+            <!-- أدوات تخصيص الكشف -->
+            <div class="bg-white p-4 rounded shadow border-t-4 border-green-600 no-print">
+                <h3 class="font-bold text-sm text-gray-800 mb-3">⚙️ إعداد كشف غياب الصف:</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 mb-1">الصف الدراسي:</label>
+                        <select id="matrixClassSelect" class="w-full p-2 border rounded text-xs bg-gray-50 font-bold" onchange="generateClassMatrix()"></select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 mb-1">من تاريخ:</label>
+                        <input type="date" id="startDateInput" class="w-full p-2 border rounded text-xs" onchange="generateClassMatrix()">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-600 mb-1">إلى تاريخ:</label>
+                        <input type="date" id="endDateInput" class="w-full p-2 border rounded text-xs" onchange="generateClassMatrix()">
+                    </div>
+                    <div class="flex items-end">
+                        <button onclick="window.print()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded text-xs flex items-center justify-center gap-2 shadow">
+                            🖨️ طباعة كشف الصف (PDF)
+                        </button>
+                    </div>
                 </div>
-                <div>
-                    <label class="block text-xs font-bold text-gray-600 mb-1">الصف الدراسي:</label>
-                    <select id="classFilter" class="w-full p-2 border rounded text-xs bg-gray-50 focus:bg-white" onchange="applyFilters()">
-                        <option value="all">-- جميع الصفوف --</option>
-                    </select>
+            </div>
+
+            <!-- جدول كشف الغياب بمصفوفة التواريخ وحرف 'غ' -->
+            <div class="bg-white p-4 rounded shadow border border-gray-200">
+                <div class="flex justify-between items-center mb-3 border-b pb-2">
+                    <div>
+                        <h3 id="matrixTitle" class="font-bold text-sm text-green-950">كشف حضور وغياب الصف</h3>
+                        <p id="matrixPeriodLabel" class="text-[11px] text-gray-500 mt-0.5"></p>
+                    </div>
+                    <span id="matrixStudentCount" class="text-xs font-bold bg-green-50 text-green-800 px-2 py-1 rounded border border-green-200"></span>
                 </div>
-                <div class="flex items-end">
-                    <button onclick="window.print()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-3 rounded text-xs flex items-center justify-center gap-2 shadow">
-                        🖨️ طباعة الجدول المحدد
-                    </button>
+                
+                <div class="overflow-x-auto">
+                    <table class="w-full text-xs text-center border-collapse border border-gray-300">
+                        <thead id="matrixTableHead" class="bg-green-100 text-green-950 font-bold"></thead>
+                        <tbody id="matrixTableBody"></tbody>
+                    </table>
+                </div>
+
+                <div class="mt-4 pt-3 border-t text-center text-xs font-bold text-gray-600">
+                    تصميم: صبري محمد حمد 2026-2027م
                 </div>
             </div>
         </div>
 
-        <!-- جدول التقرير الرسمي المطلوب بحرف 'غ' -->
-        <div class="bg-white p-4 rounded shadow border border-gray-200 mb-6">
-            <div class="flex justify-between items-center mb-3">
-                <h3 class="font-bold text-sm text-gray-800" id="tableHeaderLabel">بيانات سجل الغياب:</h3>
-                <span id="recordCount" class="text-xs bg-gray-100 text-gray-700 px-2 py-1 rounded font-bold border">إجمالي الغياب: 0</span>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-xs text-right border-collapse border border-gray-300">
-                    <thead class="bg-green-50 text-green-950 font-bold">
-                        <tr>
-                            <th class="p-2 border border-gray-300 text-center w-12">م</th>
-                            <th class="p-2 border border-gray-300 text-center min-w-[120px]">اليوم والتاريخ</th>
-                            <th class="p-2 border border-gray-300 text-center w-20">الحصة</th>
-                            <th class="p-2 border border-gray-300 text-center min-w-[100px]">الصف</th>
-                            <th class="p-2 border border-gray-300 min-w-[200px]">اسم الطالب</th>
-                            <th class="p-2 border border-gray-300 text-center w-24">حالة الحضور</th>
-                        </tr>
-                    </thead>
-                    <tbody id="teacherTableBody"></tbody>
-                </table>
+        <!-- 2. تبويب حصص اليوم والسجل العام (متاح للتبديل) -->
+        <div id="sessionsTabContent" class="hidden space-y-4">
+            <!-- حصص اليوم مع Hover -->
+            <div class="bg-white p-4 rounded shadow border-r-4 border-green-600 no-print">
+                <h3 class="font-bold text-sm text-green-900 mb-3">📅 حصص اليوم المسجلة (قف بالمؤشر على الحصة لمعاينة الغائبين):</h3>
+                <div id="todaySessionsContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3"></div>
             </div>
 
-            <!-- التذييل داخل بطاقة التقرير المطبوع -->
-            <div class="mt-4 pt-3 border-t text-center text-xs font-bold text-gray-600">
-                تصميم: صبري محمد حمد 2026-2027م
+            <!-- جدول الحالات التفصيلي -->
+            <div class="bg-white p-4 rounded shadow border border-gray-200">
+                <h3 class="font-bold text-sm text-gray-800 mb-3">سجل الغياب العام:</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-xs text-right border-collapse border border-gray-300">
+                        <thead class="bg-green-50 text-green-950 font-bold">
+                            <tr>
+                                <th class="p-2 border border-gray-300 text-center">م</th>
+                                <th class="p-2 border border-gray-300 text-center">التاريخ</th>
+                                <th class="p-2 border border-gray-300 text-center">الحصة</th>
+                                <th class="p-2 border border-gray-300 text-center">الصف</th>
+                                <th class="p-2 border border-gray-300">اسم الطالب</th>
+                                <th class="p-2 border border-gray-300 text-center">الحالة</th>
+                            </tr>
+                        </thead>
+                        <tbody id="detailedTableBody"></tbody>
+                    </table>
+                </div>
+                <div class="mt-4 pt-3 border-t text-center text-xs font-bold text-gray-600">
+                    تصميم: صبري محمد حمد 2026-2027م
+                </div>
             </div>
         </div>
     </div>
@@ -201,6 +223,7 @@
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbxlJnpJN9y9h04cOswtY3BGGwUS8rhybOisxDFkIQJ6_9nFSPMJeK-wiuFEECnBY3v5/exec";
         let allTeacherRecords = [];
+        let allRosters = {};
 
         async function loadTeacherData() {
             const teacher = document.getElementById('teacherSelect').value;
@@ -225,23 +248,33 @@
                     document.getElementById('teacherDashboard').classList.remove('hidden');
                     
                     const selectedName = document.getElementById('teacherSelect').selectedOptions[0].text;
-                    document.getElementById('teacherTitle').innerText = `تقرير غياب الطلاب - ${selectedName}`;
+                    document.getElementById('teacherTitle').innerText = `كشوف غياب الطلاب - ${selectedName}`;
                     
                     const now = new Date();
                     document.getElementById('currentDateText').innerText = `تاريخ الاستخراج: ${now.toLocaleDateString('ar-EG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`;
 
-                    allTeacherRecords = result.data;
+                    allTeacherRecords = result.data || [];
+                    allRosters = result.rosters || {};
 
-                    const classesSet = new Set();
+                    // تحديد التواريخ الافتراضية (الشهر الحالي كاملاً مثلاً من 1/9 إلى 30/9)
+                    const y = now.getFullYear();
+                    const m = String(now.getMonth() + 1).padStart(2, '0');
+                    document.getElementById('startDateInput').value = `${y}-${m}-01`;
+                    document.getElementById('endDateInput').value = new Date(y, now.getMonth() + 1, 0).toISOString().split('T')[0];
+
+                    // تعبئة الصفوف المتاحة
+                    const classesSet = new Set(Object.keys(allRosters));
                     allTeacherRecords.forEach(r => { if(r.className) classesSet.add(r.className); });
-                    const classSelect = document.getElementById('classFilter');
-                    classSelect.innerHTML = '<option value="all">-- جميع الصفوف --</option>';
+                    
+                    const matrixClassSelect = document.getElementById('matrixClassSelect');
+                    matrixClassSelect.innerHTML = "";
                     classesSet.forEach(c => {
-                        classSelect.innerHTML += `<option value="${c}">${c}</option>`;
+                        matrixClassSelect.innerHTML += `<option value="${c}">${c}</option>`;
                     });
 
                     renderTodaySessions();
-                    applyFilters();
+                    renderDetailedTable();
+                    generateClassMatrix();
                 } else {
                     errorMsg.innerText = result.message;
                     errorMsg.classList.remove('hidden');
@@ -253,127 +286,151 @@
             btn.innerText = "عرض السجل والتقارير";
         }
 
-        function formatFullDate(dateStr) {
-            if (!dateStr) return "-";
-            const d = new Date(dateStr.replace(/-/g, '/'));
-            if (isNaN(d.getTime())) return dateStr;
-            const days = ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
-            const dayName = days[d.getDay()];
-            const y = d.getFullYear();
-            const m = String(d.getMonth() + 1).padStart(2, '0');
-            const dayNum = String(d.getDate()).padStart(2, '0');
-            return `${dayName} ${y}/${m}/${dayNum}`;
+        function switchTab(tab) {
+            if (tab === 'matrixTab') {
+                document.getElementById('matrixTabContent').classList.remove('hidden');
+                document.getElementById('sessionsTabContent').classList.add('hidden');
+                document.getElementById('btnTabMatrix').className = "bg-green-700 text-white font-bold py-2 px-4 rounded text-xs shadow";
+                document.getElementById('btnTabSessions').className = "bg-white text-gray-700 font-bold py-2 px-4 rounded text-xs border hover:bg-gray-50 shadow";
+            } else {
+                document.getElementById('matrixTabContent').classList.add('hidden');
+                document.getElementById('sessionsTabContent').classList.remove('hidden');
+                document.getElementById('btnTabSessions').className = "bg-green-700 text-white font-bold py-2 px-4 rounded text-xs shadow";
+                document.getElementById('btnTabMatrix').className = "bg-white text-gray-700 font-bold py-2 px-4 rounded text-xs border hover:bg-gray-50 shadow";
+            }
+        }
+
+        // بناء مصفوفة كشف حضور وغياب الصف الشامل
+        function generateClassMatrix() {
+            const selectedClass = document.getElementById('matrixClassSelect').value;
+            const startVal = document.getElementById('startDateInput').value;
+            const endVal = document.getElementById('endDateInput').value;
+
+            if (!selectedClass) return;
+
+            const startDate = startVal ? new Date(startVal) : new Date("2026-09-01");
+            const endDate = endVal ? new Date(endVal) : new Date("2026-09-30");
+
+            document.getElementById('matrixTitle').innerText = `كشف حضور وغياب ${selectedClass}`;
+            document.getElementById('matrixPeriodLabel').innerText = `الفترة من: ${startVal || '1/9'} إلى: ${endVal || '30/9'}`;
+
+            // استخراج التواريخ التي سُجل فيها غياب لهذا الصف ضمن الفترة
+            const datesMap = {};
+            const classAbsences = allTeacherRecords.filter(r => {
+                if (r.className !== selectedClass) return false;
+                const d = new Date(r.date.replace(/-/g, '/'));
+                return !isNaN(d) && d >= startDate && d <= endDate;
+            });
+
+            classAbsences.forEach(r => {
+                datesMap[r.date] = true;
+            });
+
+            // فرز التواريخ تصاعدياً
+            const uniqueDates = Object.keys(datesMap).sort((a, b) => new Date(a) - new Date(b));
+
+            // قائمة طلاب الصف (من قاعدة البيانات أو المستخرجين)
+            let students = allRosters[selectedClass] || [];
+            if (students.length === 0) {
+                // استخلاص تلقائي لو تعذر الرابط
+                const sSet = new Set(classAbsences.map(r => r.studentName));
+                students = Array.from(sSet);
+            }
+            students.sort();
+
+            document.getElementById('matrixStudentCount').innerText = `عدد طلاب الصف: ${students.length}`;
+
+            // بناء ترويسة الجدول بتواريخ مختصرة مثل 4/9
+            const thead = document.getElementById('matrixTableHead');
+            let headHtml = `<tr>
+                <th class="p-2 border border-gray-300 w-10">م</th>
+                <th class="p-2 border border-gray-300 min-w-[180px] text-right">اسم الطالب</th>`;
+
+            uniqueDates.forEach(dStr => {
+                const dObj = new Date(dStr.replace(/-/g, '/'));
+                const shortDate = `${dObj.getDate()}/${dObj.getMonth() + 1}`;
+                headHtml += `<th class="p-1 border border-gray-300 min-w-[38px] text-center font-bold">${shortDate}</th>`;
+            });
+
+            headHtml += `<th class="p-2 border border-gray-300 w-16 text-center text-red-700">مجموع الغياب</th></tr>`;
+            thead.innerHTML = headHtml;
+
+            // بناء جسم الجدول (وضع 'غ' للغائب وباقي الخانات فارغة)
+            const tbody = document.getElementById('matrixTableBody');
+            tbody.innerHTML = "";
+
+            if (students.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="${uniqueDates.length + 3}" class="p-4 text-gray-500 font-bold">لا توجد بيانات طلاب مسجلة لهذا الصف</td></tr>`;
+                return;
+            }
+
+            students.forEach((sName, idx) => {
+                let rowHtml = `<tr class="hover:bg-gray-50">
+                    <td class="p-1.5 border border-gray-300 text-gray-500 font-bold">${idx + 1}</td>
+                    <td class="p-1.5 border border-gray-300 text-right font-bold text-gray-800">${sName}</td>`;
+                
+                let studentAbsCount = 0;
+
+                uniqueDates.forEach(dStr => {
+                    const isAbsent = classAbsences.some(r => r.date === dStr && r.studentName === sName);
+                    if (isAbsent) {
+                        studentAbsCount++;
+                        rowHtml += `<td class="p-1 border border-gray-300 bg-red-50 text-red-600 font-bold text-sm">غ</td>`;
+                    } else {
+                        rowHtml += `<td class="p-1 border border-gray-300"></td>`; // خانة فارغة للحاضر
+                    }
+                });
+
+                rowHtml += `<td class="p-1.5 border border-gray-300 font-bold ${studentAbsCount > 0 ? 'text-red-600' : 'text-gray-400'}">${studentAbsCount > 0 ? studentAbsCount : '-'}</td></tr>`;
+                tbody.innerHTML += rowHtml;
+            });
         }
 
         function renderTodaySessions() {
             const container = document.getElementById('todaySessionsContainer');
             container.innerHTML = "";
-            const todayStr = new Date().toISOString().split('T')[0].replace(/-/g, '/');
-
             const todayMap = {};
             allTeacherRecords.forEach(r => {
-                const rDate = (r.date || "").replace(/-/g, '/');
-                if (rDate.includes(todayStr) || true) {
-                    const key = `الحصة ${r.period} - ${r.className}`;
-                    if (!todayMap[key]) {
-                        todayMap[key] = { period: r.period, className: r.className, students: [] };
-                    }
-                    if (r.studentName && !todayMap[key].students.includes(r.studentName)) {
-                        todayMap[key].students.push(r.studentName);
-                    }
-                }
+                const key = `الحصة ${r.period} - ${r.className}`;
+                if (!todayMap[key]) todayMap[key] = { period: r.period, className: r.className, students: [] };
+                if (r.studentName && !todayMap[key].students.includes(r.studentName)) todayMap[key].students.push(r.studentName);
             });
-
             const keys = Object.keys(todayMap);
             if (keys.length === 0) {
-                container.innerHTML = `<p class="text-xs text-gray-500 col-span-full">لم يتم تسجيل أي حصة اليوم بعد.</p>`;
+                container.innerHTML = `<p class="text-xs text-gray-500 col-span-full">لم تسجل أي حصص اليوم بعد.</p>`;
                 return;
             }
-
             keys.forEach(k => {
-                const session = todayMap[k];
-                const count = session.students.length;
-                const studentListHtml = session.students.map((s, idx) => `<div>${idx + 1}. ${s}</div>`).join('');
-
+                const sess = todayMap[k];
+                const listHtml = sess.students.map((s, i) => `<div>${i + 1}. ${s}</div>`).join('');
                 container.innerHTML += `
-                    <div class="relative group cursor-pointer bg-green-50 border border-green-200 rounded-lg p-3 hover:bg-green-100 hover:border-green-400 transition shadow-sm"
-                         onclick="openMobileModal('${k}', ${JSON.stringify(session.students).replace(/"/g, '&quot;')})">
+                    <div class="relative group bg-green-50 border border-green-200 rounded p-2.5 hover:bg-green-100 transition shadow-sm">
                         <div class="flex justify-between items-center mb-1">
-                            <span class="font-bold text-xs text-green-900">الحصة ${session.period}</span>
-                            <span class="text-[11px] font-bold bg-green-200 text-green-800 px-1.5 py-0.5 rounded">${session.className}</span>
+                            <span class="font-bold text-xs text-green-900">الحصة ${sess.period}</span>
+                            <span class="text-[10px] font-bold bg-green-200 text-green-800 px-1 rounded">${sess.className}</span>
                         </div>
-                        <p class="text-xs text-red-600 font-bold">الغياب: ${count} طلاب</p>
-                        <p class="text-[10px] text-gray-400 mt-1">قف هنا لمعاينة الأسماء</p>
-
-                        <div class="opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-opacity duration-200 absolute bottom-full right-0 mb-2 w-64 bg-gray-900 text-white text-xs rounded-lg p-3 shadow-2xl z-30 border border-gray-700 hidden md:block">
-                            <p class="font-bold text-green-300 border-b border-gray-700 pb-1 mb-2">الغائبون في ${k}:</p>
-                            <div class="space-y-1 max-h-40 overflow-y-auto leading-relaxed">
-                                ${studentListHtml || '<span class="text-gray-400">الجميع حضور</span>'}
-                            </div>
+                        <p class="text-xs text-red-600 font-bold">الغياب: ${sess.students.length} طلاب</p>
+                        <div class="opacity-0 pointer-events-none group-hover:opacity-100 transition-opacity duration-200 absolute bottom-full right-0 mb-2 w-56 bg-gray-900 text-white text-xs rounded p-2 shadow-xl z-30">
+                            <p class="font-bold text-green-300 border-b border-gray-700 pb-1 mb-1">الغائبون في ${k}:</p>
+                            ${listHtml}
                         </div>
-                    </div>
-                `;
+                    </div>`;
             });
         }
 
-        function openMobileModal(title, students) {
-            if (window.innerWidth >= 768) return;
-            document.getElementById('modalTitle').innerText = title;
-            const container = document.getElementById('modalStudentsList');
-            container.innerHTML = students.map((s, idx) => `<div class="py-0.5 border-b border-red-100 font-bold">${idx + 1}. ${s}</div>`).join('');
-            document.getElementById('mobileModal').classList.remove('hidden');
-        }
-
-        function closeModal() {
-            document.getElementById('mobileModal').classList.add('hidden');
-        }
-
-        function applyFilters() {
-            const selectedClass = document.getElementById('classFilter').value;
-            const timeFilter = document.getElementById('timeFilter').value;
-            const now = new Date();
-
-            const filtered = allTeacherRecords.filter(r => {
-                if (selectedClass !== 'all' && r.className !== selectedClass) return false;
-
-                const recDate = new Date((r.date || "").replace(/-/g, '/'));
-                if (isNaN(recDate.getTime())) return true;
-
-                if (timeFilter === 'today') {
-                    return recDate.toDateString() === now.toDateString() || true;
-                } else if (timeFilter === 'week') {
-                    const diffDays = (now - recDate) / (1000 * 60 * 60 * 24);
-                    return diffDays <= 7;
-                } else if (timeFilter === 'month') {
-                    const diffDays = (now - recDate) / (1000 * 60 * 60 * 24);
-                    return diffDays <= 30;
-                }
-                return true;
-            });
-
-            const tbody = document.getElementById('teacherTableBody');
+        function renderDetailedTable() {
+            const tbody = document.getElementById('detailedTableBody');
             tbody.innerHTML = "";
-            document.getElementById('recordCount').innerText = `إجمالي الحالات: ${filtered.length}`;
-
-            if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-gray-500 font-bold">لا توجد حالات غياب مسجلة للفترة المحددة</td></tr>`;
-                return;
-            }
-
-            filtered.forEach((d, idx) => {
-                const fullDate = formatFullDate(d.date);
+            allTeacherRecords.forEach((d, i) => {
                 tbody.innerHTML += `
-                    <tr class="border-b border-gray-200 hover:bg-gray-50">
-                        <td class="p-2 border border-gray-300 text-center font-bold text-gray-500">${idx + 1}</td>
-                        <td class="p-2 border border-gray-300 text-center font-semibold text-gray-800">${fullDate}</td>
-                        <td class="p-2 border border-gray-300 text-center font-bold">الحصة ${d.period}</td>
-                        <td class="p-2 border border-gray-300 text-center font-bold bg-slate-50">${d.className}</td>
-                        <td class="p-2 border border-gray-300 font-bold text-gray-900">${d.studentName}</td>
-                        <td class="p-2 border border-gray-300 text-center">
-                            <span class="inline-block bg-red-100 text-red-700 font-bold px-2.5 py-0.5 rounded text-xs border border-red-200">غ</span>
-                        </td>
-                    </tr>
-                `;
+                    <tr class="border-b">
+                        <td class="p-1.5 border text-center font-bold text-gray-500">${i + 1}</td>
+                        <td class="p-1.5 border text-center">${d.date}</td>
+                        <td class="p-1.5 border text-center font-bold">الحصة ${d.period}</td>
+                        <td class="p-1.5 border text-center font-bold bg-slate-50">${d.className}</td>
+                        <td class="p-1.5 border font-bold text-gray-900">${d.studentName}</td>
+                        <td class="p-1.5 border text-center"><span class="text-red-700 font-bold">غ</span></td>
+                    </tr>`;
             });
         }
     </script>
