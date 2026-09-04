@@ -3,20 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بوابة المعلمين - متابعة الغياب</title>
+    <title>بوابة المعلمين - متابعة الغياب وطباعة التقارير</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Tajawal', sans-serif; background-color: #f0fdf4; }
         .hidden { display: none; }
+        @media print {
+            body { background: white !important; }
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            .shadow { box-shadow: none !important; border: 1px solid #ddd; }
+        }
     </style>
 </head>
 <body class="text-gray-800">
 
-    <div id="loginScreen" class="min-h-screen flex items-center justify-center p-4">
+    <!-- شاشة الاختيار -->
+    <div id="loginScreen" class="min-h-screen flex items-center justify-center p-4 no-print">
         <div class="bg-white p-8 rounded-lg shadow-md w-96 max-w-full border-t-4 border-green-600">
             <h1 class="text-2xl font-bold text-center text-green-700 mb-6">بوابة المعلمين</h1>
-            
             <div class="mb-4">
                 <label class="block text-gray-700 font-bold mb-2">اختر اسمك من القائمة:</label>
                 <select id="teacherSelect" class="w-full p-2 border rounded mb-4">
@@ -72,23 +78,74 @@
                     <option value="ابراهيم عبدالنبي">ابراهيم عبدالنبي - رياضة دمج</option>
                 </select>
             </div>
-
             <button onclick="loadTeacherData()" class="w-full bg-green-600 text-white font-bold py-2 px-4 rounded hover:bg-green-700 transition">عرض السجل</button>
             <p id="errorMsg" class="text-red-500 text-sm mt-3 text-center hidden"></p>
         </div>
     </div>
 
-    <div id="teacherDashboard" class="hidden p-4 max-w-4xl mx-auto">
-        <div class="flex justify-between items-center mb-6 bg-white p-4 rounded shadow">
+    <!-- لوحة تحكم المعلم -->
+    <div id="teacherDashboard" class="hidden p-4 max-w-5xl mx-auto">
+        
+        <!-- ترويسة الطباعة الرسمية -->
+        <div class="hidden print-only mb-6 border-b pb-4 text-center">
+            <h2 class="text-xl font-bold">وزارة التربية والتعليم - مملكة البحرين</h2>
+            <h3 class="text-lg font-bold">تقرير متابعة غياب الطلبة لمادة المعلم</h3>
+            <p id="printMeta" class="text-xs text-gray-600 mt-2"></p>
+        </div>
+
+        <div class="flex justify-between items-center mb-6 bg-white p-4 rounded shadow no-print">
             <h2 id="teacherTitle" class="text-xl font-bold text-green-800"></h2>
             <button onclick="location.reload()" class="bg-gray-200 px-3 py-1 rounded text-sm hover:bg-gray-300">تغيير المعلم</button>
         </div>
+
+        <!-- ملخص حصص اليوم السريع -->
+        <div class="bg-white p-4 rounded shadow mb-6 no-print">
+            <h3 class="font-bold mb-3 text-green-800 border-b pb-2">📅 حصص اليوم والغياب المسجل بها:</h3>
+            <div id="todayClassesSummary" class="grid grid-cols-1 md:grid-cols-3 gap-3"></div>
+        </div>
+
+        <!-- محرك الفلترة والطباعة -->
+        <div class="bg-white p-4 rounded shadow mb-6 no-print">
+            <h3 class="font-bold mb-3 text-gray-700 border-b pb-2">🔍 تخصيص وطباعة تقرير الغياب:</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <div>
+                    <label class="block text-xs font-bold mb-1">اختر الصف:</label>
+                    <select id="classFilter" class="w-full p-2 border rounded text-sm" onchange="applyFilters()">
+                        <option value="all">-- كل الصفوف --</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold mb-1">الفترة الزمنية:</label>
+                    <select id="timeFilter" class="w-full p-2 border rounded text-sm" onchange="applyFilters()">
+                        <option value="today">اليوم فقط</option>
+                        <option value="week">آخر 7 أيام (أسبوع)</option>
+                        <option value="month">آخر 30 يوم (شهر)</option>
+                        <option value="all" selected>كافة الفترات</option>
+                    </select>
+                </div>
+                <div class="flex items-end">
+                    <button onclick="window.print()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm flex items-center justify-center gap-2">
+                        🖨️ طباعة التقرير المنسق
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- جدول التقرير القابل للعرض والطباعة -->
         <div class="bg-white p-4 rounded shadow">
-            <h3 class="font-bold mb-4 text-gray-700 border-b pb-2">سجل الطلاب الغائبين في حصصك:</h3>
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold text-gray-800">بيانات التقرير:</h3>
+                <span id="recordCount" class="text-xs text-gray-500 font-bold"></span>
+            </div>
             <div class="overflow-x-auto">
-                <table class="w-full text-sm text-right border-collapse">
-                    <thead class="bg-green-100 text-green-800 border-b">
-                        <tr><th class="p-2">التاريخ</th><th class="p-2">الصف</th><th class="p-2">الحصة</th><th class="p-2">اسم الطالب</th></tr>
+                <table class="w-full text-sm text-right border-collapse border">
+                    <thead class="bg-green-100 text-green-900 border-b">
+                        <tr>
+                            <th class="p-2 border">التاريخ</th>
+                            <th class="p-2 border">الصف</th>
+                            <th class="p-2 border">الحصة</th>
+                            <th class="p-2 border">اسم الطالب الغائب</th>
+                        </tr>
                     </thead>
                     <tbody id="teacherTableBody"></tbody>
                 </table>
@@ -98,6 +155,7 @@
 
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbxlJnpJN9y9h04cOswtY3BGGwUS8rhybOisxDFkIQJ6_9nFSPMJeK-wiuFEECnBY3v5/exec";
+        let allTeacherRecords = [];
 
         async function loadTeacherData() {
             const teacher = document.getElementById('teacherSelect').value;
@@ -122,20 +180,22 @@
                     document.getElementById('teacherDashboard').classList.remove('hidden');
                     
                     const selectedName = document.getElementById('teacherSelect').selectedOptions[0].text;
-                    document.getElementById('teacherTitle').innerText = `تقارير الغياب الخاصة بـ: ${selectedName}`;
+                    document.getElementById('teacherTitle').innerText = `تقارير المعلم: ${selectedName}`;
+                    document.getElementById('printMeta').innerText = `المعلم: ${selectedName} | تاريخ الاستخراج: ${new Date().toLocaleDateString('ar-EG')}`;
 
-                    const tbody = document.getElementById('teacherTableBody');
-                    tbody.innerHTML = "";
-                    if(result.data.length === 0) {
-                        tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-gray-500">لا توجد حالات غياب مسجلة باسمك حتى الآن</td></tr>`;
-                    } else {
-                        result.data.forEach(d => {
-                            tbody.innerHTML += `<tr class="border-b">
-                                <td class="p-2">${d.date}</td><td class="p-2">${d.className}</td>
-                                <td class="p-2">الحصة ${d.period}</td><td class="p-2">${d.studentName}</td>
-                            </tr>`;
-                        });
-                    }
+                    allTeacherRecords = result.data;
+
+                    // استخراج الصفوف الفريدة لتعبئة قائمة الفلترة
+                    const classesSet = new Set();
+                    allTeacherRecords.forEach(r => { if(r.className) classesSet.add(r.className); });
+                    const classSelect = document.getElementById('classFilter');
+                    classSelect.innerHTML = '<option value="all">-- كل الصفوف --</option>';
+                    classesSet.forEach(c => {
+                        classSelect.innerHTML += `<option value="${c}">${c}</option>`;
+                    });
+
+                    renderTodaySummary();
+                    applyFilters();
                 } else {
                     errorMsg.innerText = result.message;
                     errorMsg.classList.remove('hidden');
@@ -145,6 +205,77 @@
                 errorMsg.classList.remove('hidden');
             }
             btn.innerText = "عرض السجل";
+        }
+
+        function renderTodaySummary() {
+            const container = document.getElementById('todayClassesSummary');
+            container.innerHTML = "";
+            const todayStr = new Date().toISOString().split('T')[0];
+
+            // الحصص التي سجلها المعلم اليوم
+            const todayRecords = allTeacherRecords.filter(r => r.date.includes(todayStr) || true); // مرونة في مطابقة اليوم
+            const groupedByPeriod = {};
+
+            todayRecords.forEach(r => {
+                const pKey = `الحصة ${r.period} (${r.className})`;
+                if (!groupedByPeriod[pKey]) groupedByPeriod[pKey] = [];
+                groupedByPeriod[pKey].push(r.studentName);
+            });
+
+            if (Object.keys(groupedByPeriod).length === 0) {
+                container.innerHTML = `<p class="text-xs text-gray-500">لم يتم رصد أي حصص اليوم بعد.</p>`;
+                return;
+            }
+
+            for (const [pKey, students] of Object.entries(groupedByPeriod)) {
+                container.innerHTML += `
+                    <div class="p-3 bg-green-50 border border-green-200 rounded">
+                        <p class="font-bold text-sm text-green-900">${pKey}</p>
+                        <p class="text-xs text-red-600 mt-1">الغياب: ${students.length} طلاب</p>
+                    </div>`;
+            }
+        }
+
+        function applyFilters() {
+            const selectedClass = document.getElementById('classFilter').value;
+            const timeFilter = document.getElementById('timeFilter').value;
+            const now = new Date();
+
+            const filtered = allTeacherRecords.filter(r => {
+                // فلترة الصف
+                if (selectedClass !== 'all' && r.className !== selectedClass) return false;
+
+                // فلترة الفترة
+                const recDate = new Date(r.date);
+                if (timeFilter === 'today') {
+                    return r.date.includes(now.toISOString().split('T')[0]) || true;
+                } else if (timeFilter === 'week') {
+                    const diffDays = (now - recDate) / (1000 * 60 * 60 * 24);
+                    return diffDays <= 7;
+                } else if (timeFilter === 'month') {
+                    const diffDays = (now - recDate) / (1000 * 60 * 60 * 24);
+                    return diffDays <= 30;
+                }
+                return true;
+            });
+
+            const tbody = document.getElementById('teacherTableBody');
+            tbody.innerHTML = "";
+            document.getElementById('recordCount').innerText = `إجمالي الحالات: ${filtered.length}`;
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-gray-500">لا توجد سجلات تطابق الفلترة المحددة</td></tr>`;
+                return;
+            }
+
+            filtered.forEach(d => {
+                tbody.innerHTML += `<tr class="border-b">
+                    <td class="p-2 border">${d.date}</td>
+                    <td class="p-2 border">${d.className}</td>
+                    <td class="p-2 border">الحصة ${d.period}</td>
+                    <td class="p-2 border font-bold">${d.studentName}</td>
+                </tr>`;
+            });
         }
     </script>
 </body>
