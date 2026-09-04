@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بوابة المشرفين والإدارة - متابعة الغياب</title>
+    <title>بوابة المشرفين - متابعة الغياب</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -13,14 +13,13 @@
 </head>
 <body class="text-gray-800">
 
-    <!-- شاشة تسجيل دخول المشرف -->
     <div id="loginScreen" class="min-h-screen flex items-center justify-center p-4">
         <div class="bg-white p-8 rounded-lg shadow-md w-96 max-w-full border-t-4 border-blue-600">
-            <h1 class="text-2xl font-bold text-center text-blue-700 mb-6">بوابة المشرفين والإدارة</h1>
+            <h1 class="text-2xl font-bold text-center text-blue-700 mb-6">بوابة المشرفين</h1>
             
             <div class="mb-4">
-                <label class="block text-gray-700 font-bold mb-2">أدخل كلمة مرور المرحلة / الإدارة:</label>
-                <input type="password" id="passInput" class="w-full p-2 border rounded mb-4" placeholder="كلمة المرور...">
+                <label class="block text-gray-700 font-bold mb-2">أدخل كلمة مرور المرحلة:</label>
+                <input type="password" id="passInput" class="w-full p-2 border rounded mb-4" placeholder="كلمة المرور (666, 1111, 2222, 33333)...">
             </div>
 
             <button onclick="loginSupervisor()" class="w-full bg-blue-600 text-white font-bold py-2 px-4 rounded hover:bg-blue-700 transition">دخول لوحة التحكم</button>
@@ -28,14 +27,12 @@
         </div>
     </div>
 
-    <!-- لوحة تحكم المشرف -->
     <div id="supervisorDashboard" class="hidden p-4 max-w-6xl mx-auto">
         <div class="flex justify-between items-center mb-6 bg-white p-4 rounded shadow">
             <h2 id="stageTitle" class="text-xl font-bold text-blue-800">لوحة المتابعة الإدارية</h2>
             <button onclick="location.reload()" class="bg-gray-200 px-3 py-1 rounded text-sm hover:bg-gray-300">تسجيل خروج</button>
         </div>
         
-        <!-- بطاقات الإحصائيات الحية -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8 text-center">
             <div class="bg-white p-4 rounded shadow border-t-4 border-blue-500">
                 <p class="text-sm text-gray-500">إجمالي طلاب المرحلة</p>
@@ -55,7 +52,6 @@
             </div>
         </div>
 
-        <!-- الإنذارات -->
         <div class="bg-red-50 border border-red-200 p-4 rounded mb-8 shadow">
             <h3 class="text-xl font-bold text-red-700 mb-4">⚠️ إنذارات الغياب المتكرر (5 أيام فأكثر)</h3>
             <div class="overflow-x-auto">
@@ -68,13 +64,12 @@
             </div>
         </div>
 
-        <!-- غياب اليوم -->
         <div class="bg-white p-4 rounded shadow">
             <h3 class="text-xl font-bold text-gray-800 mb-4">سجل غياب وتأخير اليوم</h3>
             <div class="overflow-x-auto">
                 <table class="w-full text-sm text-right border-collapse">
                     <thead class="bg-blue-100 text-blue-800 border-b">
-                        <tr><th class="p-2">الطالب</th><th class="p-2">الصف</th><th class="p-2">الحصة</th><th class="p-2">المعلم</th></tr>
+                        <tr><th class="p-2">التاريخ</th><th class="p-2">الطالب</th><th class="p-2">الصف</th><th class="p-2">الحصة</th><th class="p-2">المعلم</th></tr>
                     </thead>
                     <tbody id="todayTableBody"></tbody>
                 </table>
@@ -83,7 +78,7 @@
     </div>
 
     <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbxVk2iEHV1W9V27-9LL5tvohsvcCV3We3SYqYrfvzimgsVytUbplqV3_VFqZG151lMy/exec";
+        const API_URL = "https://script.google.com/macros/s/AKfycbxlJnpJN9y9h04cOswtY3BGGwUS8rhybOisxDFkIQJ6_9nFSPMJeK-wiuFEECnBY3v5/exec";
 
         async function loginSupervisor() {
             const pass = document.getElementById('passInput').value;
@@ -109,13 +104,11 @@
                     
                     document.getElementById('stageTitle').innerText = `لوحة المتابعة الإدارية (المرحلة: ${result.stage})`;
 
-                    // عرض الإحصائيات
                     document.getElementById('statTotal').innerText = result.stats.total;
                     document.getElementById('statPresent').innerText = result.stats.present;
                     document.getElementById('statAbsent').innerText = result.stats.absent;
                     document.getElementById('statPercent').innerText = result.stats.percent + "%";
 
-                    // عرض الإنذارات
                     const alertsBody = document.getElementById('alertsTableBody');
                     alertsBody.innerHTML = "";
                     if(result.alerts.length === 0) {
@@ -136,16 +129,16 @@
                         });
                     }
 
-                    // غياب اليوم
                     const todayBody = document.getElementById('todayTableBody');
                     todayBody.innerHTML = "";
                     if(result.data.length === 0) {
-                        todayBody.innerHTML = `<tr><td colspan="4" class="p-3 text-center text-gray-500">لم يتم تسجيل أي غياب اليوم حتى الآن</td></tr>`;
+                        todayBody.innerHTML = `<tr><td colspan="5" class="p-3 text-center text-gray-500">لم يتم تسجيل أي غياب اليوم حتى الآن</td></tr>`;
                     } else {
                         result.data.forEach(d => {
                             todayBody.innerHTML += `<tr class="border-b">
-                                <td class="p-2">${d.studentName}</td><td class="p-2">${d.className}</td>
-                                <td class="p-2">الحصة ${d.period}</td><td class="p-2">${d.teacher}</td>
+                                <td class="p-2">${d.date}</td><td class="p-2 font-bold">${d.studentName}</td>
+                                <td class="p-2">${d.className}</td><td class="p-2">الحصة ${d.period}</td>
+                                <td class="p-2">${d.teacher}</td>
                             </tr>`;
                         });
                     }
