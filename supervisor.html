@@ -49,11 +49,19 @@
             <div class="flex flex-col md:flex-row justify-between items-center gap-3 mt-1">
                 <div>
                     <h2 id="stageTitle" class="text-xl font-bold text-blue-900">تقرير المتابعة الميدانية للحصص</h2>
-                    <p id="currentDateText" class="text-xs text-gray-600 mt-0.5 font-semibold"></p>
+                    <div class="flex items-center gap-3 mt-1">
+                        <p id="currentDateText" class="text-xs text-gray-600 font-semibold"></p>
+                        <span id="lastUpdatedBadge" class="text-[11px] bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded font-bold">🟢 متصل ومحدّث</span>
+                    </div>
                 </div>
-                <div class="flex gap-2 no-print">
-                    <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded text-sm flex items-center gap-2 shadow transition">
-                        🖨️ طباعة التقرير / حفظ PDF
+
+                <!-- أزرار الإجراءات السريعة (تحديث - طباعة - خروج) -->
+                <div class="flex flex-wrap items-center gap-2 no-print">
+                    <button id="refreshBtn" onclick="refreshData(false)" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-3 rounded text-sm flex items-center gap-1.5 shadow transition">
+                        <span id="refreshIcon">🔄</span> تحديث البيانات
+                    </button>
+                    <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded text-sm flex items-center gap-1.5 shadow transition">
+                        🖨️ طباعة / حفظ PDF
                     </button>
                     <button onclick="location.reload()" class="bg-gray-200 px-3 py-2 rounded text-sm hover:bg-gray-300 font-bold">خروج</button>
                 </div>
@@ -64,10 +72,10 @@
         <div class="bg-white p-4 rounded shadow mb-5 border-r-4 border-blue-600">
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-3 gap-2 no-print">
                 <h3 class="font-bold text-base text-blue-900">⚡ فحص الحصص اللحظي:</h3>
-                <span class="text-xs text-gray-500">اضغط على رقم الحصة لتحديث التقرير والإحصاءات:</span>
+                <span class="text-xs text-gray-500">اختر الحصة للمعاينة الميدانية (يتم التحديث تلقائياً كل 40 ثانية):</span>
             </div>
             
-            <!-- أزرار اختيار الحصة (مخفية في الطباعة) -->
+            <!-- أزرار اختيار الحصة -->
             <div class="grid grid-cols-4 md:grid-cols-7 gap-2 mb-5 no-print">
                 <button onclick="selectPeriod(1)" id="btnP1" class="period-btn py-1.5 border rounded text-xs font-bold bg-gray-50 hover:bg-blue-50 transition">الحصة 1</button>
                 <button onclick="selectPeriod(2)" id="btnP2" class="period-btn py-1.5 border rounded text-xs font-bold bg-gray-50 hover:bg-blue-50 transition">الحصة 2</button>
@@ -101,7 +109,7 @@
                 </div>
             </div>
 
-            <!-- جدول تفاصيل الصفوف للحصة (هو المعتمد في الطباعة) -->
+            <!-- جدول تفاصيل الصفوف للحصة -->
             <div class="overflow-x-auto border border-gray-200 rounded">
                 <table class="w-full text-xs text-right border-collapse">
                     <thead class="bg-blue-50 text-blue-900 font-bold border-b border-gray-200">
@@ -119,14 +127,14 @@
                 </table>
             </div>
 
-            <!-- حصر الغائبين مجمع (يظهر على الشاشة فقط ويختفي في الطباعة) -->
+            <!-- حصر الغائبين مجمع (يظهر على الشاشة ويختفي في الطباعة) -->
             <div class="bg-slate-50 border border-slate-200 p-3 rounded-lg mt-4 no-print">
                 <h4 class="text-xs font-bold text-gray-700 mb-1.5">📋 حصر كافة الطلاب الغائبين في المرحلة مع صفوفهم:</h4>
                 <div id="pSumStudentNames" class="text-xs text-gray-700"></div>
             </div>
         </div>
 
-        <!-- إنذارات الغياب المتكرر (مخفية في الطباعة) -->
+        <!-- إنذارات الغياب المتكرر -->
         <div class="bg-red-50 border border-red-200 p-4 rounded mb-5 shadow no-print">
             <h3 class="text-sm font-bold text-red-700 mb-2">⚠️ رادار إنذارات الغياب المتكرر (5 أيام فأكثر)</h3>
             <div class="overflow-x-auto">
@@ -145,7 +153,7 @@
         </div>
     </div>
 
-    <!-- التذييل الرسمي الدائم في الشاشة والطباعة -->
+    <!-- التذييل الرسمي الدائم -->
     <footer class="text-center py-3 text-xs font-bold text-gray-600 border-t bg-white mt-auto">
         تصميم: صبري محمد حمد 2026-2027م
     </footer>
@@ -154,6 +162,8 @@
         const API_URL = "https://script.google.com/macros/s/AKfycbxlJnpJN9y9h04cOswtY3BGGwUS8rhybOisxDFkIQJ6_9nFSPMJeK-wiuFEECnBY3v5/exec";
         let globalData = null;
         let activePeriodNum = 1;
+        let currentSupervisorPass = "";
+        let autoRefreshTimer = null;
 
         function isNoAbsenceText(name) {
             if (!name) return true;
@@ -195,24 +205,47 @@
             btn.innerText = "جاري التحقق...";
             errorMsg.classList.add('hidden');
 
+            currentSupervisorPass = pass;
+            const success = await fetchStageData(pass, false);
+
+            if (success) {
+                document.getElementById('loginScreen').classList.add('hidden');
+                document.getElementById('supervisorDashboard').classList.remove('hidden');
+
+                // بدء مؤقت التحديث التلقائي كل 40 ثانية
+                if (autoRefreshTimer) clearInterval(autoRefreshTimer);
+                autoRefreshTimer = setInterval(() => {
+                    refreshData(true);
+                }, 40000);
+            } else {
+                btn.innerText = "دخول لوحة التحكم";
+            }
+        }
+
+        async function fetchStageData(pass, isSilent = false) {
+            const errorMsg = document.getElementById('errorMsg');
             try {
-                const response = await fetch(`${API_URL}?action=supervisor&pass=${pass}`);
+                // منع التخزين المؤقت عبر إضافة _t
+                const response = await fetch(`${API_URL}?action=supervisor&pass=${pass}&_t=${Date.now()}`);
                 const result = await response.json();
 
                 if (result.status === "success") {
                     globalData = result;
-                    document.getElementById('loginScreen').classList.add('hidden');
-                    document.getElementById('supervisorDashboard').classList.remove('hidden');
-                    
                     document.getElementById('stageTitle').innerText = `تقرير المتابعة الميدانية (المرحلة: ${result.stage})`;
+                    
                     const now = new Date();
                     document.getElementById('currentDateText').innerText = `اليوم والتاريخ: ${now.toLocaleDateString('ar-EG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`;
+                    
+                    const timeStr = now.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                    document.getElementById('lastUpdatedBadge').innerText = `🟢 آخر تحديث: ${timeStr}`;
 
-                    selectPeriod(1);
+                    // إعادة بناء الحصة النشطة الحالية
+                    selectPeriod(activePeriodNum);
 
+                    // تحديث الإنذارات
                     const alertsBody = document.getElementById('alertsTableBody');
                     alertsBody.innerHTML = "";
-                    if(result.alerts.length === 0) {
+                    if (result.alerts.length === 0) {
                         alertsBody.innerHTML = `<tr><td colspan="4" class="p-2 text-center text-gray-500">لا توجد إنذارات غياب متكرر حالياً</td></tr>`;
                     } else {
                         result.alerts.forEach(a => {
@@ -225,16 +258,39 @@
                             </tr>`;
                         });
                     }
-
+                    return true;
                 } else {
-                    errorMsg.innerText = result.message;
-                    errorMsg.classList.remove('hidden');
+                    if (!isSilent) {
+                        errorMsg.innerText = result.message;
+                        errorMsg.classList.remove('hidden');
+                    }
+                    return false;
                 }
             } catch (err) {
-                errorMsg.innerText = "فشل الاتصال بقاعدة البيانات.";
-                errorMsg.classList.remove('hidden');
+                if (!isSilent) {
+                    errorMsg.innerText = "فشل الاتصال بقاعدة البيانات.";
+                    errorMsg.classList.remove('hidden');
+                }
+                return false;
             }
-            btn.innerText = "دخول لوحة التحكم";
+        }
+
+        // دالة التحديث الفوري المباشر
+        async function refreshData(isSilent = false) {
+            if (!currentSupervisorPass) return;
+
+            const refreshBtn = document.getElementById('refreshBtn');
+            if (!isSilent && refreshBtn) {
+                refreshBtn.disabled = true;
+                refreshBtn.innerHTML = `⏳ جاري التحديث...`;
+            }
+
+            await fetchStageData(currentSupervisorPass, isSilent);
+
+            if (!isSilent && refreshBtn) {
+                refreshBtn.disabled = false;
+                refreshBtn.innerHTML = `<span>🔄</span> تحديث البيانات`;
+            }
         }
 
         function selectPeriod(pNum) {
