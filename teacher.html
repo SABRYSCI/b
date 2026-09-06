@@ -242,12 +242,17 @@
             document.getElementById('dateRowCells').innerHTML = subDateCellsHtml;
 
             let students = allRosters[selectedClass] || [];
-            students = students.filter(name => name && !/^\d+$/.test(String(name).trim()));
+            
             if (students.length === 0) {
-                const sSet = new Set(classRecords.map(r => r.studentName).filter(n => n && !/^\d+$/.test(n) && !/لا\s*يوجد|حضور/i.test(n)));
+                const sSet = new Set(classRecords.map(r => r.studentName).filter(n => n && !/لا\s*يوجد|حضور/i.test(n)));
                 students = Array.from(sSet);
             }
-            students.sort((a, b) => a.localeCompare(b, 'ar'));
+            students.sort((a, b) => {
+                let numA = parseInt(a);
+                let numB = parseInt(b);
+                if (!isNaN(numA) && !isNaN(numB)) return numA - numB;
+                return a.localeCompare(b, 'ar');
+            });
 
             const tbody = document.getElementById('officialRegisterBody');
             tbody.innerHTML = "";
