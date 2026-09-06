@@ -3,380 +3,170 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بوابة المدير - لوحة القيادة والمتابعة المدرسية الشاملة</title>
+    <title>بوابة المدير - لوحة القيادة الشاملة</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Tajawal', sans-serif; background-color: #f8fafc; }
         .hidden { display: none; }
         .active-period { background-color: #7c3aed !important; color: white !important; font-weight: bold; border-color: #6d28d9 !important; }
-        
         @media print {
-            body { background: white !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; margin: 0 !important; }
+            body { background: white !important; margin: 0 !important; }
             .no-print { display: none !important; }
-            .print-only { display: block !important; }
-            .shadow { box-shadow: none !important; border: 1px solid #cbd5e1 !important; }
-            table { page-break-inside: auto; }
-            tr { page-break-inside: avoid; page-break-after: auto; }
+            table { page-break-inside: avoid; }
             @page { size: A4 portrait; margin: 8mm; }
         }
     </style>
 </head>
 <body class="text-gray-800 flex flex-col min-h-screen">
 
-    <!-- شاشة تسجيل الدخول الإداري -->
     <div id="loginScreen" class="min-h-screen flex items-center justify-center p-4 no-print">
-        <div class="bg-white p-8 rounded-lg shadow-md w-96 max-w-full border-t-4 border-purple-600">
+        <div class="bg-white p-8 rounded-lg shadow-md w-96 border-t-4 border-purple-600">
             <div class="text-center mb-4">
-                <img src="https://i.postimg.cc/K88X7RLb/trwysyh-dhhbyt.png" alt="شعار المدرسة" class="max-h-20 mx-auto object-contain mb-3">
+                <img src="https://i.postimg.cc/K88X7RLb/trwysyh-dhhbyt.png" class="max-h-20 mx-auto mb-3">
                 <h1 class="text-2xl font-bold text-purple-800">بوابة المدير الشاملة</h1>
-                <p class="text-xs text-gray-500 mt-1">لوحة القيادة الميدانية لجميع المراحل</p>
             </div>
-            <div class="mb-4">
-                <label class="block text-gray-700 font-bold mb-2 text-sm">أدخل كلمة مرور الإدارة:</label>
-                <input type="password" id="passInput" class="w-full p-2 border rounded mb-4 text-center font-bold tracking-widest" placeholder="admin123">
-            </div>
-            <button onclick="loginAdmin()" class="w-full bg-purple-700 text-white font-bold py-2 px-4 rounded hover:bg-purple-800 transition shadow">دخول لوحة القيادة</button>
-            <p id="errorMsg" class="text-red-500 text-sm mt-3 text-center hidden font-bold"></p>
+            <input type="password" id="passInput" class="w-full p-2 border rounded mb-4 text-center font-bold" placeholder="admin123">
+            <button onclick="loginAdmin()" class="w-full bg-purple-700 text-white font-bold py-2 rounded">دخول اللوحة</button>
+            <p id="errorMsg" class="text-red-500 text-sm mt-3 text-center hidden"></p>
         </div>
     </div>
 
-    <!-- لوحة القيادة الإدارية والتقرير -->
     <div id="adminDashboard" class="hidden p-4 max-w-7xl mx-auto flex-grow w-full">
-        
-        <!-- الترويسة وأزرار الإجراءات -->
         <div class="mb-5 bg-white p-4 rounded shadow border-b">
-            <img src="https://i.postimg.cc/K88X7RLb/trwysyh-dhhbyt.png" alt="ترويسة المدرسة" class="w-full max-h-24 object-contain mx-auto mb-2">
-            <div class="flex flex-col md:flex-row justify-between items-center gap-3 mt-1">
+            <img src="https://i.postimg.cc/K88X7RLb/trwysyh-dhhbyt.png" class="w-full max-h-24 object-contain mx-auto mb-2">
+            <div class="flex justify-between items-center gap-3 mt-1">
                 <div>
-                    <h2 class="text-xl font-bold text-purple-950">التقرير الميداني الشامل لغياب وحضور المدرسة</h2>
+                    <h2 class="text-xl font-bold text-purple-950">التقرير الميداني الشامل للمدرسة</h2>
                     <div class="flex items-center gap-3 mt-1">
-                        <p id="currentDateText" class="text-xs text-gray-600 font-semibold"></p>
-                        <span id="lastUpdatedBadge" class="text-[11px] bg-purple-50 text-purple-700 border border-purple-200 px-2 py-0.5 rounded font-bold">🟢 متصل ومحدّث</span>
+                        <span id="lastUpdatedBadge" class="text-[11px] bg-purple-50 text-purple-700 px-2 py-0.5 rounded font-bold">🟢 متصل ومحدّث</span>
                     </div>
                 </div>
-
-                <!-- أزرار الإجراءات السريعة (تحديث - طباعة - خروج) -->
-                <div class="flex flex-wrap items-center gap-2 no-print">
-                    <button id="refreshBtn" onclick="refreshAdminData(false)" class="bg-purple-700 hover:bg-purple-800 text-white font-bold py-2 px-3 rounded text-sm flex items-center gap-1.5 shadow transition">
-                        <span id="refreshIcon">🔄</span> تحديث البيانات
-                    </button>
-                    <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-3 rounded text-sm flex items-center gap-1.5 shadow transition">
-                        🖨️ طباعة / حفظ PDF
-                    </button>
-                    <button onclick="location.reload()" class="bg-gray-200 px-3 py-2 rounded text-sm hover:bg-gray-300 font-bold">خروج</button>
+                <div class="flex items-center gap-2 no-print">
+                    <button id="refreshBtn" onclick="refreshAdminData(false)" class="bg-purple-700 hover:bg-purple-800 text-white font-bold py-2 px-3 rounded text-sm shadow">🔄 تحديث</button>
+                    <button onclick="window.print()" class="bg-blue-600 text-white font-bold py-2 px-3 rounded text-sm shadow">🖨️ طباعة</button>
+                    <button onclick="location.reload()" class="bg-gray-200 px-3 py-2 rounded text-sm font-bold">خروج</button>
                 </div>
             </div>
         </div>
 
-        <!-- فحص الحصص اللحظي لكامل المدرسة -->
         <div class="bg-white p-4 rounded shadow mb-5 border-r-4 border-purple-600">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-3 gap-2 no-print">
-                <h3 class="font-bold text-base text-purple-950">⚡ المتابعة الميدانية للحصص (على مستوى المدرسة كاملة):</h3>
-                <span class="text-xs text-gray-500">اختر الحصة للمعاينة الميدانية (يتم التحديث تلقائياً كل 40 ثانية):</span>
-            </div>
-            
-            <!-- أزرار الحصص -->
             <div class="grid grid-cols-4 md:grid-cols-7 gap-2 mb-5 no-print">
-                <button onclick="selectPeriod(1)" id="btnP1" class="period-btn py-1.5 border rounded text-xs font-bold bg-gray-50 hover:bg-purple-50 transition">الحصة 1</button>
-                <button onclick="selectPeriod(2)" id="btnP2" class="period-btn py-1.5 border rounded text-xs font-bold bg-gray-50 hover:bg-purple-50 transition">الحصة 2</button>
-                <button onclick="selectPeriod(3)" id="btnP3" class="period-btn py-1.5 border rounded text-xs font-bold bg-gray-50 hover:bg-purple-50 transition">الحصة 3</button>
-                <button onclick="selectPeriod(4)" id="btnP4" class="period-btn py-1.5 border rounded text-xs font-bold bg-gray-50 hover:bg-purple-50 transition">الحصة 4</button>
-                <button onclick="selectPeriod(5)" id="btnP5" class="period-btn py-1.5 border rounded text-xs font-bold bg-gray-50 hover:bg-purple-50 transition">الحصة 5</button>
-                <button onclick="selectPeriod(6)" id="btnP6" class="period-btn py-1.5 border rounded text-xs font-bold bg-gray-50 hover:bg-purple-50 transition">الحصة 6</button>
-                <button onclick="selectPeriod(7)" id="btnP7" class="period-btn py-1.5 border rounded text-xs font-bold bg-gray-50 hover:bg-purple-50 transition">الحصة 7</button>
+                <button onclick="selectPeriod(1)" id="btnP1" class="period-btn py-1.5 border rounded text-xs font-bold bg-gray-50">الحصة 1</button>
+                <button onclick="selectPeriod(2)" id="btnP2" class="period-btn py-1.5 border rounded text-xs font-bold bg-gray-50">الحصة 2</button>
+                <button onclick="selectPeriod(3)" id="btnP3" class="period-btn py-1.5 border rounded text-xs font-bold bg-gray-50">الحصة 3</button>
+                <button onclick="selectPeriod(4)" id="btnP4" class="period-btn py-1.5 border rounded text-xs font-bold bg-gray-50">الحصة 4</button>
+                <button onclick="selectPeriod(5)" id="btnP5" class="period-btn py-1.5 border rounded text-xs font-bold bg-gray-50">الحصة 5</button>
+                <button onclick="selectPeriod(6)" id="btnP6" class="period-btn py-1.5 border rounded text-xs font-bold bg-gray-50">الحصة 6</button>
+                <button onclick="selectPeriod(7)" id="btnP7" class="period-btn py-1.5 border rounded text-xs font-bold bg-gray-50">الحصة 7</button>
             </div>
 
-            <!-- بطاقات ملخص الحصة لكامل المدرسة بالألوان الفاتحة -->
-            <div class="mb-5">
-                <h4 id="periodCardsTitle" class="text-xs font-bold text-gray-700 mb-2 border-r-2 border-purple-600 pr-2">إحصائيات المدرسة في الحصة المحددة:</h4>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
-                    <div class="bg-white p-3 rounded shadow-sm border border-gray-200 border-t-4 border-t-blue-500">
-                        <p class="text-[11px] text-gray-500 font-medium">إجمالي طلاب المدرسة</p>
-                        <p id="pSumTotal" class="text-xl font-bold text-gray-800 mt-0.5">0</p>
-                    </div>
-                    <div class="bg-white p-3 rounded shadow-sm border border-gray-200 border-t-4 border-t-green-500">
-                        <p class="text-[11px] text-gray-500 font-medium">الحضور الفعلي</p>
-                        <p id="pSumPresent" class="text-xl font-bold text-green-600 mt-0.5">0</p>
-                    </div>
-                    <div class="bg-white p-3 rounded shadow-sm border border-gray-200 border-t-4 border-t-red-500">
-                        <p class="text-[11px] text-gray-500 font-medium">الغياب الكلي</p>
-                        <p id="pSumAbsent" class="text-xl font-bold text-red-600 mt-0.5">0</p>
-                    </div>
-                    <div class="bg-white p-3 rounded shadow-sm border border-gray-200 border-t-4 border-t-yellow-500">
-                        <p class="text-[11px] text-gray-500 font-medium">نسبة الغياب العامة</p>
-                        <p id="pSumPercent" class="text-xl font-bold text-yellow-600 mt-0.5">0%</p>
-                    </div>
-                </div>
+            <div class="mb-5 grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
+                <div class="bg-white p-3 border border-t-4 border-t-blue-500"><p class="text-[11px] text-gray-500">الطلاب</p><p id="pSumTotal" class="text-xl font-bold">0</p></div>
+                <div class="bg-white p-3 border border-t-4 border-t-green-500"><p class="text-[11px] text-gray-500">الحضور</p><p id="pSumPresent" class="text-xl font-bold text-green-600">0</p></div>
+                <div class="bg-white p-3 border border-t-4 border-t-red-500"><p class="text-[11px] text-gray-500">الغياب</p><p id="pSumAbsent" class="text-xl font-bold text-red-600">0</p></div>
+                <div class="bg-white p-3 border border-t-4 border-t-yellow-500"><p class="text-[11px] text-gray-500">النسبة</p><p id="pSumPercent" class="text-xl font-bold text-yellow-600">0%</p></div>
             </div>
 
-            <!-- جدول رصد صفوف المدرسة كاملة (16 صفاً) -->
             <div class="overflow-x-auto border border-gray-200 rounded">
                 <table class="w-full text-xs text-right border-collapse">
-                    <thead class="bg-purple-50 text-purple-950 font-bold border-b border-gray-200">
+                    <thead class="bg-purple-50 text-purple-950 font-bold border-b">
                         <tr>
-                            <th class="p-2 border border-gray-200 text-center">الصف</th>
-                            <th class="p-2 border border-gray-200 text-center">حالة الرصد</th>
-                            <th class="p-2 border border-gray-200">المعلم الراصد</th>
-                            <th class="p-2 border border-gray-200 text-center">عدد الطلاب</th>
-                            <th class="p-2 border border-gray-200 text-center">الحضور</th>
-                            <th class="p-2 border border-gray-200 text-center">الغياب</th>
-                            <th class="p-2 border border-gray-200 min-w-[220px]">أسماء الغائبين (مرقمة)</th>
+                            <th class="p-2 border text-center">الصف</th><th class="p-2 border text-center">حالة الرصد</th><th class="p-2 border">المعلم الراصد</th>
+                            <th class="p-2 border text-center">الطلاب</th><th class="p-2 border text-center">الحضور</th><th class="p-2 border text-center">الغياب</th>
+                            <th class="p-2 border min-w-[220px]">الغياب والتأخير</th>
                         </tr>
                     </thead>
                     <tbody id="periodTableBody"></tbody>
                 </table>
             </div>
-
-            <!-- حصر الغائبين المجمع في المدرسة (يختفي في الطباعة لتفادي تجزئة الورقة) -->
-            <div class="bg-slate-50 border border-slate-200 p-3 rounded-lg mt-4 no-print">
-                <h4 class="text-xs font-bold text-gray-700 mb-1.5">📋 حصر كافة الطلاب الغائبين في المدرسة مع صفوفهم:</h4>
-                <div id="pSumStudentNames" class="text-xs text-gray-700"></div>
-            </div>
-        </div>
-
-        <!-- رادار إنذارات الغياب المتكرر بالمدرسة -->
-        <div class="bg-red-50 border border-red-200 p-4 rounded mb-5 shadow no-print">
-            <h3 class="text-sm font-bold text-red-700 mb-2">⚠️ رادار إنذارات الغياب المتكرر بالمدرسة (5 أيام فأكثر)</h3>
-            <div class="overflow-x-auto">
-                <table class="w-full text-xs text-right border-collapse border border-red-200">
-                    <thead class="bg-red-200 text-red-800">
-                        <tr>
-                            <th class="p-2 border border-red-300">الطالب</th>
-                            <th class="p-2 border border-red-300">الصف</th>
-                            <th class="p-2 border border-red-300">أيام الغياب</th>
-                            <th class="p-2 border border-red-300">إجراء</th>
-                        </tr>
-                    </thead>
-                    <tbody id="alertsTableBody"></tbody>
-                </table>
-            </div>
         </div>
     </div>
 
-    <!-- التذييل الرسمي الدائم في الشاشة والطباعة -->
-    <footer class="text-center py-3 text-xs font-bold text-gray-600 border-t bg-white mt-auto">
-        تصميم: صبري محمد حمد 2026-2027م
-    </footer>
-
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbxlJnpJN9y9h04cOswtY3BGGwUS8rhybOisxDFkIQJ6_9nFSPMJeK-wiuFEECnBY3v5/exec";
-        let globalData = null;
-        let activePeriodNum = 1;
-        let currentAdminPass = "";
-        let autoRefreshTimer = null;
+        let globalData = null; let activePeriodNum = 1; let currentPass = ""; let timer = null;
 
-        function isNoAbsenceText(name) {
-            if (!name) return true;
-            const s = String(name).trim();
-            return /لا\s*يوجد|لايوجد|حضور|الجميع/i.test(s);
-        }
-
-        function cleanClass(str) {
-            return String(str || '')
-                .replace(/[أإآ]/g, 'ا')
-                .replace(/ة/g, 'ه')
-                .replace(/ى/g, 'ي')
-                .replace(/[\s\-_/\\.]/g, '')
-                .trim();
-        }
-
+        function isNoAbsenceText(name) { return /لا\s*يوجد|حضور|الجميع/i.test(String(name||'').trim()); }
+        function cleanClass(str) { return String(str||'').replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي').replace(/[\s\-_/\\.]/g, '').trim(); }
         function getClassTotal(cName) {
-            if (!globalData.classTotals) return 31;
             const target = cleanClass(cName);
-            for (let k in globalData.classTotals) {
-                if (cleanClass(k) === target && globalData.classTotals[k] > 0) {
-                    return globalData.classTotals[k];
-                }
-            }
+            for (let k in globalData.classTotals) if (cleanClass(k) === target && globalData.classTotals[k] > 0) return globalData.classTotals[k];
             return 31;
         }
 
         async function loginAdmin() {
             const pass = document.getElementById('passInput').value;
-            const errorMsg = document.getElementById('errorMsg');
-            const btn = document.querySelector('button');
-
-            if (!pass) {
-                errorMsg.innerText = "الرجاء إدخال كلمة المرور";
-                errorMsg.classList.remove('hidden');
-                return;
-            }
-
-            btn.innerText = "جاري التحقق...";
-            errorMsg.classList.add('hidden');
-
-            currentAdminPass = pass;
-            const success = await fetchAdminData(pass, false);
-
-            if (success) {
+            if (!pass) return;
+            currentPass = pass;
+            if (await fetchAdminData(pass)) {
                 document.getElementById('loginScreen').classList.add('hidden');
                 document.getElementById('adminDashboard').classList.remove('hidden');
-
-                // تشغيل التحديث التلقائي كل 40 ثانية في الخلفية
-                if (autoRefreshTimer) clearInterval(autoRefreshTimer);
-                autoRefreshTimer = setInterval(() => {
-                    refreshAdminData(true);
-                }, 40000);
-            } else {
-                btn.innerText = "دخول لوحة القيادة";
+                if (timer) clearInterval(timer);
+                timer = setInterval(() => refreshAdminData(true), 40000);
             }
         }
 
         async function fetchAdminData(pass, isSilent = false) {
-            const errorMsg = document.getElementById('errorMsg');
             try {
-                // منع التخزين المؤقت عبر إضافة _t
-                const response = await fetch(`${API_URL}?action=supervisor&pass=${pass}&_t=${Date.now()}`);
-                const result = await response.json();
-
+                const res = await fetch(`${API_URL}?action=supervisor&pass=${pass}&_t=${Date.now()}`);
+                const result = await res.json();
                 if (result.status === "success" && result.stage === "all") {
                     globalData = result;
-                    const now = new Date();
-                    document.getElementById('currentDateText').innerText = `اليوم والتاريخ: ${now.toLocaleDateString('ar-EG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`;
-
-                    const timeStr = now.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-                    document.getElementById('lastUpdatedBadge').innerText = `🟢 آخر تحديث: ${timeStr}`;
-
-                    // إعادة بناء الحصة المحددة
+                    document.getElementById('lastUpdatedBadge').innerText = `🟢 التحديث: ${new Date().toLocaleTimeString('ar-EG')}`;
                     selectPeriod(activePeriodNum);
-
-                    // تحديث الإنذارات
-                    const alertsBody = document.getElementById('alertsTableBody');
-                    alertsBody.innerHTML = "";
-                    if (result.alerts.length === 0) {
-                        alertsBody.innerHTML = `<tr><td colspan="4" class="p-2 text-center text-gray-500">لا توجد إنذارات غياب متكرر حالياً بالمدرسة</td></tr>`;
-                    } else {
-                        result.alerts.forEach(a => {
-                            const waMsg = encodeURIComponent(`المكرم ولي أمر الطالب/ ${a.studentName} (${a.className})، نود إشعاركم بتجاوز ابنكم 5 أيام غياب. التواريخ: ${a.datesList}. يرجى مراجعة إدارة المدرسة.`);
-                            alertsBody.innerHTML += `<tr class="border-b border-red-100">
-                                <td class="p-2 border border-red-100 font-bold">${a.studentName}</td>
-                                <td class="p-2 border border-red-100">${a.className}</td>
-                                <td class="p-2 border border-red-100 text-red-600 font-bold">${a.totalAbsences} أيام</td>
-                                <td class="p-2 border border-red-100"><a href="https://wa.me/?text=${waMsg}" target="_blank" class="bg-green-500 text-white px-2 py-0.5 rounded text-[11px] hover:bg-green-600">إنذار واتساب</a></td>
-                            </tr>`;
-                        });
-                    }
                     return true;
-                } else {
-                    if (!isSilent) {
-                        errorMsg.innerText = result.message || "كلمة مرور الإدارة غير صحيحة";
-                        errorMsg.classList.remove('hidden');
-                    }
-                    return false;
                 }
-            } catch (err) {
-                if (!isSilent) {
-                    errorMsg.innerText = "فشل الاتصال بقاعدة البيانات.";
-                    errorMsg.classList.remove('hidden');
-                }
-                return false;
-            }
+            } catch (err) {} return false;
         }
 
-        // دالة التحديث الفوري المباشر للمدير
-        async function refreshAdminData(isSilent = false) {
-            if (!currentAdminPass) return;
-
-            const refreshBtn = document.getElementById('refreshBtn');
-            if (!isSilent && refreshBtn) {
-                refreshBtn.disabled = true;
-                refreshBtn.innerHTML = `⏳ جاري التحديث...`;
-            }
-
-            await fetchAdminData(currentAdminPass, isSilent);
-
-            if (!isSilent && refreshBtn) {
-                refreshBtn.disabled = false;
-                refreshBtn.innerHTML = `<span>🔄</span> تحديث البيانات`;
-            }
+        async function refreshAdminData(isSilent) {
+            if(!currentPass) return;
+            if(!isSilent) document.getElementById('refreshBtn').innerText = "⏳ تحديث...";
+            await fetchAdminData(currentPass, isSilent);
+            if(!isSilent) document.getElementById('refreshBtn').innerText = "🔄 تحديث";
         }
 
         function selectPeriod(pNum) {
             activePeriodNum = pNum;
-            document.querySelectorAll('.period-btn').forEach(btn => btn.classList.remove('active-period'));
-            const activeBtn = document.getElementById(`btnP${pNum}`);
-            if (activeBtn) activeBtn.classList.add('active-period');
-
-            document.getElementById('periodCardsTitle').innerText = `إحصائيات المدرسة في (الحصة ${pNum}):`;
+            document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active-period'));
+            document.getElementById(`btnP${pNum}`).classList.add('active-period');
 
             const tbody = document.getElementById('periodTableBody');
             tbody.innerHTML = "";
+            let tStudents = 0, tAbsents = 0;
 
-            let totalSchoolStudents = 0;
-            let totalSchoolAbsents = 0;
-            let allAbsentList = [];
-
-            // استعراض جميع صفوف المدرسة (16 صفاً)
             globalData.classes.forEach(cName => {
-                const classTotal = getClassTotal(cName);
-                totalSchoolStudents += classTotal;
-
-                const targetClassKey = cleanClass(cName);
-                const records = globalData.data.filter(r => {
-                    const p = String(r.period).replace(/[^0-9]/g, '');
-                    return cleanClass(r.className) === targetClassKey && p === String(pNum);
-                });
-
-                const isRecorded = records.length > 0;
-                let teacherName = isRecorded ? records[0].teacher : "-";
+                const cTotal = getClassTotal(cName);
+                tStudents += cTotal;
+                const recs = globalData.data.filter(r => cleanClass(r.className) === cleanClass(cName) && String(r.period).replace(/\D/g,'') === String(pNum));
+                const isRec = recs.length > 0;
                 
-                let realAbsentNames = records
-                    .map(r => r.studentName)
-                    .filter(name => name && !isNoAbsenceText(name));
+                let absNames = recs.filter(r => r.studentName && !isNoAbsenceText(r.studentName) && !r.isLate).map(r => r.studentName);
+                let lateNames = recs.filter(r => r.studentName && !isNoAbsenceText(r.studentName) && r.isLate).map(r => r.studentName);
+                
+                let absCount = absNames.length;
+                let presCount = isRec ? Math.max(0, cTotal - absCount) : cTotal;
+                if (isRec) tAbsents += absCount;
 
-                let absCount = realAbsentNames.length;
-                let presentCount = isRecorded ? Math.max(0, classTotal - absCount) : classTotal;
+                let html = "";
+                if (absNames.length > 0) html += `<ol class="list-decimal list-inside text-red-600 font-bold">` + absNames.map(n=>`<li>${n}</li>`).join('') + `</ol>`;
+                if (lateNames.length > 0) html += `<div class="mt-1 pt-1 border-t"><p class="text-[10px] text-orange-600 font-bold mb-0.5">متأخر صباحياً:</p><ul class="list-disc list-inside text-orange-600 font-bold text-[11px]">` + lateNames.map(n=>`<li>${n}</li>`).join('') + `</ul></div>`;
+                if (absNames.length===0 && lateNames.length===0 && isRec) html = `<span class="text-green-700 font-bold bg-green-50 px-2 py-0.5 rounded">✅ الجميع حضور</span>`;
+                else if (!isRec) html = `<span class="text-gray-400">-</span>`;
 
-                if (isRecorded) {
-                    totalSchoolAbsents += absCount;
-                    realAbsentNames.forEach(name => {
-                        allAbsentList.push({ name: name, class: cName });
-                    });
-                }
-
-                let studentsListHtml = "";
-                if (realAbsentNames.length > 0) {
-                    studentsListHtml = `<ol class="list-decimal list-inside space-y-0.5 text-red-600 font-medium">` +
-                        realAbsentNames.map(n => `<li>${n}</li>`).join('') +
-                        `</ol>`;
-                } else if (isRecorded) {
-                    studentsListHtml = `<span class="text-green-700 font-bold bg-green-50 px-2 py-0.5 rounded border border-green-200">✅ الجميع حضور (لا يوجد غياب)</span>`;
-                } else {
-                    studentsListHtml = `<span class="text-gray-400">-</span>`;
-                }
-
-                tbody.innerHTML += `
-                    <tr class="border-b border-gray-200 hover:bg-gray-50">
-                        <td class="p-2 border border-gray-200 font-bold bg-slate-50 text-center">${cName}</td>
-                        <td class="p-2 border border-gray-200 text-center font-bold">
-                            ${isRecorded ? '<span class="text-green-600 bg-green-50 px-2 py-0.5 rounded border border-green-200">✅ تم الرصد</span>' : '<span class="text-red-500 bg-red-50 px-2 py-0.5 rounded border border-red-200">❌ لم يُرصد</span>'}
-                        </td>
-                        <td class="p-2 border border-gray-200 font-medium">${teacherName}</td>
-                        <td class="p-2 border border-gray-200 font-bold text-center">${classTotal}</td>
-                        <td class="p-2 border border-gray-200 text-green-700 font-bold text-center">${isRecorded ? presentCount : '-'}</td>
-                        <td class="p-2 border border-gray-200 text-red-600 font-bold text-center">${isRecorded ? absCount : '-'}</td>
-                        <td class="p-2 border border-gray-200">${studentsListHtml}</td>
-                    </tr>
-                `;
+                tbody.innerHTML += `<tr class="border-b hover:bg-gray-50">
+                    <td class="p-2 border font-bold text-center">${cName}</td>
+                    <td class="p-2 border text-center font-bold">${isRec ? '<span class="text-green-600">✅ تم الرصد</span>' : '<span class="text-red-500">❌ لم يُرصد</span>'}</td>
+                    <td class="p-2 border font-medium">${isRec ? recs[0].teacher : '-'}</td>
+                    <td class="p-2 border text-center">${cTotal}</td><td class="p-2 border text-green-700 text-center">${isRec ? presCount : '-'}</td><td class="p-2 border text-red-600 text-center">${isRec ? absCount : '-'}</td>
+                    <td class="p-2 border">${html}</td></tr>`;
             });
 
-            const totalSchoolPresent = Math.max(0, totalSchoolStudents - totalSchoolAbsents);
-            const schoolPercent = totalSchoolStudents > 0 ? ((totalSchoolAbsents / totalSchoolStudents) * 100).toFixed(1) : "0.0";
-
-            document.getElementById('pSumTotal').innerText = totalSchoolStudents;
-            document.getElementById('pSumPresent').innerText = totalSchoolPresent;
-            document.getElementById('pSumAbsent').innerText = totalSchoolAbsents;
-            document.getElementById('pSumPercent').innerText = schoolPercent + "%";
-
-            const namesContainer = document.getElementById('pSumStudentNames');
-            if (allAbsentList.length === 0) {
-                namesContainer.innerHTML = `<p class="text-green-700 font-bold italic">لا يوجد غياب مسجل في هذه الحصة بالمدرسة (الجميع حضور).</p>`;
-            } else {
-                namesContainer.innerHTML = `<ol class="list-decimal list-inside grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-1.5 font-medium">` +
-                    allAbsentList.map(item => `<li class="bg-white p-1.5 rounded border border-gray-200 shadow-sm"><span class="font-bold text-gray-800">${item.name}</span> <span class="text-xs text-purple-700 font-bold mr-1">(${item.class})</span></li>`).join('') +
-                    `</ol>`;
-            }
+            document.getElementById('pSumTotal').innerText = tStudents;
+            document.getElementById('pSumPresent').innerText = Math.max(0, tStudents - tAbsents);
+            document.getElementById('pSumAbsent').innerText = tAbsents;
+            document.getElementById('pSumPercent').innerText = tStudents > 0 ? ((tAbsents/tStudents)*100).toFixed(1)+"%" : "0%";
         }
     </script>
 </body>
