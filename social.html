@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>المشرف الاجتماعي - تسجيل التأخير الصباحي</title>
+    <title>المشرف الاجتماعي - تسجيل التأخير والاستئذان</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
     <style>body { font-family: 'Tajawal', sans-serif; background-color: #fdf8f6; }</style>
@@ -15,7 +15,7 @@
             <div class="text-center mb-4">
                 <img src="https://i.postimg.cc/K88X7RLb/trwysyh-dhhbyt.png" alt="شعار المدرسة" class="max-h-20 mx-auto object-contain mb-3">
                 <h1 class="text-xl font-bold text-amber-800">بوابة الإشراف الاجتماعي</h1>
-                <p class="text-xs text-gray-500 mt-1">سجل التأخير الصباحي للطلاب</p>
+                <p class="text-xs text-gray-500 mt-1">سجل التأخير الصباحي والاستئذان</p>
             </div>
             <div class="mb-4">
                 <input type="password" id="passInput" class="w-full p-2 border rounded mb-4 text-center font-bold tracking-widest bg-gray-50" placeholder="كلمة المرور (social123)">
@@ -28,8 +28,20 @@
     <div id="socialDashboard" class="hidden p-4 max-w-4xl mx-auto flex-grow w-full mt-4">
         <div class="bg-white p-5 rounded-lg shadow border border-amber-100 mb-6">
             <h2 class="text-lg font-bold text-amber-900 mb-4 border-b pb-2 flex items-center gap-2">
-                <span>⏱️</span> تسجيل طالب متأخر (اليوم)
+                <span>⏱️</span> تسجيل عذر طالب (اليوم)
             </h2>
+            
+            <div class="flex justify-center gap-6 mb-5 bg-gray-50 py-3 rounded border">
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="excuseType" value="تأخير صباحي" checked class="w-4 h-4 text-amber-600 focus:ring-amber-500">
+                    <span class="text-sm font-bold text-amber-900">تأخير صباحي</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="excuseType" value="خروج باستئذان" class="w-4 h-4 text-blue-600 focus:ring-blue-500">
+                    <span class="text-sm font-bold text-blue-900">خروج باستئذان</span>
+                </label>
+            </div>
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-1">اختر الصف:</label>
@@ -44,13 +56,13 @@
                 </div>
             </div>
             <button onclick="submitLateStudent()" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 rounded shadow transition">
-                تسجيل كمتأخر صباحي (ويُحذف تلقائياً من الغياب) 
+                تسجيل العذر (ويُحذف تلقائياً من الغياب) 
             </button>
             <p id="actionMsg" class="text-center text-sm font-bold mt-3 hidden"></p>
         </div>
 
         <div class="bg-white p-5 rounded-lg shadow border border-gray-200">
-            <h3 class="font-bold text-gray-800 mb-3 border-b pb-2">📋 قائمة المتأخرين صباحاً (اليوم):</h3>
+            <h3 class="font-bold text-gray-800 mb-3 border-b pb-2">📋 قائمة الأعذار (اليوم):</h3>
             <ul id="lateList" class="space-y-2"></ul>
         </div>
     </div>
@@ -58,13 +70,7 @@
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbxlJnpJN9y9h04cOswtY3BGGwUS8rhybOisxDFkIQJ6_9nFSPMJeK-wiuFEECnBY3v5/exec";
         let rosters = {};
-
-        const ALL_OFFICIAL_CLASSES = [
-            "سادس ابتدائي 1", "سادس ابتدائي 2", "سادس ابتدائي 3",
-            "أول إعدادي 1", "أول إعدادي 2", "أول إعدادي 3", "أول إعدادي 4",
-            "ثاني إعدادي 1", "ثاني إعدادي 2", "ثاني إعدادي 3", "ثاني إعدادي 4",
-            "ثالث إعدادي 1", "ثالث إعدادي 2", "ثالث إعدادي 3", "ثالث إعدادي 4", "ثالث إعدادي 5"
-        ];
+        const ALL_OFFICIAL_CLASSES = ["سادس ابتدائي 1", "سادس ابتدائي 2", "سادس ابتدائي 3", "أول إعدادي 1", "أول إعدادي 2", "أول إعدادي 3", "أول إعدادي 4", "ثاني إعدادي 1", "ثاني إعدادي 2", "ثاني إعدادي 3", "ثاني إعدادي 4", "ثالث إعدادي 1", "ثالث إعدادي 2", "ثالث إعدادي 3", "ثالث إعدادي 4", "ثالث إعدادي 5"];
 
         function cleanNameDisplay(name) { return String(name || '').replace(/^\s*\d+\s*[-_.]?\s*/, '').trim(); }
 
@@ -85,9 +91,7 @@
                     
                     const cSelect = document.getElementById('classSelect');
                     cSelect.innerHTML = '<option value="">-- اضغط لاختيار الصف --</option>';
-                    ALL_OFFICIAL_CLASSES.forEach(c => {
-                        cSelect.innerHTML += `<option value="${c}">${c}</option>`;
-                    });
+                    ALL_OFFICIAL_CLASSES.forEach(c => { cSelect.innerHTML += `<option value="${c}">${c}</option>`; });
                     
                     renderLateList(result.todayLates);
                 } else {
@@ -104,19 +108,18 @@
         function populateStudents() {
             const cName = document.getElementById('classSelect').value;
             const sSelect = document.getElementById('studentSelect');
-            sSelect.innerHTML = '<option value="">-- اختر الطالب المتأخر --</option>';
+            sSelect.innerHTML = '<option value="">-- اختر الطالب --</option>';
             
             if (cName) {
                 if (rosters[cName] && rosters[cName].length > 0) {
                     const students = rosters[cName].sort((a, b) => {
-                        let matchA = String(a).match(/\d+/);
-                        let matchB = String(b).match(/\d+/);
+                        let matchA = String(a).match(/\d+/); let matchB = String(b).match(/\d+/);
                         if (matchA && matchB) return parseInt(matchA[0]) - parseInt(matchB[0]);
                         return String(a).localeCompare(String(b), 'ar', { numeric: true });
                     });
                     students.forEach(s => sSelect.innerHTML += `<option value="${s}">${cleanNameDisplay(s)}</option>`);
                 } else {
-                    sSelect.innerHTML += `<option value="" disabled>⚠️ لا توجد أسماء طلاب لهذا الصف في (قاعدة البيانات)</option>`;
+                    sSelect.innerHTML += `<option value="" disabled>⚠️ لا توجد أسماء طلاب لهذا الصف</option>`;
                 }
             }
         }
@@ -124,6 +127,7 @@
         async function submitLateStudent() {
             const cName = document.getElementById('classSelect').value;
             const sName = document.getElementById('studentSelect').value;
+            const excType = document.querySelector('input[name="excuseType"]:checked').value;
             const msg = document.getElementById('actionMsg');
 
             if (!cName || !sName) {
@@ -136,17 +140,18 @@
             msg.className = "text-center text-sm font-bold mt-3 text-blue-600 block";
 
             try {
-                const response = await fetch(`${API_URL}?action=markLate&className=${encodeURIComponent(cName)}&studentName=${encodeURIComponent(sName)}`);
+                const response = await fetch(`${API_URL}?action=markLate&className=${encodeURIComponent(cName)}&studentName=${encodeURIComponent(sName)}&excuseType=${encodeURIComponent(excType)}`);
                 const result = await response.json();
                 if (result.status === "success") {
-                    msg.innerText = "تم تسجيل الطالب كمتأخر واستبعاده من الغياب بنجاح ✅";
+                    msg.innerText = "تم تسجيل العذر واستبعاده من الغياب بنجاح ✅";
                     msg.className = "text-center text-sm font-bold mt-3 text-green-600 block";
                     
                     const list = document.getElementById('lateList');
                     if (list.innerHTML.includes("لم يتم تسجيل")) list.innerHTML = "";
 
-                    list.innerHTML += `<li class="bg-amber-50 p-2 rounded border border-amber-200 text-sm font-bold text-amber-900 flex justify-between">
-                        <span>${cleanNameDisplay(sName)}</span> <span class="text-xs text-amber-700">${cName}</span>
+                    let bgClass = excType === "خروج باستئذان" ? "bg-blue-50 border-blue-200 text-blue-900" : "bg-amber-50 border-amber-200 text-amber-900";
+                    list.innerHTML += `<li class="${bgClass} p-2 rounded border text-sm font-bold flex justify-between">
+                        <span>${cleanNameDisplay(sName)} <span class="text-[10px] font-normal mx-1">(${excType})</span></span> <span class="text-xs opacity-75">${cName}</span>
                     </li>`;
                 }
             } catch (err) {
@@ -158,13 +163,14 @@
         function renderLateList(lates) {
             const list = document.getElementById('lateList');
             if (!lates || lates.length === 0) {
-                list.innerHTML = `<li class="text-sm text-gray-500 font-bold">لم يتم تسجيل متأخرين اليوم</li>`;
+                list.innerHTML = `<li class="text-sm text-gray-500 font-bold">لم يتم تسجيل أعذار اليوم</li>`;
                 return;
             }
             list.innerHTML = "";
             lates.forEach(l => {
-                list.innerHTML += `<li class="bg-amber-50 p-2 rounded border border-amber-200 text-sm font-bold text-amber-900 flex justify-between">
-                    <span>${cleanNameDisplay(l.studentName)}</span> <span class="text-xs text-amber-700">${l.className}</span>
+                let bgClass = l.excuseType === "خروج باستئذان" ? "bg-blue-50 border-blue-200 text-blue-900" : "bg-amber-50 border-amber-200 text-amber-900";
+                list.innerHTML += `<li class="${bgClass} p-2 rounded border text-sm font-bold flex justify-between">
+                    <span>${cleanNameDisplay(l.studentName)} <span class="text-[10px] font-normal mx-1">(${l.excuseType})</span></span> <span class="text-xs opacity-75">${l.className}</span>
                 </li>`;
             });
         }
