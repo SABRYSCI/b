@@ -33,13 +33,13 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-1">اختر الصف:</label>
-                    <select id="classSelect" class="w-full p-2.5 border rounded bg-gray-50 font-bold" onchange="populateStudents()">
-                        <option value="">-- اضغط لاختيار الصف --</option>
+                    <select id="classSelect" class="w-full p-2.5 border rounded bg-gray-50 font-bold text-gray-900" onchange="populateStudents()">
+                        <!-- سيتم التعبئة تلقائيا -->
                     </select>
                 </div>
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-1">اختر الطالب:</label>
-                    <select id="studentSelect" class="w-full p-2.5 border rounded bg-gray-50 font-bold">
+                    <select id="studentSelect" class="w-full p-2.5 border rounded bg-gray-50 font-bold text-gray-900">
                         <option value="">-- اختر الصف أولاً --</option>
                     </select>
                 </div>
@@ -60,6 +60,13 @@
         const API_URL = "https://script.google.com/macros/s/AKfycbxlJnpJN9y9h04cOswtY3BGGwUS8rhybOisxDFkIQJ6_9nFSPMJeK-wiuFEECnBY3v5/exec";
         let rosters = {};
 
+        const ALL_OFFICIAL_CLASSES = [
+            "سادس ابتدائي 1", "سادس ابتدائي 2", "سادس ابتدائي 3",
+            "أول إعدادي 1", "أول إعدادي 2", "أول إعدادي 3", "أول إعدادي 4",
+            "ثاني إعدادي 1", "ثاني إعدادي 2", "ثاني إعدادي 3", "ثاني إعدادي 4",
+            "ثالث إعدادي 1", "ثالث إعدادي 2", "ثالث إعدادي 3", "ثالث إعدادي 4", "ثالث إعدادي 5"
+        ];
+
         async function loginSocial() {
             const pass = document.getElementById('passInput').value;
             const errorMsg = document.getElementById('errorMsg');
@@ -76,7 +83,8 @@
                     document.getElementById('socialDashboard').classList.remove('hidden');
                     
                     const cSelect = document.getElementById('classSelect');
-                    Object.keys(rosters).sort().forEach(c => {
+                    cSelect.innerHTML = '<option value="">-- اضغط لاختيار الصف --</option>';
+                    ALL_OFFICIAL_CLASSES.forEach(c => {
                         cSelect.innerHTML += `<option value="${c}">${c}</option>`;
                     });
                     
@@ -96,9 +104,20 @@
             const cName = document.getElementById('classSelect').value;
             const sSelect = document.getElementById('studentSelect');
             sSelect.innerHTML = '<option value="">-- اختر الطالب المتأخر --</option>';
-            if (cName && rosters[cName]) {
-                const students = rosters[cName].filter(name => !/^\d+$/.test(name)).sort((a,b) => a.localeCompare(b, 'ar'));
-                students.forEach(s => sSelect.innerHTML += `<option value="${s}">${s}</option>`);
+            
+            if (cName) {
+                if (rosters[cName] && rosters[cName].length > 0) {
+                    // فرز ذكي للأسماء بناءً على الرقم الموجود في البداية
+                    const students = rosters[cName].sort((a, b) => {
+                        let numA = parseInt(a);
+                        let numB = parseInt(b);
+                        if (!isNaN(numA) && !isNaN(numB)) return numA - numB;
+                        return a.localeCompare(b, 'ar');
+                    });
+                    students.forEach(s => sSelect.innerHTML += `<option value="${s}">${s}</option>`);
+                } else {
+                    sSelect.innerHTML += `<option value="" disabled>⚠️ لا توجد أسماء طلاب لهذا الصف في (قاعدة البيانات)</option>`;
+                }
             }
         }
 
@@ -124,6 +143,8 @@
                     msg.className = "text-center text-sm font-bold mt-3 text-green-600 block";
                     
                     const list = document.getElementById('lateList');
+                    if (list.innerHTML.includes("لم يتم تسجيل")) list.innerHTML = "";
+
                     list.innerHTML += `<li class="bg-amber-50 p-2 rounded border border-amber-200 text-sm font-bold text-amber-900 flex justify-between">
                         <span>${sName}</span> <span class="text-xs text-amber-700">${cName}</span>
                     </li>`;
