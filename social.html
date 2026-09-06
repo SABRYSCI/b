@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>المشرف الاجتماعي - تسجيل التأخير الصباحي</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>body { font-family: 'Tajawal', sans-serif; background-color: #fdf8f6; }</style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <div id="loginScreen" class="min-h-screen flex items-center justify-center p-4">
+        <div class="bg-white p-8 rounded-lg shadow-md w-96 max-w-full border-t-4 border-amber-600">
+            <div class="text-center mb-4">
+                <img src="https://i.postimg.cc/K88X7RLb/trwysyh-dhhbyt.png" alt="شعار المدرسة" class="max-h-20 mx-auto object-contain mb-3">
+                <h1 class="text-xl font-bold text-amber-800">بوابة الإشراف الاجتماعي</h1>
+                <p class="text-xs text-gray-500 mt-1">سجل التأخير الصباحي للطلاب</p>
+            </div>
+            <div class="mb-4">
+                <input type="password" id="passInput" class="w-full p-2 border rounded mb-4 text-center font-bold tracking-widest bg-gray-50" placeholder="كلمة المرور (social123)">
+            </div>
+            <button onclick="loginSocial()" class="w-full bg-amber-600 text-white font-bold py-2.5 px-4 rounded hover:bg-amber-700 shadow">دخول</button>
+            <p id="errorMsg" class="text-red-500 text-sm mt-3 text-center hidden font-bold"></p>
+        </div>
+    </div>
+
+    <div id="socialDashboard" class="hidden p-4 max-w-4xl mx-auto flex-grow w-full mt-4">
+        <div class="bg-white p-5 rounded-lg shadow border border-amber-100 mb-6">
+            <h2 class="text-lg font-bold text-amber-900 mb-4 border-b pb-2 flex items-center gap-2">
+                <span>⏱️</span> تسجيل طالب متأخر (اليوم)
+            </h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">اختر الصف:</label>
+                    <select id="classSelect" class="w-full p-2.5 border rounded bg-gray-50 font-bold" onchange="populateStudents()">
+                        <option value="">-- اضغط لاختيار الصف --</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-gray-700 mb-1">اختر الطالب:</label>
+                    <select id="studentSelect" class="w-full p-2.5 border rounded bg-gray-50 font-bold">
+                        <option value="">-- اختر الصف أولاً --</option>
+                    </select>
+                </div>
+            </div>
+            <button onclick="submitLateStudent()" class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 rounded shadow transition">
+                تسجيل كمتأخر صباحي (ويُحذف تلقائياً من الغياب) 
+            </button>
+            <p id="actionMsg" class="text-center text-sm font-bold mt-3 hidden"></p>
+        </div>
+
+        <div class="bg-white p-5 rounded-lg shadow border border-gray-200">
+            <h3 class="font-bold text-gray-800 mb-3 border-b pb-2">📋 قائمة المتأخرين صباحاً (اليوم):</h3>
+            <ul id="lateList" class="space-y-2"></ul>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = "https://script.google.com/macros/s/AKfycbxlJnpJN9y9h04cOswtY3BGGwUS8rhybOisxDFkIQJ6_9nFSPMJeK-wiuFEECnBY3v5/exec";
+        let rosters = {};
+
+        async function loginSocial() {
+            const pass = document.getElementById('passInput').value;
+            const errorMsg = document.getElementById('errorMsg');
+            if (!pass) return;
+            errorMsg.classList.add('hidden');
+            document.querySelector('button').innerText = "جاري التحقق...";
+
+            try {
+                const response = await fetch(`${API_URL}?action=social_init&pass=${pass}`);
+                const result = await response.json();
+                if (result.status === "success") {
+                    rosters = result.rosters;
+                    document.getElementById('loginScreen').classList.add('hidden');
+                    document.getElementById('socialDashboard').classList.remove('hidden');
+                    
+                    const cSelect = document.getElementById('classSelect');
+                    Object.keys(rosters).sort().forEach(c => {
+                        cSelect.innerHTML += `<option value="${c}">${c}</option>`;
+                    });
+                    
+                    renderLateList(result.todayLates);
+                } else {
+                    errorMsg.innerText = result.message;
+                    errorMsg.classList.remove('hidden');
+                }
+            } catch (err) {
+                errorMsg.innerText = "فشل الاتصال بقاعدة البيانات";
+                errorMsg.classList.remove('hidden');
+            }
+            document.querySelector('button').innerText = "دخول";
+        }
+
+        function populateStudents() {
+            const cName = document.getElementById('classSelect').value;
+            const sSelect = document.getElementById('studentSelect');
+            sSelect.innerHTML = '<option value="">-- اختر الطالب المتأخر --</option>';
+            if (cName && rosters[cName]) {
+                const students = rosters[cName].filter(name => !/^\d+$/.test(name)).sort((a,b) => a.localeCompare(b, 'ar'));
+                students.forEach(s => sSelect.innerHTML += `<option value="${s}">${s}</option>`);
+            }
+        }
+
+        async function submitLateStudent() {
+            const cName = document.getElementById('classSelect').value;
+            const sName = document.getElementById('studentSelect').value;
+            const msg = document.getElementById('actionMsg');
+
+            if (!cName || !sName) {
+                msg.innerText = "الرجاء اختيار الصف والطالب";
+                msg.className = "text-center text-sm font-bold mt-3 text-red-600 block";
+                return;
+            }
+
+            msg.innerText = "جاري التسجيل والربط بنظام الغياب...";
+            msg.className = "text-center text-sm font-bold mt-3 text-blue-600 block";
+
+            try {
+                const response = await fetch(`${API_URL}?action=markLate&className=${encodeURIComponent(cName)}&studentName=${encodeURIComponent(sName)}`);
+                const result = await response.json();
+                if (result.status === "success") {
+                    msg.innerText = "تم تسجيل الطالب كمتأخر واستبعاده من الغياب بنجاح ✅";
+                    msg.className = "text-center text-sm font-bold mt-3 text-green-600 block";
+                    
+                    const list = document.getElementById('lateList');
+                    list.innerHTML += `<li class="bg-amber-50 p-2 rounded border border-amber-200 text-sm font-bold text-amber-900 flex justify-between">
+                        <span>${sName}</span> <span class="text-xs text-amber-700">${cName}</span>
+                    </li>`;
+                }
+            } catch (err) {
+                msg.innerText = "حدث خطأ في التسجيل!";
+                msg.className = "text-center text-sm font-bold mt-3 text-red-600 block";
+            }
+        }
+
+        function renderLateList(lates) {
+            const list = document.getElementById('lateList');
+            if (!lates || lates.length === 0) {
+                list.innerHTML = `<li class="text-sm text-gray-500 font-bold">لم يتم تسجيل متأخرين اليوم</li>`;
+                return;
+            }
+            list.innerHTML = "";
+            lates.forEach(l => {
+                list.innerHTML += `<li class="bg-amber-50 p-2 rounded border border-amber-200 text-sm font-bold text-amber-900 flex justify-between">
+                    <span>${l.studentName}</span> <span class="text-xs text-amber-700">${l.className}</span>
+                </li>`;
+            });
+        }
+    </script>
+</body>
+</html>
