@@ -242,32 +242,40 @@
             document.getElementById('dateRowCells').innerHTML = subDateCellsHtml;
 
             let students = allRosters[selectedClass] || [];
-            
             if (students.length === 0) {
                 const sSet = new Set(classRecords.map(r => r.studentName).filter(n => n && !/لا\s*يوجد|حضور/i.test(n)));
                 students = Array.from(sSet);
             }
-            students.sort((a, b) => {
-                let numA = parseInt(a);
-                let numB = parseInt(b);
-                if (!isNaN(numA) && !isNaN(numB)) return numA - numB;
-                return a.localeCompare(b, 'ar');
+
+            // الفرز الذكي واستخراج الاسم الصافي بدون أرقام
+            let studentObjs = students.map(s => {
+                let match = String(s).match(/^\s*(\d+)\s*[-_.]?\s*/);
+                let num = match ? parseInt(match[1]) : 999;
+                let cleanName = match ? String(s).substring(match[0].length).trim() : String(s).trim();
+                return { rawName: s, cleanName: cleanName, num: num };
+            });
+
+            // ترتيب دقيق تصاعدياً حسب الرقم
+            studentObjs.sort((a, b) => {
+                if (a.num !== 999 && b.num !== 999) return a.num - b.num;
+                return a.cleanName.localeCompare(b.cleanName, 'ar');
             });
 
             const tbody = document.getElementById('officialRegisterBody');
             tbody.innerHTML = "";
-            if (students.length === 0) {
+            if (studentObjs.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="${TOTAL_COLUMNS + 3}" class="border border-black p-4 font-bold text-red-600">لا توجد أسماء طلاب مسجلة</td></tr>`;
                 return;
             }
 
-            students.forEach((sName, index) => {
+            studentObjs.forEach((sObj, index) => {
                 let absentCount = 0;
                 let cellsHtml = "";
                 for (let col = 0; col < TOTAL_COLUMNS; col++) {
                     if (col < activeDates.length) {
                         const targetDate = activeDates[col];
-                        const record = classRecords.find(r => r.date === targetDate && r.studentName === sName);
+                        // يتم المطابقة بالاسم الأصلي لكي يتوافق مع قاعدة البيانات
+                        const record = classRecords.find(r => r.date === targetDate && r.studentName === sObj.rawName);
                         
                         if (record) {
                             if (record.isLate) {
@@ -283,10 +291,14 @@
                         cellsHtml += `<td class="border border-black p-0 bg-white"></td>`;
                     }
                 }
+                
+                // استخدام الرقم المستخرج في عمود 'م'، والاسم الصافي في عمود 'اسم التلميذ'
+                let serialNum = sObj.num !== 999 ? sObj.num : (index + 1);
+
                 tbody.innerHTML += `
                     <tr class="h-6 hover:bg-gray-50">
-                        <td class="border border-black text-xs font-bold text-center">${index + 1}</td>
-                        <td class="border border-black text-xs font-bold text-right pr-2 whitespace-nowrap">${sName}</td>
+                        <td class="border border-black text-xs font-bold text-center">${serialNum}</td>
+                        <td class="border border-black text-xs font-bold text-right pr-2 whitespace-nowrap">${sObj.cleanName}</td>
                         ${cellsHtml}
                         <td class="border border-black text-xs font-extrabold text-center ${absentCount > 0 ? 'text-red-600 bg-red-50' : 'text-gray-400'}">${absentCount > 0 ? absentCount : ''}</td>
                     </tr>`;
