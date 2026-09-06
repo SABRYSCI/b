@@ -89,7 +89,6 @@
 
         function isNoAbsenceText(name) { return /لا\s*يوجد|حضور|الجميع/i.test(String(name||'').trim()); }
         function cleanClass(str) { return String(str||'').replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي').replace(/[\s\-_/\\.]/g, '').trim(); }
-        // دالة تنظيف الرقم من بداية الاسم للعرض فقط
         function cleanNameDisplay(name) { return String(name || '').replace(/^\s*\d+\s*[-_.]?\s*/, '').trim(); }
 
         function getClassTotal(cName) {
@@ -145,9 +144,12 @@
                 const recs = globalData.data.filter(r => cleanClass(r.className) === cleanClass(cName) && String(r.period).replace(/\D/g,'') === String(pNum));
                 const isRec = recs.length > 0;
                 
-                // تنظيف الاسم قبل عرضه
-                let absNames = recs.filter(r => r.studentName && !isNoAbsenceText(r.studentName) && !r.isLate).map(r => cleanNameDisplay(r.studentName));
-                let lateNames = recs.filter(r => r.studentName && !isNoAbsenceText(r.studentName) && r.isLate).map(r => cleanNameDisplay(r.studentName));
+                // فلترة التكرار وعرض الاسم الصافي
+                let absNamesRaw = recs.filter(r => r.studentName && !isNoAbsenceText(r.studentName) && !r.isLate).map(r => cleanNameDisplay(r.studentName));
+                let lateNamesRaw = recs.filter(r => r.studentName && !isNoAbsenceText(r.studentName) && r.isLate).map(r => cleanNameDisplay(r.studentName));
+                
+                let absNames = [...new Set(absNamesRaw)];
+                let lateNames = [...new Set(lateNamesRaw)];
                 
                 let absCount = absNames.length;
                 let presCount = isRec ? Math.max(0, cTotal - absCount) : cTotal;
