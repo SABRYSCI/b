@@ -162,15 +162,8 @@
         const TOTAL_COLUMNS = 22;
 
         function cleanClass(str) { return String(str||'').replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي').replace(/[\s\-_/\\.]/g, '').trim(); }
-        
-        // --- خوارزميات المطابقة الذكية الجديدة ---
-        function cleanNameDisplay(name) { 
-            return String(name || '').replace(/^\s*\d+\s*[-_.]?\s*/, '').trim(); 
-        }
-        function normalizeNameForMatch(name) { 
-            return cleanNameDisplay(name).replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي').replace(/\s+/g, ' '); 
-        }
-        
+        function cleanNameDisplay(name) { return String(name || '').replace(/^\s*\d+\s*[-_.]?\s*/, '').trim(); }
+        function normalizeNameForMatch(name) { return cleanNameDisplay(name).replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي').replace(/\s+/g, ' '); }
         function formatShortDate(dateStr) {
             if (!dateStr) return "-";
             const m = String(dateStr).match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
@@ -259,8 +252,7 @@
             let studentObjs = students.map(s => {
                 let match = String(s).match(/^\s*(\d+)\s*[-_.]?\s*/);
                 let num = match ? parseInt(match[1]) : 999;
-                let cleanName = match ? String(s).substring(match[0].length).trim() : String(s).trim();
-                return { rawName: s, cleanName: cleanName, num: num };
+                return { rawName: s, cleanName: cleanNameDisplay(s), num: num };
             });
 
             studentObjs.sort((a, b) => {
@@ -281,15 +273,12 @@
                 for (let col = 0; col < TOTAL_COLUMNS; col++) {
                     if (col < activeDates.length) {
                         const targetDate = activeDates[col];
-                        
-                        // --- المطابقة الذكية تحدث هنا ---
-                        const record = classRecords.find(r => 
-                            r.date === targetDate && 
-                            normalizeNameForMatch(r.studentName) === normalizeNameForMatch(sObj.cleanName)
-                        );
+                        const record = classRecords.find(r => r.date === targetDate && normalizeNameForMatch(r.studentName) === normalizeNameForMatch(sObj.cleanName));
                         
                         if (record) {
-                            if (record.isLate) {
+                            if (record.excuseType === "خروج باستئذان") {
+                                cellsHtml += `<td class="border border-black font-extrabold text-blue-500 text-sm p-0 bg-blue-50">س</td>`;
+                            } else if (record.excuseType) {
                                 cellsHtml += `<td class="border border-black font-extrabold text-orange-500 text-sm p-0 bg-orange-50">ت</td>`;
                             } else {
                                 absentCount++;
