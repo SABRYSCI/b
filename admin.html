@@ -144,7 +144,6 @@
                 const recs = globalData.data.filter(r => cleanClass(r.className) === cleanClass(cName) && String(r.period).replace(/\D/g,'') === String(pNum));
                 const isRec = recs.length > 0;
                 
-                // فلترة التكرار وعرض الاسم الصافي
                 let absNamesRaw = recs.filter(r => r.studentName && !isNoAbsenceText(r.studentName) && !r.isLate).map(r => cleanNameDisplay(r.studentName));
                 let lateNamesRaw = recs.filter(r => r.studentName && !isNoAbsenceText(r.studentName) && r.isLate).map(r => cleanNameDisplay(r.studentName));
                 
