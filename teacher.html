@@ -247,7 +247,6 @@
                 students = Array.from(sSet);
             }
 
-            // الفرز الذكي واستخراج الاسم الصافي بدون أرقام
             let studentObjs = students.map(s => {
                 let match = String(s).match(/^\s*(\d+)\s*[-_.]?\s*/);
                 let num = match ? parseInt(match[1]) : 999;
@@ -255,7 +254,6 @@
                 return { rawName: s, cleanName: cleanName, num: num };
             });
 
-            // ترتيب دقيق تصاعدياً حسب الرقم
             studentObjs.sort((a, b) => {
                 if (a.num !== 999 && b.num !== 999) return a.num - b.num;
                 return a.cleanName.localeCompare(b.cleanName, 'ar');
@@ -274,7 +272,6 @@
                 for (let col = 0; col < TOTAL_COLUMNS; col++) {
                     if (col < activeDates.length) {
                         const targetDate = activeDates[col];
-                        // يتم المطابقة بالاسم الأصلي لكي يتوافق مع قاعدة البيانات
                         const record = classRecords.find(r => r.date === targetDate && r.studentName === sObj.rawName);
                         
                         if (record) {
@@ -292,7 +289,6 @@
                     }
                 }
                 
-                // استخدام الرقم المستخرج في عمود 'م'، والاسم الصافي في عمود 'اسم التلميذ'
                 let serialNum = sObj.num !== 999 ? sObj.num : (index + 1);
 
                 tbody.innerHTML += `
