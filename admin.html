@@ -60,21 +60,19 @@
                 <button onclick="selectPeriod(6)" id="btnP6" class="period-btn py-1.5 border rounded text-xs font-bold bg-gray-50">الحصة 6</button>
                 <button onclick="selectPeriod(7)" id="btnP7" class="period-btn py-1.5 border rounded text-xs font-bold bg-gray-50">الحصة 7</button>
             </div>
-
             <div class="mb-5 grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
                 <div class="bg-white p-3 border border-t-4 border-t-blue-500"><p class="text-[11px] text-gray-500">الطلاب</p><p id="pSumTotal" class="text-xl font-bold">0</p></div>
                 <div class="bg-white p-3 border border-t-4 border-t-green-500"><p class="text-[11px] text-gray-500">الحضور</p><p id="pSumPresent" class="text-xl font-bold text-green-600">0</p></div>
                 <div class="bg-white p-3 border border-t-4 border-t-red-500"><p class="text-[11px] text-gray-500">الغياب</p><p id="pSumAbsent" class="text-xl font-bold text-red-600">0</p></div>
                 <div class="bg-white p-3 border border-t-4 border-t-yellow-500"><p class="text-[11px] text-gray-500">النسبة</p><p id="pSumPercent" class="text-xl font-bold text-yellow-600">0%</p></div>
             </div>
-
             <div class="overflow-x-auto border border-gray-200 rounded">
                 <table class="w-full text-xs text-right border-collapse">
                     <thead class="bg-purple-50 text-purple-950 font-bold border-b">
                         <tr>
                             <th class="p-2 border text-center">الصف</th><th class="p-2 border text-center">حالة الرصد</th><th class="p-2 border">المعلم الراصد</th>
                             <th class="p-2 border text-center">الطلاب</th><th class="p-2 border text-center">الحضور</th><th class="p-2 border text-center">الغياب</th>
-                            <th class="p-2 border min-w-[220px]">الغياب والتأخير</th>
+                            <th class="p-2 border min-w-[220px]">أسماء الغائبين والأعذار</th>
                         </tr>
                     </thead>
                     <tbody id="periodTableBody"></tbody>
@@ -90,17 +88,11 @@
         function isNoAbsenceText(name) { return /لا\s*يوجد|حضور|الجميع/i.test(String(name||'').trim()); }
         function cleanClass(str) { return String(str||'').replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي').replace(/[\s\-_/\\.]/g, '').trim(); }
         function cleanNameDisplay(name) { return String(name || '').replace(/^\s*\d+\s*[-_.]?\s*/, '').trim(); }
-
-        function getClassTotal(cName) {
-            const target = cleanClass(cName);
-            for (let k in globalData.classTotals) if (cleanClass(k) === target && globalData.classTotals[k] > 0) return globalData.classTotals[k];
-            return 31;
-        }
+        function getClassTotal(cName) { const target = cleanClass(cName); for (let k in globalData.classTotals) if (cleanClass(k) === target && globalData.classTotals[k] > 0) return globalData.classTotals[k]; return 31; }
 
         async function loginAdmin() {
             const pass = document.getElementById('passInput').value;
-            if (!pass) return;
-            currentPass = pass;
+            if (!pass) return; currentPass = pass;
             if (await fetchAdminData(pass)) {
                 document.getElementById('loginScreen').classList.add('hidden');
                 document.getElementById('adminDashboard').classList.remove('hidden');
@@ -139,16 +131,17 @@
             let tStudents = 0, tAbsents = 0;
 
             globalData.classes.forEach(cName => {
-                const cTotal = getClassTotal(cName);
-                tStudents += cTotal;
+                const cTotal = getClassTotal(cName); tStudents += cTotal;
                 const recs = globalData.data.filter(r => cleanClass(r.className) === cleanClass(cName) && String(r.period).replace(/\D/g,'') === String(pNum));
                 const isRec = recs.length > 0;
                 
-                let absNamesRaw = recs.filter(r => r.studentName && !isNoAbsenceText(r.studentName) && !r.isLate).map(r => cleanNameDisplay(r.studentName));
-                let lateNamesRaw = recs.filter(r => r.studentName && !isNoAbsenceText(r.studentName) && r.isLate).map(r => cleanNameDisplay(r.studentName));
+                let absNamesRaw = recs.filter(r => r.studentName && !isNoAbsenceText(r.studentName) && !r.excuseType).map(r => cleanNameDisplay(r.studentName));
+                let lateNamesRaw = recs.filter(r => r.studentName && !isNoAbsenceText(r.studentName) && r.excuseType === 'تأخير صباحي').map(r => cleanNameDisplay(r.studentName));
+                let excuseNamesRaw = recs.filter(r => r.studentName && !isNoAbsenceText(r.studentName) && r.excuseType === 'خروج باستئذان').map(r => cleanNameDisplay(r.studentName));
                 
                 let absNames = [...new Set(absNamesRaw)];
                 let lateNames = [...new Set(lateNamesRaw)];
+                let excuseNames = [...new Set(excuseNamesRaw)];
                 
                 let absCount = absNames.length;
                 let presCount = isRec ? Math.max(0, cTotal - absCount) : cTotal;
@@ -156,8 +149,10 @@
 
                 let html = "";
                 if (absNames.length > 0) html += `<ol class="list-decimal list-inside text-red-600 font-bold">` + absNames.map(n=>`<li>${n}</li>`).join('') + `</ol>`;
-                if (lateNames.length > 0) html += `<div class="mt-1 pt-1 border-t"><p class="text-[10px] text-orange-600 font-bold mb-0.5">متأخر صباحياً:</p><ul class="list-disc list-inside text-orange-600 font-bold text-[11px]">` + lateNames.map(n=>`<li>${n}</li>`).join('') + `</ul></div>`;
-                if (absNames.length===0 && lateNames.length===0 && isRec) html = `<span class="text-green-700 font-bold bg-green-50 px-2 py-0.5 rounded">✅ الجميع حضور</span>`;
+                if (lateNames.length > 0) html += `<div class="mt-1 pt-1 border-t"><p class="text-[10px] text-orange-600 font-bold mb-0.5">تأخير صباحي:</p><ul class="list-disc list-inside text-orange-600 font-bold text-[11px]">` + lateNames.map(n=>`<li>${n}</li>`).join('') + `</ul></div>`;
+                if (excuseNames.length > 0) html += `<div class="mt-1 pt-1 border-t"><p class="text-[10px] text-blue-600 font-bold mb-0.5">خروج باستئذان:</p><ul class="list-disc list-inside text-blue-600 font-bold text-[11px]">` + excuseNames.map(n=>`<li>${n}</li>`).join('') + `</ul></div>`;
+                
+                if (absNames.length===0 && lateNames.length===0 && excuseNames.length===0 && isRec) html = `<span class="text-green-700 font-bold bg-green-50 px-2 py-0.5 rounded">✅ الجميع حضور</span>`;
                 else if (!isRec) html = `<span class="text-gray-400">-</span>`;
 
                 tbody.innerHTML += `<tr class="border-b hover:bg-gray-50">
