@@ -162,6 +162,15 @@
         const TOTAL_COLUMNS = 22;
 
         function cleanClass(str) { return String(str||'').replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي').replace(/[\s\-_/\\.]/g, '').trim(); }
+        
+        // --- خوارزميات المطابقة الذكية الجديدة ---
+        function cleanNameDisplay(name) { 
+            return String(name || '').replace(/^\s*\d+\s*[-_.]?\s*/, '').trim(); 
+        }
+        function normalizeNameForMatch(name) { 
+            return cleanNameDisplay(name).replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي').replace(/\s+/g, ' '); 
+        }
+        
         function formatShortDate(dateStr) {
             if (!dateStr) return "-";
             const m = String(dateStr).match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
@@ -272,7 +281,12 @@
                 for (let col = 0; col < TOTAL_COLUMNS; col++) {
                     if (col < activeDates.length) {
                         const targetDate = activeDates[col];
-                        const record = classRecords.find(r => r.date === targetDate && r.studentName === sObj.rawName);
+                        
+                        // --- المطابقة الذكية تحدث هنا ---
+                        const record = classRecords.find(r => 
+                            r.date === targetDate && 
+                            normalizeNameForMatch(r.studentName) === normalizeNameForMatch(sObj.cleanName)
+                        );
                         
                         if (record) {
                             if (record.isLate) {
