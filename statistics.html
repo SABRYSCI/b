@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مركز الإحصائيات والبحث الذكي</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Tajawal', sans-serif; background-color: #f1f5f9; }
+        .hidden { display: none; }
+        @media print {
+            body { background: white !important; margin: 0 !important; }
+            .no-print { display: none !important; }
+            table { page-break-inside: avoid; }
+        }
+    </style>
+</head>
+<body class="text-gray-800 flex flex-col min-h-screen">
+
+    <div id="loginScreen" class="min-h-screen flex items-center justify-center p-4 no-print">
+        <div class="bg-white p-8 rounded-lg shadow-md w-96 border-t-4 border-indigo-600 text-center">
+            <img src="https://i.postimg.cc/K88X7RLb/trwysyh-dhhbyt.png" class="max-h-20 mx-auto mb-4">
+            <h1 class="text-2xl font-bold text-indigo-800 mb-1">مركز الإحصاء والبحث</h1>
+            <p class="text-xs text-gray-500 mb-5">مدرسة البلاد القديم الابتدائية الإعدادية للبنين</p>
+            <input type="password" id="passInput" class="w-full p-2 border rounded mb-4 text-center font-bold" placeholder="كلمة المرور (admin123)">
+            <button onclick="loginStats()" class="w-full bg-indigo-600 text-white font-bold py-2 rounded shadow hover:bg-indigo-700">تسجيل الدخول</button>
+            <p id="errorMsg" class="text-red-500 text-sm mt-3 hidden"></p>
+        </div>
+    </div>
+
+    <div id="statsDashboard" class="hidden p-4 max-w-7xl mx-auto flex-grow w-full">
+        <div class="bg-white p-4 rounded-lg shadow mb-4 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <img src="https://i.postimg.cc/K88X7RLb/trwysyh-dhhbyt.png" class="h-12 object-contain">
+                <div>
+                    <h2 class="text-xl font-bold text-indigo-900">الإحصائيات التجميعية والبحث الذكي</h2>
+                    <p class="text-xs text-gray-500 font-semibold" id="lastUpdatedBadge">جاري التحميل...</p>
+                </div>
+            </div>
+            <div class="flex gap-2 no-print">
+                <button onclick="window.print()" class="bg-gray-800 text-white text-xs font-bold py-2 px-3 rounded shadow">🖨️ طباعة التقرير</button>
+                <button onclick="location.reload()" class="bg-gray-200 text-gray-700 text-xs font-bold py-2 px-3 rounded">خروج</button>
+            </div>
+        </div>
+
+        <div class="bg-indigo-50 border border-indigo-100 p-4 rounded-lg shadow-sm mb-4 no-print">
+            <h3 class="text-sm font-bold text-indigo-800 mb-3 flex items-center gap-1">🔍 أدوات الفلترة والبحث:</h3>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">من تاريخ:</label>
+                    <input type="date" id="startDate" class="w-full p-2 border rounded text-sm font-bold bg-white" onchange="applyFilters()">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">إلى تاريخ:</label>
+                    <input type="date" id="endDate" class="w-full p-2 border rounded text-sm font-bold bg-white" onchange="applyFilters()">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">تصفية بالمرحلة:</label>
+                    <select id="stageFilter" class="w-full p-2 border rounded text-sm font-bold bg-white" onchange="applyFilters()">
+                        <option value="all">جميع المراحل (كل المدرسة)</option>
+                        <option value="سادس">سادس ابتدائي</option>
+                        <option value="أول إعدادي">أول إعدادي</option>
+                        <option value="ثاني إعدادي">ثاني إعدادي</option>
+                        <option value="ثالث إعدادي">ثالث إعدادي</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-gray-700 mb-1">بحث ذكي حر:</label>
+                    <input type="text" id="searchInput" class="w-full p-2 border border-indigo-300 rounded text-sm font-bold bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="اسم الطالب، المعلم، الصف..." onkeyup="applyFilters()">
+                </div>
+            </div>
+            <div class="mt-3 flex gap-2">
+                <button onclick="setDateRange('today')" class="bg-white border border-indigo-200 text-indigo-700 text-xs font-bold py-1.5 px-3 rounded hover:bg-indigo-100">اليوم</button>
+                <button onclick="setDateRange('week')" class="bg-white border border-indigo-200 text-indigo-700 text-xs font-bold py-1.5 px-3 rounded hover:bg-indigo-100">هذا الأسبوع</button>
+                <button onclick="setDateRange('month')" class="bg-white border border-indigo-200 text-indigo-700 text-xs font-bold py-1.5 px-3 rounded hover:bg-indigo-100">هذا الشهر</button>
+                <button onclick="setDateRange('all')" class="bg-indigo-600 text-white text-xs font-bold py-1.5 px-3 rounded hover:bg-indigo-700">كل السجلات</button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-5">
+            <div class="bg-white p-4 rounded-lg shadow border-b-4 border-gray-400 text-center">
+                <p class="text-xs text-gray-500 font-bold mb-1">النطاق الزمني المحدد</p>
+                <p id="statDateRange" class="text-sm font-extrabold text-gray-800">كل الأيام</p>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow border-b-4 border-blue-500 text-center">
+                <p class="text-xs text-gray-500 font-bold mb-1">الصفوف المشمولة</p>
+                <p id="statClasses" class="text-xl font-black text-blue-600">0</p>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow border-b-4 border-red-500 text-center">
+                <p class="text-xs text-gray-500 font-bold mb-1">إجمالي حصص الغياب</p>
+                <p id="statAbsences" class="text-2xl font-black text-red-600">0</p>
+            </div>
+            <div class="bg-white p-4 rounded-lg shadow border-b-4 border-orange-500 text-center">
+                <p class="text-xs text-gray-500 font-bold mb-1">إجمالي حالات التأخير</p>
+                <p id="statLates" class="text-2xl font-black text-orange-500">0</p>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow overflow-hidden border border-gray-200">
+            <div class="bg-gray-50 p-3 border-b flex justify-between items-center">
+                <h3 class="font-bold text-gray-800 text-sm">تفاصيل السجلات المطابقة:</h3>
+                <span id="resultsCount" class="text-xs font-bold text-white bg-indigo-600 px-2 py-1 rounded">0 نتيجة</span>
+            </div>
+            <div class="overflow-x-auto max-h-[500px] overflow-y-auto">
+                <table class="w-full text-xs text-right border-collapse">
+                    <thead class="bg-indigo-100 text-indigo-900 sticky top-0 shadow-sm">
+                        <tr>
+                            <th class="p-2 border-b">التاريخ</th>
+                            <th class="p-2 border-b">الحصة</th>
+                            <th class="p-2 border-b">الصف</th>
+                            <th class="p-2 border-b">اسم الطالب</th>
+                            <th class="p-2 border-b text-center">الحالة</th>
+                            <th class="p-2 border-b">المعلم الراصد</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsTableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="mt-4 text-center text-[10px] font-bold text-gray-400 no-print">تصميم وتطوير: صبري محمد حمد 2026-2027م</div>
+    </div>
+
+    <script>
+        const API_URL = "https://script.google.com/macros/s/AKfycbxlJnpJN9y9h04cOswtY3BGGwUS8rhybOisxDFkIQJ6_9nFSPMJeK-wiuFEECnBY3v5/exec";
+        let globalRecords = [];
+        
+        function isNoAbsenceText(name) { return /لا\s*يوجد|حضور|الجميع/i.test(String(name||'').trim()); }
+        function cleanNameDisplay(name) { return String(name || '').replace(/^\s*\d+\s*[-_.]?\s*/, '').trim(); }
+
+        function formatDateForInput(date) {
+            let d = new Date(date);
+            if(isNaN(d)) return "";
+            let month = '' + (d.getMonth() + 1), day = '' + d.getDate(), year = d.getFullYear();
+            if (month.length < 2) month = '0' + month;
+            if (day.length < 2) day = '0' + day;
+            return [year, month, day].join('-');
+        }
+
+        async function loginStats() {
+            const pass = document.getElementById('passInput').value;
+            const btn = document.querySelector('button');
+            const errorMsg = document.getElementById('errorMsg');
+            if (!pass) return;
+            errorMsg.classList.add('hidden');
+            btn.innerText = "جاري جلب السجلات التاريخية...";
+
+            try {
+                const response = await fetch(`${API_URL}?action=statistics&pass=${pass}&_t=${Date.now()}`);
+                const result = await response.json();
+                if (result.status === "success") {
+                    globalRecords = result.records;
+                    
+                    document.getElementById('loginScreen').classList.add('hidden');
+                    document.getElementById('statsDashboard').classList.remove('hidden');
+                    document.getElementById('lastUpdatedBadge').innerText = `🟢 آخر تحديث: ${new Date().toLocaleTimeString('ar-EG')}`;
+                    
+                    setDateRange('today');
+                } else {
+                    errorMsg.innerText = result.message;
+                    errorMsg.classList.remove('hidden');
+                }
+            } catch (err) {
+                errorMsg.innerText = "فشل الاتصال بقاعدة البيانات!";
+                errorMsg.classList.remove('hidden');
+            }
+            btn.innerText = "تسجيل الدخول";
+        }
+
+        function setDateRange(rangeType) {
+            const today = new Date();
+            const startInput = document.getElementById('startDate');
+            const endInput = document.getElementById('endDate');
+
+            if (rangeType === 'today') {
+                startInput.value = formatDateForInput(today);
+                endInput.value = formatDateForInput(today);
+            } else if (rangeType === 'week') {
+                const firstDay = new Date(today.setDate(today.getDate() - today.getDay()));
+                const lastDay = new Date(today.setDate(today.getDate() - today.getDay() + 4));
+                startInput.value = formatDateForInput(firstDay);
+                endInput.value = formatDateForInput(lastDay);
+            } else if (rangeType === 'month') {
+                today.setDate(1);
+                const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
+                const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+                startInput.value = formatDateForInput(firstDay);
+                endInput.value = formatDateForInput(lastDay);
+            } else if (rangeType === 'all') {
+                startInput.value = "";
+                endInput.value = "";
+            }
+            applyFilters();
+        }
+
+        function applyFilters() {
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            const stageFilter = document.getElementById('stageFilter').value;
+            const searchText = document.getElementById('searchInput').value.toLowerCase().trim();
+
+            let filtered = globalRecords.filter(rec => {
+                if (isNoAbsenceText(rec.studentName)) return false;
+                if (startDate && rec.date < startDate) return false;
+                if (endDate && rec.date > endDate) return false;
+                if (stageFilter !== 'all' && rec.className.indexOf(stageFilter) === -1) return false;
+                if (searchText) {
+                    const cleanStudent = cleanNameDisplay(rec.studentName).toLowerCase();
+                    const teacher = String(rec.teacher).toLowerCase();
+                    const sClass = String(rec.className).toLowerCase();
+                    if (!cleanStudent.includes(searchText) && !teacher.includes(searchText) && !sClass.includes(searchText)) {
+                        return false;
+                    }
+                }
+                return true;
+            });
+
+            const uniqueRecords = [];
+            const seenKeys = new Set();
+            filtered.forEach(rec => {
+                let cleanName = cleanNameDisplay(rec.studentName);
+                let key = `${rec.date}_${rec.period}_${rec.className}_${cleanName}`;
+                if (!seenKeys.has(key)) {
+                    seenKeys.add(key);
+                    uniqueRecords.push(rec);
+                }
+            });
+
+            renderResults(uniqueRecords, startDate, endDate);
+        }
+
+        function renderResults(records, startD, endD) {
+            const tbody = document.getElementById('resultsTableBody');
+            tbody.innerHTML = "";
+
+            let totalAbsences = 0;
+            let totalLates = 0;
+            let involvedClasses = new Set();
+
+            records.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            records.forEach(rec => {
+                involvedClasses.add(rec.className);
+                if (rec.isLate) totalLates++; else totalAbsences++;
+
+                let cleanName = cleanNameDisplay(rec.studentName);
+                let statusHtml = rec.isLate 
+                    ? `<span class="bg-orange-100 text-orange-800 px-2 py-0.5 rounded font-bold text-[10px]">تأخير صباحي</span>`
+                    : `<span class="bg-red-100 text-red-800 px-2 py-0.5 rounded font-bold text-[10px]">غياب حصة</span>`;
+
+                tbody.innerHTML += `
+                    <tr class="border-b hover:bg-gray-100">
+                        <td class="p-2 font-bold">${rec.date}</td>
+                        <td class="p-2 text-gray-600">الحصة ${rec.period}</td>
+                        <td class="p-2 font-bold text-indigo-700">${rec.className}</td>
+                        <td class="p-2 font-bold">${cleanName}</td>
+                        <td class="p-2 text-center">${statusHtml}</td>
+                        <td class="p-2 text-gray-500">${rec.teacher || 'الإدارة'}</td>
+                    </tr>
+                `;
+            });
+
+            if (records.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" class="p-6 text-center text-gray-500 font-bold">لا توجد سجلات مطابقة لخيارات البحث</td></tr>`;
+            }
+
+            document.getElementById('resultsCount').innerText = `${records.length} سجل`;
+            document.getElementById('statAbsences').innerText = totalAbsences;
+            document.getElementById('statLates').innerText = totalLates;
+            document.getElementById('statClasses').innerText = involvedClasses.size;
+            
+            let dateText = "كل الأيام";
+            if (startD && endD && startD === endD) dateText = `يوم: ${startD}`;
+            else if (startD && endD) dateText = `من ${startD} إلى ${endD}`;
+            document.getElementById('statDateRange').innerText = dateText;
+        }
+    </script>
+</body>
+</html>
