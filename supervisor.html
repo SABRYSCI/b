@@ -107,6 +107,9 @@
 
         function isNoAbsenceText(name) { return /لا\s*يوجد|حضور|الجميع/i.test(String(name||'').trim()); }
         function cleanClass(str) { return String(str||'').replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي').replace(/[\s\-_/\\.]/g, '').trim(); }
+        // دالة تنظيف الرقم من بداية الاسم للعرض فقط
+        function cleanNameDisplay(name) { return String(name || '').replace(/^\s*\d+\s*[-_.]?\s*/, '').trim(); }
+
         function getClassTotal(cName) {
             const target = cleanClass(cName);
             for (let k in globalData.classTotals) if (cleanClass(k) === target && globalData.classTotals[k] > 0) return globalData.classTotals[k];
@@ -139,7 +142,8 @@
                     const alertsBody = document.getElementById('alertsTableBody');
                     alertsBody.innerHTML = "";
                     result.alerts.forEach(a => {
-                        alertsBody.innerHTML += `<tr class="border-b border-red-100"><td class="p-2 border">${a.studentName}</td><td class="p-2 border">${a.className}</td><td class="p-2 border text-red-600">${a.totalAbsences} أيام</td><td class="p-2 border"><a href="https://wa.me/?text=${encodeURIComponent('إنذار غياب للطالب '+a.studentName)}" target="_blank" class="bg-green-500 text-white px-2 py-0.5 rounded">إنذار</a></td></tr>`;
+                        let cleanAlertName = cleanNameDisplay(a.studentName);
+                        alertsBody.innerHTML += `<tr class="border-b border-red-100"><td class="p-2 border font-bold">${cleanAlertName}</td><td class="p-2 border">${a.className}</td><td class="p-2 border text-red-600">${a.totalAbsences} أيام</td><td class="p-2 border"><a href="https://wa.me/?text=${encodeURIComponent('إنذار غياب للطالب '+cleanAlertName)}" target="_blank" class="bg-green-500 text-white px-2 py-0.5 rounded">إنذار</a></td></tr>`;
                     });
                     return true;
                 }
@@ -168,8 +172,9 @@
                 const recs = globalData.data.filter(r => cleanClass(r.className) === cleanClass(cName) && String(r.period).replace(/\D/g,'') === String(pNum));
                 const isRec = recs.length > 0;
                 
-                let absNames = recs.filter(r => r.studentName && !isNoAbsenceText(r.studentName) && !r.isLate).map(r => r.studentName);
-                let lateNames = recs.filter(r => r.studentName && !isNoAbsenceText(r.studentName) && r.isLate).map(r => r.studentName);
+                // تنظيف الاسم قبل عرضه في القائمة
+                let absNames = recs.filter(r => r.studentName && !isNoAbsenceText(r.studentName) && !r.isLate).map(r => cleanNameDisplay(r.studentName));
+                let lateNames = recs.filter(r => r.studentName && !isNoAbsenceText(r.studentName) && r.isLate).map(r => cleanNameDisplay(r.studentName));
                 
                 let absCount = absNames.length;
                 let presCount = isRec ? Math.max(0, cTotal - absCount) : cTotal;
