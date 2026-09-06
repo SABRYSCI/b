@@ -67,6 +67,9 @@
             "ثالث إعدادي 1", "ثالث إعدادي 2", "ثالث إعدادي 3", "ثالث إعدادي 4", "ثالث إعدادي 5"
         ];
 
+        // دالة تنظيف الرقم للعرض فقط
+        function cleanNameDisplay(name) { return String(name || '').replace(/^\s*\d+\s*[-_.]?\s*/, '').trim(); }
+
         async function loginSocial() {
             const pass = document.getElementById('passInput').value;
             const errorMsg = document.getElementById('errorMsg');
@@ -107,14 +110,14 @@
             
             if (cName) {
                 if (rosters[cName] && rosters[cName].length > 0) {
-                    // فرز ذكي للأسماء بناءً على الرقم الموجود في البداية
                     const students = rosters[cName].sort((a, b) => {
-                        let numA = parseInt(a);
-                        let numB = parseInt(b);
-                        if (!isNaN(numA) && !isNaN(numB)) return numA - numB;
-                        return a.localeCompare(b, 'ar');
+                        let matchA = String(a).match(/\d+/);
+                        let matchB = String(b).match(/\d+/);
+                        if (matchA && matchB) return parseInt(matchA[0]) - parseInt(matchB[0]);
+                        return String(a).localeCompare(String(b), 'ar', { numeric: true });
                     });
-                    students.forEach(s => sSelect.innerHTML += `<option value="${s}">${s}</option>`);
+                    // يتم إرسال القيمة الأصلية للسكربت، وعرض القيمة المنظفة للمشرف
+                    students.forEach(s => sSelect.innerHTML += `<option value="${s}">${cleanNameDisplay(s)}</option>`);
                 } else {
                     sSelect.innerHTML += `<option value="" disabled>⚠️ لا توجد أسماء طلاب لهذا الصف في (قاعدة البيانات)</option>`;
                 }
@@ -146,7 +149,7 @@
                     if (list.innerHTML.includes("لم يتم تسجيل")) list.innerHTML = "";
 
                     list.innerHTML += `<li class="bg-amber-50 p-2 rounded border border-amber-200 text-sm font-bold text-amber-900 flex justify-between">
-                        <span>${sName}</span> <span class="text-xs text-amber-700">${cName}</span>
+                        <span>${cleanNameDisplay(sName)}</span> <span class="text-xs text-amber-700">${cName}</span>
                     </li>`;
                 }
             } catch (err) {
@@ -164,7 +167,7 @@
             list.innerHTML = "";
             lates.forEach(l => {
                 list.innerHTML += `<li class="bg-amber-50 p-2 rounded border border-amber-200 text-sm font-bold text-amber-900 flex justify-between">
-                    <span>${l.studentName}</span> <span class="text-xs text-amber-700">${l.className}</span>
+                    <span>${cleanNameDisplay(l.studentName)}</span> <span class="text-xs text-amber-700">${l.className}</span>
                 </li>`;
             });
         }
