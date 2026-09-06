@@ -34,7 +34,6 @@
                 <div>
                     <label class="block text-sm font-bold text-gray-700 mb-1">اختر الصف:</label>
                     <select id="classSelect" class="w-full p-2.5 border rounded bg-gray-50 font-bold text-gray-900" onchange="populateStudents()">
-                        <!-- سيتم التعبئة تلقائيا -->
                     </select>
                 </div>
                 <div>
@@ -67,7 +66,6 @@
             "ثالث إعدادي 1", "ثالث إعدادي 2", "ثالث إعدادي 3", "ثالث إعدادي 4", "ثالث إعدادي 5"
         ];
 
-        // دالة تنظيف الرقم للعرض فقط
         function cleanNameDisplay(name) { return String(name || '').replace(/^\s*\d+\s*[-_.]?\s*/, '').trim(); }
 
         async function loginSocial() {
@@ -116,7 +114,6 @@
                         if (matchA && matchB) return parseInt(matchA[0]) - parseInt(matchB[0]);
                         return String(a).localeCompare(String(b), 'ar', { numeric: true });
                     });
-                    // يتم إرسال القيمة الأصلية للسكربت، وعرض القيمة المنظفة للمشرف
                     students.forEach(s => sSelect.innerHTML += `<option value="${s}">${cleanNameDisplay(s)}</option>`);
                 } else {
                     sSelect.innerHTML += `<option value="" disabled>⚠️ لا توجد أسماء طلاب لهذا الصف في (قاعدة البيانات)</option>`;
