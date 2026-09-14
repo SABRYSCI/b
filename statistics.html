@@ -4,22 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>مركز الإحصائيات والبحث الذكي</title>
-    <!-- استدعاء مكتبة الرسم البياني -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap');
 
         :root {
-            --primary: #1e3a8a; /* أزرق داكن */
-            --secondary: #2563eb; /* أزرق فاتح */
-            --success: #16a34a; /* أخضر للحضور */
-            --danger: #dc2626; /* أحمر للغياب الكلي */
-            --warning: #ca8a04; /* أصفر للتأخير */
-            --info: #0891b2; /* سماوي للاستئذان */
+            --primary: #1e3a8a;
+            --secondary: #2563eb;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --warning: #ca8a04;
+            --info: #0891b2;
+            --purple: #7c3aed;
             --bg-color: #f3f4f6;
             --card-bg: #ffffff;
             --text-main: #1f2937;
         }
+
+        * { box-sizing: border-box; }
 
         body {
             font-family: 'Tajawal', sans-serif;
@@ -29,24 +31,33 @@
             padding: 20px;
         }
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
+        .container { max-width: 1300px; margin: 0 auto; }
 
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
-            padding-bottom: 15px;
-            border-bottom: 2px solid var(--primary);
-        }
+        .header { text-align: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 2px solid var(--primary); }
+        .header h1 { color: var(--primary); margin: 0 0 10px 0; }
+        .header h2 { color: var(--secondary); margin: 0; font-weight: 500; }
 
-        .header h1 {
+        /* التبويبات */
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .tab-btn {
+            background: var(--card-bg);
             color: var(--primary);
-            margin: 0 0 10px 0;
+            border: 2px solid var(--primary);
+            padding: 10px 22px;
+            border-radius: 999px;
+            font-weight: bold;
         }
+        .tab-btn.active { background: var(--primary); color: #fff; }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; animation: fadeIn .25s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(4px);} to {opacity:1; transform: translateY(0);} }
 
-        /* الفلاتر */
         .filters {
             display: flex;
             flex-wrap: wrap;
@@ -54,163 +65,72 @@
             background: var(--card-bg);
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
             margin-bottom: 20px;
-            align-items: center;
+            align-items: flex-end;
             justify-content: center;
         }
 
-        .filter-group {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-
-        .filter-group label {
-            font-weight: bold;
-            font-size: 0.9rem;
-        }
-
+        .filter-group { display: flex; flex-direction: column; gap: 5px; }
+        .filter-group label { font-weight: bold; font-size: 0.9rem; }
         .filter-group input, .filter-group select {
-            padding: 8px;
-            border: 1px solid #d1d5db;
-            border-radius: 5px;
-            font-family: inherit;
+            padding: 8px; border: 1px solid #d1d5db; border-radius: 5px; font-family: inherit; min-width: 150px;
         }
+
+        .quick-range { display: flex; gap: 6px; }
+        .quick-range button {
+            background: #e5e7eb; color: var(--text-main); padding: 8px 12px; font-size: 0.85rem; font-weight: 600;
+        }
+        .quick-range button.active { background: var(--secondary); color: #fff; }
 
         button {
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
-            cursor: pointer;
-            font-family: inherit;
-            font-weight: bold;
-            transition: 0.3s;
+            background-color: var(--primary); color: white; border: none; padding: 10px 20px;
+            border-radius: 5px; cursor: pointer; font-family: inherit; font-weight: bold; transition: .2s;
         }
-
         button:hover { background-color: var(--secondary); }
 
-        /* البطاقات الإحصائية */
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-bottom: 20px;
-        }
+        .entity-chips { display: flex; flex-wrap: wrap; gap: 8px; max-width: 500px; }
+        .chip { display: flex; align-items: center; gap: 5px; background: #eef2ff; padding: 6px 10px; border-radius: 8px; border: 1px solid #c7d2fe; font-size: 0.9rem; }
+        .chip input { margin: 0; }
 
-        .stat-card {
-            background: var(--card-bg);
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            border-bottom: 4px solid var(--primary);
-        }
-
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .stat-card { background: var(--card-bg); padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); text-align: center; border-bottom: 4px solid var(--primary); }
         .stat-card h3 { margin: 0; font-size: 1.1rem; color: #4b5563; }
         .stat-card .value { font-size: 2rem; font-weight: 800; margin: 10px 0; }
-        .stat-card .percent { font-size: 1.1rem; font-weight: bold; padding: 4px 8px; border-radius: 5px; color: white; display: inline-block;}
+        .stat-card .percent { font-size: 1.1rem; font-weight: bold; padding: 4px 8px; border-radius: 5px; color: white; display: inline-block; }
 
-        .card-present { border-color: var(--success); }
-        .card-present .value { color: var(--success); }
-        .card-present .percent { background-color: var(--success); }
+        .card-present { border-color: var(--success); } .card-present .value { color: var(--success); } .card-present .percent { background-color: var(--success); }
+        .card-absent { border-color: var(--danger); } .card-absent .value { color: var(--danger); } .card-absent .percent { background-color: var(--danger); }
+        .card-late { border-color: var(--warning); } .card-late .value { color: var(--warning); } .card-late .percent { background-color: var(--warning); }
+        .card-leave { border-color: var(--info); } .card-leave .value { color: var(--info); } .card-leave .percent { background-color: var(--info); }
 
-        .card-absent { border-color: var(--danger); }
-        .card-absent .value { color: var(--danger); }
-        .card-absent .percent { background-color: var(--danger); }
+        .chart-container { background: var(--card-bg); padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 20px; height: 400px; }
+        .chart-container.tall { height: 460px; }
 
-        .card-late { border-color: var(--warning); }
-        .card-late .value { color: var(--warning); }
-        .card-late .percent { background-color: var(--warning); }
-
-        .card-leave { border-color: var(--info); }
-        .card-leave .value { color: var(--info); }
-        .card-leave .percent { background-color: var(--info); }
-
-        /* الرسم البياني */
-        .chart-container {
-            background: var(--card-bg);
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-            height: 400px;
-        }
-
-        /* الجداول */
-        .table-container {
-            background: var(--card-bg);
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
-            overflow-x: auto;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 10px;
-        }
-
-        th, td {
-            border: 1px solid #e5e7eb;
-            padding: 12px;
-            text-align: center;
-        }
-
+        .table-container { background: var(--card-bg); padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 20px; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { border: 1px solid #e5e7eb; padding: 12px; text-align: center; }
         th { background-color: var(--primary); color: white; }
         tr:nth-child(even) { background-color: #f9fafb; }
+        .rank-1 { background: #fef9c3 !important; }
 
         .loading { text-align: center; font-size: 1.5rem; color: var(--primary); font-weight: bold; display: none; padding: 40px; }
+        .empty-note { text-align: center; color: #6b7280; padding: 30px; font-style: italic; }
 
-        /* ========================================================
-           تنسيقات الطباعة الذكية
-           ======================================================== */
         @media print {
             body { background: white; padding: 0; }
-            .no-print, .filters, button { display: none !important; }
-            
+            .no-print, .filters, .tabs, button { display: none !important; }
+            .tab-panel { display: block !important; }
             .container { max-width: 100%; }
             .stat-card { border: 1px solid #000; box-shadow: none; break-inside: avoid; }
-            
-            /* الحفاظ على ألوان الخلفية للنسب المئوية عند الطباعة */
-            .percent {
-                -webkit-print-color-adjust: exact;
-                print-color-adjust: exact;
-                color: #000 !important;
-                border: 1px solid #000;
-            }
-
-            .chart-container {
-                box-shadow: none;
-                border: 1px solid #000;
-                page-break-inside: avoid;
-                margin-top: 20px;
-                height: 350px !important;
-            }
-
+            .percent { -webkit-print-color-adjust: exact; print-color-adjust: exact; color: #000 !important; border: 1px solid #000; }
+            .chart-container { box-shadow: none; border: 1px solid #000; page-break-inside: avoid; margin-top: 20px; height: 350px !important; }
             .table-container { box-shadow: none; border: none; padding: 0; }
             table { width: 100% !important; table-layout: fixed; }
             th, td { border: 1px solid #000 !important; font-size: 12pt; padding: 8px; color: #000; }
             th { background-color: #e5e7eb !important; color: #000 !important; -webkit-print-color-adjust: exact; }
-            
-            /* إخفاء عمود "الراصدون" في جدول التفاصيل */
-            .details-table th.teacher-col, 
-            .details-table td.teacher-col {
-                display: none !important;
-            }
-
-            /* توسيع مساحة اسم الطالب ليكون واضحاً جداً */
-            .details-table th.student-col, 
-            .details-table td.student-col {
-                width: 40% !important;
-                font-size: 14pt !important;
-                font-weight: bold;
-            }
-
+            .details-table th.teacher-col, .details-table td.teacher-col { display: none !important; }
+            .details-table th.student-col, .details-table td.student-col { width: 40% !important; font-size: 14pt !important; font-weight: bold; }
             @page { margin: 1cm; size: A4; }
         }
     </style>
@@ -223,7 +143,6 @@
         <h2>مركز الإحصائيات والبحث الذكي</h2>
     </div>
 
-    <!-- كلمة المرور -->
     <div id="authSection" style="text-align:center; padding: 50px;">
         <h3>الرجاء إدخال كلمة المرور للوصول للإحصائيات:</h3>
         <input type="password" id="passInput" style="padding:10px; width:200px; text-align:center; margin-bottom: 10px;">
@@ -233,101 +152,165 @@
 
     <div class="loading" id="loadingSpinner">جاري جلب وتحليل البيانات... يرجى الانتظار ⏳</div>
 
-    <!-- المحتوى الرئيسي (مخفي حتى يتم تسجيل الدخول) -->
     <div id="mainContent" style="display:none;">
-        
-        <!-- الفلاتر -->
-        <div class="filters no-print">
-            <div class="filter-group">
-                <label>تاريخ البداية:</label>
-                <input type="date" id="startDate">
-            </div>
-            <div class="filter-group">
-                <label>تاريخ النهاية (للرسم البياني):</label>
-                <input type="date" id="endDate">
-            </div>
-            <div class="filter-group">
-                <label>المرحلة / الصف:</label>
-                <select id="stageFilter">
-                    <option value="all">المدرسة كاملة</option>
-                    <option value="سادس ابتدائي">سادس ابتدائي (كامل)</option>
-                    <option value="أول إعدادي">أول إعدادي (كامل)</option>
-                    <option value="ثاني إعدادي">ثاني إعدادي (كامل)</option>
-                    <option value="ثالث إعدادي">ثالث إعدادي (كامل)</option>
-                </select>
-            </div>
-            <button onclick="applyFilters()">تحديث البيانات</button>
-            <button onclick="window.print()" style="background-color: #4b5563;">🖨️ طباعة التقرير</button>
+
+        <div class="tabs no-print">
+            <button class="tab-btn active" data-tab="overview" onclick="switchTab('overview')">📊 نظرة عامة</button>
+            <button class="tab-btn" data-tab="compareClasses" onclick="switchTab('compareClasses')">🏷️ مقارنة الصفوف</button>
+            <button class="tab-btn" data-tab="compareStages" onclick="switchTab('compareStages')">🏫 مقارنة المراحل</button>
+            <button class="tab-btn" data-tab="compareTime" onclick="switchTab('compareTime')">📈 مقارنة عبر الزمن</button>
         </div>
 
-        <h3 id="reportTitle" style="text-align: center; border-bottom: 2px dashed #ccc; padding-bottom:10px;">إحصائيات للتاريخ المحدد</h3>
+        <!-- ============ تبويب: نظرة عامة ============ -->
+        <div class="tab-panel active" id="tab-overview">
+            <div class="filters no-print">
+                <div class="filter-group">
+                    <label>تاريخ البداية:</label>
+                    <input type="date" id="startDate">
+                </div>
+                <div class="filter-group">
+                    <label>تاريخ النهاية (للرسم البياني):</label>
+                    <input type="date" id="endDate">
+                </div>
+                <div class="filter-group">
+                    <label>المرحلة / الصف:</label>
+                    <select id="stageFilter"></select>
+                </div>
+                <button onclick="applyFilters()">تحديث البيانات</button>
+                <button onclick="window.print()" style="background-color: #4b5563;">🖨️ طباعة التقرير</button>
+            </div>
 
-        <!-- البطاقات العلوية -->
-        <div class="stats-grid">
-            <div class="stat-card card-present">
-                <h3>حضور تام</h3>
-                <div class="value" id="valPresent">0</div>
-                <div class="percent" id="percPresent">0%</div>
+            <h3 id="reportTitle" style="text-align: center; border-bottom: 2px dashed #ccc; padding-bottom:10px;">إحصائيات للتاريخ المحدد</h3>
+
+            <div class="stats-grid">
+                <div class="stat-card card-present"><h3>حضور تام</h3><div class="value" id="valPresent">0</div><div class="percent" id="percPresent">0%</div></div>
+                <div class="stat-card card-absent"><h3>غياب كلي</h3><div class="value" id="valAbsent">0</div><div class="percent" id="percAbsent">0%</div></div>
+                <div class="stat-card card-late"><h3>تأخير (جزئي)</h3><div class="value" id="valLate">0</div><div class="percent" id="percLate">0%</div></div>
+                <div class="stat-card card-leave"><h3>استئذان</h3><div class="value" id="valLeave">0</div><div class="percent" id="percLeave">0%</div></div>
             </div>
-            <div class="stat-card card-absent">
-                <h3>غياب كلي</h3>
-                <div class="value" id="valAbsent">0</div>
-                <div class="percent" id="percAbsent">0%</div>
+
+            <div class="chart-container"><canvas id="trendChart"></canvas></div>
+
+            <div class="table-container">
+                <h3>تفصيل الإحصائيات (العدد والنسبة المئوية)</h3>
+                <table id="breakdownTable">
+                    <thead><tr><th>القسم (المرحلة/الصف)</th><th>العدد الكلي</th><th>الحضور</th><th>الغياب الكلي</th><th>تأخير صباحي</th><th>خروج باستئذان</th></tr></thead>
+                    <tbody></tbody>
+                </table>
             </div>
-            <div class="stat-card card-late">
-                <h3>تأخير (جزئي)</h3>
-                <div class="value" id="valLate">0</div>
-                <div class="percent" id="percLate">0%</div>
-            </div>
-            <div class="stat-card card-leave">
-                <h3>استئذان</h3>
-                <div class="value" id="valLeave">0</div>
-                <div class="percent" id="percLeave">0%</div>
+
+            <div class="table-container">
+                <h3>تفاصيل السجلات (حسب الفلتر المختار)</h3>
+                <table class="details-table" id="detailsTable">
+                    <thead><tr><th>التاريخ</th><th>الصف</th><th class="student-col">اسم الطالب</th><th>الحالة (كلي/تأخير/استئذان)</th><th class="teacher-col">الراصدون (لن تظهر بالطباعة)</th></tr></thead>
+                    <tbody></tbody>
+                </table>
             </div>
         </div>
 
-        <!-- الرسم البياني الزمني -->
-        <div class="chart-container">
-            <canvas id="trendChart"></canvas>
+        <!-- ============ تبويب: مقارنة الصفوف ============ -->
+        <div class="tab-panel" id="tab-compareClasses">
+            <div class="filters no-print">
+                <div class="filter-group">
+                    <label>من تاريخ:</label>
+                    <input type="date" id="ccStart">
+                </div>
+                <div class="filter-group">
+                    <label>إلى تاريخ:</label>
+                    <input type="date" id="ccEnd">
+                </div>
+                <div class="quick-range" id="ccQuick">
+                    <button type="button" onclick="setQuickRange('cc','today')">اليوم</button>
+                    <button type="button" onclick="setQuickRange('cc','week')">هذا الأسبوع</button>
+                    <button type="button" onclick="setQuickRange('cc','month')">هذا الشهر</button>
+                </div>
+                <div class="filter-group">
+                    <label>نطاق المقارنة:</label>
+                    <select id="ccStageScope"></select>
+                </div>
+                <button onclick="renderCompareClasses()">مقارنة الصفوف</button>
+            </div>
+            <p style="text-align:center;color:#6b7280;">تقارن هذه اللوحة الصفوف مع بعضها البعض (داخل نفس المرحلة، أو صفوف المدرسة كاملة) من حيث نسبة الحضور خلال الفترة المحددة.</p>
+            <div class="chart-container tall"><canvas id="classCompareChart"></canvas></div>
+            <div class="table-container">
+                <h3>ترتيب الصفوف حسب نسبة الحضور</h3>
+                <table id="classCompareTable">
+                    <thead><tr><th>الترتيب</th><th>الصف</th><th>عدد الطلاب</th><th>متوسط نسبة الحضور</th><th>إجمالي الغياب</th><th>إجمالي التأخير</th><th>إجمالي الاستئذان</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
         </div>
 
-        <!-- إحصائيات المراحل والصفوف -->
-        <div class="table-container">
-            <h3>تفصيل الإحصائيات (العدد والنسبة المئوية)</h3>
-            <table id="breakdownTable">
-                <thead>
-                    <tr>
-                        <th>القسم (المرحلة/الصف)</th>
-                        <th>العدد الكلي</th>
-                        <th>الحضور</th>
-                        <th>الغياب الكلي</th>
-                        <th>تأخير صباحي</th>
-                        <th>خروج باستئذان</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- يتم الحقن بالداتا -->
-                </tbody>
-            </table>
+        <!-- ============ تبويب: مقارنة المراحل ============ -->
+        <div class="tab-panel" id="tab-compareStages">
+            <div class="filters no-print">
+                <div class="filter-group">
+                    <label>من تاريخ:</label>
+                    <input type="date" id="csStart">
+                </div>
+                <div class="filter-group">
+                    <label>إلى تاريخ:</label>
+                    <input type="date" id="csEnd">
+                </div>
+                <div class="quick-range" id="csQuick">
+                    <button type="button" onclick="setQuickRange('cs','today')">اليوم</button>
+                    <button type="button" onclick="setQuickRange('cs','week')">هذا الأسبوع</button>
+                    <button type="button" onclick="setQuickRange('cs','month')">هذا الشهر</button>
+                </div>
+                <button onclick="renderCompareStages()">مقارنة المراحل</button>
+            </div>
+            <p style="text-align:center;color:#6b7280;">تقارن هذه اللوحة المراحل الدراسية الأربع مع بعضها البعض من حيث نسبة الحضور خلال الفترة المحددة.</p>
+            <div class="chart-container tall"><canvas id="stageCompareChart"></canvas></div>
+            <div class="table-container">
+                <h3>ترتيب المراحل حسب نسبة الحضور</h3>
+                <table id="stageCompareTable">
+                    <thead><tr><th>الترتيب</th><th>المرحلة</th><th>عدد الطلاب</th><th>متوسط نسبة الحضور</th><th>إجمالي الغياب</th><th>إجمالي التأخير</th><th>إجمالي الاستئذان</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
         </div>
 
-        <!-- جدول التفاصيل للسجلات -->
-        <div class="table-container">
-            <h3>تفاصيل السجلات (حسب الفلتر المختار)</h3>
-            <table class="details-table" id="detailsTable">
-                <thead>
-                    <tr>
-                        <th>التاريخ</th>
-                        <th>الصف</th>
-                        <th class="student-col">اسم الطالب</th>
-                        <th>الحالة (كلي/تأخير/استئذان)</th>
-                        <th class="teacher-col">الراصدون (لن تظهر بالطباعة)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <!-- يتم الحقن بالداتا -->
-                </tbody>
-            </table>
+        <!-- ============ تبويب: مقارنة عبر الزمن ============ -->
+        <div class="tab-panel" id="tab-compareTime">
+            <div class="filters no-print">
+                <div class="filter-group">
+                    <label>من تاريخ:</label>
+                    <input type="date" id="ctStart">
+                </div>
+                <div class="filter-group">
+                    <label>إلى تاريخ:</label>
+                    <input type="date" id="ctEnd">
+                </div>
+                <div class="quick-range" id="ctQuick">
+                    <button type="button" onclick="setQuickRange('ct','week')">آخر أسبوع</button>
+                    <button type="button" onclick="setQuickRange('ct','month')">آخر شهر</button>
+                    <button type="button" onclick="setQuickRange('ct','thisMonth')">هذا الشهر</button>
+                </div>
+                <div class="filter-group">
+                    <label>مستوى المقارنة:</label>
+                    <select id="ctLevel" onchange="renderEntityChips()">
+                        <option value="school">المدرسة كاملة</option>
+                        <option value="stage" selected>مراحل دراسية</option>
+                        <option value="class">صفوف دراسية</option>
+                    </select>
+                </div>
+            </div>
+            <div class="filters no-print" style="margin-top:-10px;">
+                <div class="filter-group" style="width:100%;">
+                    <label>اختر ما تريد مقارنته عبر الزمن (حتى 5 عناصر):</label>
+                    <div class="entity-chips" id="entityChips"></div>
+                </div>
+                <button onclick="renderCompareTime()">رسم المقارنة الزمنية</button>
+            </div>
+            <p style="text-align:center;color:#6b7280;">يعرض هذا الرسم تطور نسبة الحضور يوماً بعد يوم لكل عنصر تم اختياره، لمتابعة الاتجاه عبر أسبوع أو شهر أو أي مدة تحددها.</p>
+            <div class="chart-container tall"><canvas id="timeCompareChart"></canvas></div>
+            <div class="table-container">
+                <h3>ملخص الفترة لكل عنصر</h3>
+                <table id="timeCompareTable">
+                    <thead><tr><th>العنصر</th><th>متوسط نسبة الحضور</th><th>أفضل يوم</th><th>أضعف يوم</th><th>إجمالي الغياب</th><th>إجمالي التأخير/الاستئذان</th></tr></thead>
+                    <tbody></tbody>
+                </table>
+            </div>
         </div>
 
     </div>
@@ -337,22 +320,40 @@
     // ==========================================
     // إعدادات التطبيق
     // ==========================================
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxlJnpJN9y9h04cOswtY3BGGwUS8rhybOisxDFkIQJ6_9nFSPMJeK-wiuFEECnBY3v5/exec"; 
-    
-    let rawData = null;
-    let chartInstance = null;
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxlJnpJN9y9h04cOswtY3BGGwUS8rhybOisxDFkIQJ6_9nFSPMJeK-wiuFEECnBY3v5/exec";
 
-    // تهيئة التواريخ لتكون تاريخ اليوم
+    const STAGES = ["سادس ابتدائي", "أول إعدادي", "ثاني إعدادي", "ثالث إعدادي"];
+    const PALETTE = ["#1e3a8a", "#dc2626", "#16a34a", "#ca8a04", "#7c3aed", "#0891b2", "#db2777", "#4b5563"];
+
+    let rawData = null;
+    let classesList = [];
+    let chartInstance = null;
+    let classCompareChartInstance = null;
+    let stageCompareChartInstance = null;
+    let timeCompareChartInstance = null;
+
     document.addEventListener("DOMContentLoaded", () => {
-        const today = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
-        document.getElementById('startDate').value = today;
-        document.getElementById('endDate').value = today;
+        const today = new Date().toLocaleDateString('en-CA');
+        ["startDate","endDate","ccStart","ccEnd","csStart","csEnd","ctStart","ctEnd"].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.value = today;
+        });
     });
+
+    function switchTab(name) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === name));
+        document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === 'tab-' + name));
+        if (name === 'compareClasses' && classCompareChartInstance === null) renderCompareClasses();
+        if (name === 'compareStages' && stageCompareChartInstance === null) renderCompareStages();
+        if (name === 'compareTime') {
+            if (document.getElementById('entityChips').children.length === 0) renderEntityChips();
+        }
+    }
 
     function authenticate() {
         const pass = document.getElementById('passInput').value;
         if (!pass) return alert('أدخل كلمة المرور');
-        
+
         document.getElementById('authSection').style.display = 'none';
         document.getElementById('loadingSpinner').style.display = 'block';
 
@@ -360,8 +361,10 @@
             .then(res => res.json())
             .then(data => {
                 document.getElementById('loadingSpinner').style.display = 'none';
-                if(data.status === "success") {
+                if (data.status === "success") {
                     rawData = data;
+                    classesList = Object.keys(rawData.classTotals);
+                    setupStageSelectors();
                     document.getElementById('mainContent').style.display = 'block';
                     applyFilters();
                 } else {
@@ -376,44 +379,51 @@
     }
 
     function calcPercent(part, total) {
-        if(total === 0) return "0%";
+        if (total === 0) return "0%";
         return ((part / total) * 100).toFixed(1) + "%";
+    }
+    function calcPercentNum(part, total) {
+        if (total === 0) return 0;
+        return (part / total) * 100;
     }
 
     function extractStage(className) {
-        if(className.includes('سادس')) return 'سادس ابتدائي';
-        if(className.includes('أول')) return 'أول إعدادي';
-        if(className.includes('ثاني')) return 'ثاني إعدادي';
-        if(className.includes('ثالث')) return 'ثالث إعدادي';
+        if (className.includes('سادس')) return 'سادس ابتدائي';
+        if (className.includes('أول')) return 'أول إعدادي';
+        if (className.includes('ثاني')) return 'ثاني إعدادي';
+        if (className.includes('ثالث')) return 'ثالث إعدادي';
         return 'أخرى';
     }
 
-    function applyFilters() {
-        if(!rawData) return;
-        
-        const startDate = document.getElementById('startDate').value;
-        const endDate = document.getElementById('endDate').value;
-        const stageFilter = document.getElementById('stageFilter').value;
-        
-        document.getElementById('reportTitle').innerText = 
-            `الإحصائيات (${stageFilter === 'all' ? 'المدرسة كاملة' : stageFilter}) للفترة من ${startDate} إلى ${endDate}`;
+    function setupStageSelectors() {
+        const stageFilter = document.getElementById('stageFilter');
+        stageFilter.innerHTML = `<option value="all">المدرسة كاملة</option>` +
+            STAGES.map(s => `<option value="${s}">${s} (كامل)</option>`).join('') +
+            classesList.map(c => `<option value="${c}">${c}</option>`).join('');
 
-        let dailyStats = {}; 
-        let classesList = Object.keys(rawData.classTotals);
+        const ccScope = document.getElementById('ccStageScope');
+        ccScope.innerHTML = `<option value="all">كل صفوف المدرسة</option>` +
+            STAGES.map(s => `<option value="${s}">داخل مرحلة: ${s}</option>`).join('');
+    }
 
+    // ==========================================
+    // دالة مشتركة: بناء بيانات الحضور اليومية لأي فترة
+    // ==========================================
+    function buildDailyStats(startDate, endDate) {
+        let dailyStats = {};
         let d = new Date(startDate);
         let endD = new Date(endDate);
-        while(d <= endD) {
+        while (d <= endD) {
             let dStr = d.toLocaleDateString('en-CA');
             dailyStats[dStr] = { students: {} };
             d.setDate(d.getDate() + 1);
         }
 
         rawData.lates.forEach(late => {
-            if(dailyStats[late.date]) {
-                if(!dailyStats[late.date].students[late.studentName]) {
-                    dailyStats[late.date].students[late.studentName] = { 
-                        className: late.className, 
+            if (dailyStats[late.date]) {
+                if (!dailyStats[late.date].students[late.studentName]) {
+                    dailyStats[late.date].students[late.studentName] = {
+                        className: late.className,
                         stage: extractStage(late.className),
                         state: late.excuseType.includes('استئذان') ? 'leave' : 'late',
                         teachers: 'الإدارة'
@@ -423,60 +433,76 @@
         });
 
         rawData.records.forEach(rec => {
-            if(dailyStats[rec.date] && rec.studentName && !rec.studentName.includes('لا يوجد')) {
+            if (dailyStats[rec.date] && rec.studentName && !rec.studentName.includes('لا يوجد')) {
                 let sName = rec.studentName.replace(/^[\d\s._-]+/, '').trim();
                 let stg = extractStage(rec.className);
-                
-                if(!dailyStats[rec.date].students[sName]) {
+
+                if (!dailyStats[rec.date].students[sName]) {
                     dailyStats[rec.date].students[sName] = {
-                        className: rec.className,
-                        stage: stg,
-                        state: 'absent',
-                        teachers: rec.teacher
+                        className: rec.className, stage: stg, state: 'absent', teachers: rec.teacher
                     };
-                } else {
-                    if(dailyStats[rec.date].students[sName].state === 'absent') {
-                        if(!dailyStats[rec.date].students[sName].teachers.includes(rec.teacher)) {
-                            dailyStats[rec.date].students[sName].teachers += ' ، ' + rec.teacher;
-                        }
+                } else if (dailyStats[rec.date].students[sName].state === 'absent') {
+                    if (!dailyStats[rec.date].students[sName].teachers.includes(rec.teacher)) {
+                        dailyStats[rec.date].students[sName].teachers += ' ، ' + rec.teacher;
                     }
                 }
             }
         });
 
-        let totalStudents = 0;
-        let totalAbsent = 0;
-        let totalLate = 0;
-        let totalLeave = 0;
-        let breakDown = {}; 
+        return dailyStats;
+    }
+
+    // إجمالي عدد الطلاب لمجموعة صفوف تطابق فلتر معين
+    function totalsForFilter(matchFn) {
+        let total = 0;
+        classesList.forEach(cls => { if (matchFn(cls, extractStage(cls))) total += rawData.classTotals[cls]; });
+        return total;
+    }
+
+    // ==========================================
+    // تبويب 1: نظرة عامة (كما كان، مع دعم الفلتر بالمرحلة أو الصف)
+    // ==========================================
+    function applyFilters() {
+        if (!rawData) return;
+
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+        const stageFilter = document.getElementById('stageFilter').value;
+
+        document.getElementById('reportTitle').innerText =
+            `الإحصائيات (${stageFilter === 'all' ? 'المدرسة كاملة' : stageFilter}) للفترة من ${startDate} إلى ${endDate}`;
+
+        const dailyStats = buildDailyStats(startDate, endDate);
+
+        let totalStudents = 0, totalAbsent = 0, totalLate = 0, totalLeave = 0;
+        let breakDown = {};
 
         classesList.forEach(cls => {
             let stg = extractStage(cls);
             let count = rawData.classTotals[cls];
-            if(stageFilter === 'all' || stageFilter === stg || stageFilter === cls) {
+            if (stageFilter === 'all' || stageFilter === stg || stageFilter === cls) {
                 totalStudents += count;
                 let key = stageFilter === 'all' ? stg : cls;
-                if(!breakDown[key]) breakDown[key] = { total: 0, absent: 0, late: 0, leave: 0 };
+                if (!breakDown[key]) breakDown[key] = { total: 0, absent: 0, late: 0, leave: 0 };
                 breakDown[key].total += count;
             }
         });
 
         let focusDateObj = dailyStats[startDate];
-        if(focusDateObj) {
-            for(let sName in focusDateObj.students) {
+        if (focusDateObj) {
+            for (let sName in focusDateObj.students) {
                 let info = focusDateObj.students[sName];
                 let match = (stageFilter === 'all') || (stageFilter === info.stage) || (stageFilter === info.className);
-                if(match) {
+                if (match) {
                     let bKey = stageFilter === 'all' ? info.stage : info.className;
-                    if(!breakDown[bKey]) breakDown[bKey] = { total: 0, absent: 0, late: 0, leave: 0 };
-
-                    if(info.state === 'absent') { totalAbsent++; breakDown[bKey].absent++; }
-                    if(info.state === 'late') { totalLate++; breakDown[bKey].late++; }
-                    if(info.state === 'leave') { totalLeave++; breakDown[bKey].leave++; }
+                    if (!breakDown[bKey]) breakDown[bKey] = { total: 0, absent: 0, late: 0, leave: 0 };
+                    if (info.state === 'absent') { totalAbsent++; breakDown[bKey].absent++; }
+                    if (info.state === 'late') { totalLate++; breakDown[bKey].late++; }
+                    if (info.state === 'leave') { totalLeave++; breakDown[bKey].leave++; }
                 }
             }
         }
-        
+
         let totalPresent = totalStudents - totalAbsent;
 
         document.getElementById('valPresent').innerText = totalPresent;
@@ -490,7 +516,7 @@
 
         let tBodyBreakdown = document.querySelector('#breakdownTable tbody');
         tBodyBreakdown.innerHTML = '';
-        for(let k in breakDown) {
+        for (let k in breakDown) {
             let row = breakDown[k];
             let rowPresent = row.total - row.absent;
             tBodyBreakdown.innerHTML += `
@@ -501,17 +527,16 @@
                     <td style="color:var(--danger)">${row.absent} <br><span class="percent" style="background:var(--danger); font-size:0.8rem; margin-top:5px;">${calcPercent(row.absent, row.total)}</span></td>
                     <td style="color:var(--warning)">${row.late} <br><span class="percent" style="background:var(--warning); font-size:0.8rem; margin-top:5px;">${calcPercent(row.late, row.total)}</span></td>
                     <td style="color:var(--info)">${row.leave} <br><span class="percent" style="background:var(--info); font-size:0.8rem; margin-top:5px;">${calcPercent(row.leave, row.total)}</span></td>
-                </tr>
-            `;
+                </tr>`;
         }
 
         let tBodyDetails = document.querySelector('#detailsTable tbody');
         tBodyDetails.innerHTML = '';
-        if(focusDateObj) {
-            for(let sName in focusDateObj.students) {
+        if (focusDateObj) {
+            for (let sName in focusDateObj.students) {
                 let info = focusDateObj.students[sName];
                 let match = (stageFilter === 'all') || (stageFilter === info.stage) || (stageFilter === info.className);
-                if(match) {
+                if (match) {
                     let stateAr = info.state === 'absent' ? 'غياب كلي' : (info.state === 'late' ? 'تأخير صباحي' : 'خروج باستئذان');
                     let color = info.state === 'absent' ? 'var(--danger)' : (info.state === 'late' ? 'var(--warning)' : 'var(--info)');
                     tBodyDetails.innerHTML += `
@@ -521,63 +546,338 @@
                             <td class="student-col">${sName}</td>
                             <td style="color:${color}; font-weight:bold;">${stateAr}</td>
                             <td class="teacher-col" style="font-size:0.85rem; color:#6b7280;">${info.teachers}</td>
-                        </tr>
-                    `;
+                        </tr>`;
                 }
             }
         }
 
-        let chartLabels = [];
-        let chartDataAbsent = [];
-        let chartDataLate = [];
-
+        let chartLabels = [], chartDataAbsent = [], chartDataLate = [];
         Object.keys(dailyStats).sort().forEach(dateKey => {
             chartLabels.push(dateKey);
-            let dAbs = 0; let dLate = 0;
-            for(let sn in dailyStats[dateKey].students) {
+            let dAbs = 0, dLate = 0;
+            for (let sn in dailyStats[dateKey].students) {
                 let i = dailyStats[dateKey].students[sn];
                 let m = (stageFilter === 'all') || (stageFilter === i.stage) || (stageFilter === i.className);
-                if(m) {
-                    if(i.state === 'absent') dAbs++;
-                    if(i.state === 'late' || i.state === 'leave') dLate++;
+                if (m) {
+                    if (i.state === 'absent') dAbs++;
+                    if (i.state === 'late' || i.state === 'leave') dLate++;
                 }
             }
             chartDataAbsent.push(dAbs);
             chartDataLate.push(dLate);
         });
 
-        if(chartInstance) { chartInstance.destroy(); }
+        if (chartInstance) chartInstance.destroy();
         const ctx = document.getElementById('trendChart').getContext('2d');
         chartInstance = new Chart(ctx, {
             type: 'bar',
             data: {
                 labels: chartLabels,
                 datasets: [
-                    {
-                        label: 'الغياب الكلي',
-                        data: chartDataAbsent,
-                        backgroundColor: '#dc2626',
-                        borderRadius: 4
-                    },
-                    {
-                        label: 'غياب جزئي (تأخير/استئذان)',
-                        data: chartDataLate,
-                        backgroundColor: '#ca8a04',
-                        borderRadius: 4
-                    }
+                    { label: 'الغياب الكلي', data: chartDataAbsent, backgroundColor: '#dc2626', borderRadius: 4 },
+                    { label: 'غياب جزئي (تأخير/استئذان)', data: chartDataLate, backgroundColor: '#ca8a04', borderRadius: 4 }
                 ]
             },
             options: {
-                responsive: true,
-                maintainAspectRatio: false,
+                responsive: true, maintainAspectRatio: false,
                 plugins: {
-                    title: { display: true, text: 'مؤشر الغياب والتأخير للفترة المحددة', font: {size: 18, family: 'Tajawal'} },
-                    legend: { labels: { font: {family: 'Tajawal', size: 14} } }
+                    title: { display: true, text: 'مؤشر الغياب والتأخير للفترة المحددة', font: { size: 18, family: 'Tajawal' } },
+                    legend: { labels: { font: { family: 'Tajawal', size: 14 } } }
                 },
-                scales: {
-                    y: { beginAtZero: true, ticks: { stepSize: 1 } }
-                }
+                scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
             }
+        });
+    }
+
+    // ==========================================
+    // نطاقات سريعة للتواريخ
+    // ==========================================
+    function setQuickRange(prefix, type) {
+        const today = new Date();
+        let start, end = new Date(today);
+        if (type === 'today') { start = new Date(today); }
+        else if (type === 'week') { start = new Date(today); start.setDate(start.getDate() - 6); }
+        else if (type === 'month') { start = new Date(today); start.setDate(start.getDate() - 29); }
+        else if (type === 'thisMonth') { start = new Date(today.getFullYear(), today.getMonth(), 1); }
+        document.getElementById(prefix + 'Start').value = start.toLocaleDateString('en-CA');
+        document.getElementById(prefix + 'End').value = end.toLocaleDateString('en-CA');
+
+        const quickBox = document.getElementById(prefix + 'Quick');
+        if (quickBox) {
+            [...quickBox.children].forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+    }
+
+    // ==========================================
+    // تجميع بيانات فترة زمنية حسب صف/مرحلة
+    // ==========================================
+    function aggregateRangeByGroup(startDate, endDate, groupFn) {
+        // groupFn(className, stage) => مفتاح المجموعة أو null لاستبعاد الصف
+        const dailyStats = buildDailyStats(startDate, endDate);
+        const dateKeys = Object.keys(dailyStats).sort();
+        let groups = {}; // key -> {total, dayPercents: [], absentSum, lateSum, leaveSum}
+
+        classesList.forEach(cls => {
+            const key = groupFn(cls, extractStage(cls));
+            if (key === null) return;
+            if (!groups[key]) groups[key] = { total: 0, absentSum: 0, lateSum: 0, leaveSum: 0, dayPercents: [] };
+            groups[key].total += rawData.classTotals[cls];
+        });
+
+        dateKeys.forEach(dateKey => {
+            let dayAbsentByGroup = {};
+            for (let g in groups) dayAbsentByGroup[g] = 0;
+            let dayLateByGroup = {}, dayLeaveByGroup = {};
+            for (let g in groups) { dayLateByGroup[g] = 0; dayLeaveByGroup[g] = 0; }
+
+            for (let sn in dailyStats[dateKey].students) {
+                let info = dailyStats[dateKey].students[sn];
+                const key = groupFn(info.className, info.stage);
+                if (key === null || !groups[key]) continue;
+                if (info.state === 'absent') { dayAbsentByGroup[key]++; groups[key].absentSum++; }
+                if (info.state === 'late') { dayLateByGroup[key]++; groups[key].lateSum++; }
+                if (info.state === 'leave') { dayLeaveByGroup[key]++; groups[key].leaveSum++; }
+            }
+
+            for (let g in groups) {
+                const pct = calcPercentNum(groups[g].total - dayAbsentByGroup[g], groups[g].total);
+                groups[g].dayPercents.push({ date: dateKey, pct: pct });
+            }
+        });
+
+        for (let g in groups) {
+            const pcts = groups[g].dayPercents.map(d => d.pct);
+            groups[g].avgPercent = pcts.length ? (pcts.reduce((a, b) => a + b, 0) / pcts.length) : 0;
+        }
+
+        return { groups, dateKeys };
+    }
+
+    // ==========================================
+    // تبويب 2: مقارنة الصفوف
+    // ==========================================
+    function renderCompareClasses() {
+        if (!rawData) return;
+        const startDate = document.getElementById('ccStart').value;
+        const endDate = document.getElementById('ccEnd').value;
+        const scope = document.getElementById('ccStageScope').value;
+
+        const groupFn = (cls, stage) => {
+            if (scope !== 'all' && stage !== scope) return null;
+            return cls;
+        };
+
+        const { groups } = aggregateRangeByGroup(startDate, endDate, groupFn);
+        let entries = Object.entries(groups).sort((a, b) => b[1].avgPercent - a[1].avgPercent);
+
+        if (classCompareChartInstance) classCompareChartInstance.destroy();
+        const ctx = document.getElementById('classCompareChart').getContext('2d');
+        classCompareChartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: entries.map(e => e[0]),
+                datasets: [{
+                    label: 'متوسط نسبة الحضور %',
+                    data: entries.map(e => e[1].avgPercent.toFixed(1)),
+                    backgroundColor: entries.map((_, i) => PALETTE[i % PALETTE.length]),
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    title: { display: true, text: `مقارنة نسبة الحضور بين الصفوف (${startDate} إلى ${endDate})`, font: { size: 16, family: 'Tajawal' } },
+                    legend: { display: false }
+                },
+                scales: { x: { beginAtZero: true, max: 100, title: { display: true, text: '%' } } }
+            }
+        });
+
+        const tbody = document.querySelector('#classCompareTable tbody');
+        tbody.innerHTML = '';
+        entries.forEach((e, idx) => {
+            const [cls, g] = e;
+            tbody.innerHTML += `
+                <tr class="${idx === 0 ? 'rank-1' : ''}">
+                    <td>${idx + 1}</td>
+                    <td style="font-weight:bold;">${cls}</td>
+                    <td>${g.total}</td>
+                    <td><span class="percent" style="background:${g.avgPercent >= 90 ? 'var(--success)' : g.avgPercent >= 75 ? 'var(--warning)' : 'var(--danger)'}">${g.avgPercent.toFixed(1)}%</span></td>
+                    <td style="color:var(--danger)">${g.absentSum}</td>
+                    <td style="color:var(--warning)">${g.lateSum}</td>
+                    <td style="color:var(--info)">${g.leaveSum}</td>
+                </tr>`;
+        });
+        if (entries.length === 0) tbody.innerHTML = '<tr><td colspan="7" class="empty-note">لا توجد بيانات لهذا النطاق</td></tr>';
+    }
+
+    // ==========================================
+    // تبويب 3: مقارنة المراحل
+    // ==========================================
+    function renderCompareStages() {
+        if (!rawData) return;
+        const startDate = document.getElementById('csStart').value;
+        const endDate = document.getElementById('csEnd').value;
+
+        const groupFn = (cls, stage) => stage;
+        const { groups } = aggregateRangeByGroup(startDate, endDate, groupFn);
+        let entries = Object.entries(groups).sort((a, b) => b[1].avgPercent - a[1].avgPercent);
+
+        if (stageCompareChartInstance) stageCompareChartInstance.destroy();
+        const ctx = document.getElementById('stageCompareChart').getContext('2d');
+        stageCompareChartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: entries.map(e => e[0]),
+                datasets: [{
+                    label: 'متوسط نسبة الحضور %',
+                    data: entries.map(e => e[1].avgPercent.toFixed(1)),
+                    backgroundColor: entries.map((_, i) => PALETTE[i % PALETTE.length]),
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    title: { display: true, text: `مقارنة نسبة الحضور بين المراحل (${startDate} إلى ${endDate})`, font: { size: 16, family: 'Tajawal' } },
+                    legend: { display: false }
+                },
+                scales: { y: { beginAtZero: true, max: 100, title: { display: true, text: '%' } } }
+            }
+        });
+
+        const tbody = document.querySelector('#stageCompareTable tbody');
+        tbody.innerHTML = '';
+        entries.forEach((e, idx) => {
+            const [stage, g] = e;
+            tbody.innerHTML += `
+                <tr class="${idx === 0 ? 'rank-1' : ''}">
+                    <td>${idx + 1}</td>
+                    <td style="font-weight:bold;">${stage}</td>
+                    <td>${g.total}</td>
+                    <td><span class="percent" style="background:${g.avgPercent >= 90 ? 'var(--success)' : g.avgPercent >= 75 ? 'var(--warning)' : 'var(--danger)'}">${g.avgPercent.toFixed(1)}%</span></td>
+                    <td style="color:var(--danger)">${g.absentSum}</td>
+                    <td style="color:var(--warning)">${g.lateSum}</td>
+                    <td style="color:var(--info)">${g.leaveSum}</td>
+                </tr>`;
+        });
+        if (entries.length === 0) tbody.innerHTML = '<tr><td colspan="7" class="empty-note">لا توجد بيانات لهذا النطاق</td></tr>';
+    }
+
+    // ==========================================
+    // تبويب 4: مقارنة عبر الزمن
+    // ==========================================
+    function renderEntityChips() {
+        const level = document.getElementById('ctLevel').value;
+        const box = document.getElementById('entityChips');
+        box.innerHTML = '';
+
+        let items = [];
+        if (level === 'school') items = ['المدرسة كاملة'];
+        else if (level === 'stage') items = STAGES;
+        else items = classesList;
+
+        items.forEach((item, idx) => {
+            const id = 'chip_' + level + '_' + idx;
+            box.innerHTML += `
+                <label class="chip">
+                    <input type="checkbox" id="${id}" value="${item}" ${idx < 3 ? 'checked' : ''}>
+                    ${item}
+                </label>`;
+        });
+    }
+
+    function renderCompareTime() {
+        if (!rawData) return;
+        const startDate = document.getElementById('ctStart').value;
+        const endDate = document.getElementById('ctEnd').value;
+        const level = document.getElementById('ctLevel').value;
+
+        const checked = [...document.querySelectorAll('#entityChips input:checked')].map(c => c.value).slice(0, 5);
+        if (checked.length === 0) { alert('يرجى اختيار عنصر واحد على الأقل للمقارنة'); return; }
+
+        const dailyStats = buildDailyStats(startDate, endDate);
+        const dateKeys = Object.keys(dailyStats).sort();
+
+        const totalsByEntity = {};
+        checked.forEach(ent => {
+            if (level === 'school') totalsByEntity[ent] = totalsForFilter(() => true);
+            else if (level === 'stage') totalsByEntity[ent] = totalsForFilter((cls, stage) => stage === ent);
+            else totalsByEntity[ent] = rawData.classTotals[ent] || 0;
+        });
+
+        const seriesData = {}; // ent -> array of %
+        const absentSum = {}, otherSum = {};
+        checked.forEach(ent => { seriesData[ent] = []; absentSum[ent] = 0; otherSum[ent] = 0; });
+
+        dateKeys.forEach(dateKey => {
+            const dayCount = {}; const dayOther = {};
+            checked.forEach(ent => { dayCount[ent] = 0; dayOther[ent] = 0; });
+
+            for (let sn in dailyStats[dateKey].students) {
+                const info = dailyStats[dateKey].students[sn];
+                checked.forEach(ent => {
+                    let match = false;
+                    if (level === 'school') match = true;
+                    else if (level === 'stage') match = info.stage === ent;
+                    else match = info.className === ent;
+                    if (!match) return;
+                    if (info.state === 'absent') dayCount[ent]++;
+                    else dayOther[ent]++;
+                });
+            }
+
+            checked.forEach(ent => {
+                const total = totalsByEntity[ent];
+                seriesData[ent].push(calcPercentNum(total - dayCount[ent], total).toFixed(1));
+                absentSum[ent] += dayCount[ent];
+                otherSum[ent] += dayOther[ent];
+            });
+        });
+
+        if (timeCompareChartInstance) timeCompareChartInstance.destroy();
+        const ctx = document.getElementById('timeCompareChart').getContext('2d');
+        timeCompareChartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: dateKeys,
+                datasets: checked.map((ent, i) => ({
+                    label: ent,
+                    data: seriesData[ent],
+                    borderColor: PALETTE[i % PALETTE.length],
+                    backgroundColor: PALETTE[i % PALETTE.length],
+                    tension: 0.3,
+                    fill: false,
+                    pointRadius: 3
+                }))
+            },
+            options: {
+                responsive: true, maintainAspectRatio: false,
+                plugins: {
+                    title: { display: true, text: `تطور نسبة الحضور من ${startDate} إلى ${endDate}`, font: { size: 16, family: 'Tajawal' } },
+                    legend: { labels: { font: { family: 'Tajawal', size: 13 } } }
+                },
+                scales: { y: { beginAtZero: true, max: 100, title: { display: true, text: '% نسبة الحضور' } } }
+            }
+        });
+
+        const tbody = document.querySelector('#timeCompareTable tbody');
+        tbody.innerHTML = '';
+        checked.forEach(ent => {
+            const pcts = seriesData[ent].map(Number);
+            const avg = pcts.length ? (pcts.reduce((a, b) => a + b, 0) / pcts.length) : 0;
+            const bestIdx = pcts.indexOf(Math.max(...pcts));
+            const worstIdx = pcts.indexOf(Math.min(...pcts));
+            tbody.innerHTML += `
+                <tr>
+                    <td style="font-weight:bold;">${ent}</td>
+                    <td><span class="percent" style="background:${avg >= 90 ? 'var(--success)' : avg >= 75 ? 'var(--warning)' : 'var(--danger)'}">${avg.toFixed(1)}%</span></td>
+                    <td>${dateKeys[bestIdx] || '-'} (${pcts[bestIdx] || 0}%)</td>
+                    <td>${dateKeys[worstIdx] || '-'} (${pcts[worstIdx] || 0}%)</td>
+                    <td style="color:var(--danger)">${absentSum[ent]}</td>
+                    <td style="color:var(--warning)">${otherSum[ent]}</td>
+                </tr>`;
         });
     }
 </script>
