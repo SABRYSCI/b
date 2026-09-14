@@ -167,7 +167,7 @@
         .loading { text-align: center; font-size: 1.5rem; color: var(--primary); font-weight: bold; display: none; padding: 40px; }
 
         /* ========================================================
-           تنسيقات الطباعة الذكية (بناءً على توجيهات الإدارة)
+           تنسيقات الطباعة الذكية
            ======================================================== */
         @media print {
             body { background: white; padding: 0; }
@@ -180,7 +180,7 @@
             .percent {
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
-                color: #000 !important; /* لضمان وضوح النص في الأبيض والأسود */
+                color: #000 !important;
                 border: 1px solid #000;
             }
 
@@ -189,7 +189,7 @@
                 border: 1px solid #000;
                 page-break-inside: avoid;
                 margin-top: 20px;
-                height: 350px !important; /* تثبيت الارتفاع للطباعة */
+                height: 350px !important;
             }
 
             .table-container { box-shadow: none; border: none; padding: 0; }
@@ -197,7 +197,7 @@
             th, td { border: 1px solid #000 !important; font-size: 12pt; padding: 8px; color: #000; }
             th { background-color: #e5e7eb !important; color: #000 !important; -webkit-print-color-adjust: exact; }
             
-            /* إخفاء عمود "الراصدون" في جدول التفاصيل (العمود الأول أو الثاني حسب الترتيب) */
+            /* إخفاء عمود "الراصدون" في جدول التفاصيل */
             .details-table th.teacher-col, 
             .details-table td.teacher-col {
                 display: none !important;
@@ -260,7 +260,7 @@
             <button onclick="window.print()" style="background-color: #4b5563;">🖨️ طباعة التقرير</button>
         </div>
 
-        <h3 id="reportTitle" style="text-align: center; border-bottom: 2px dashed #ccc; padding-bottom:10px;">إحصائيات (المدرسة كاملة) للتاريخ المحدد</h3>
+        <h3 id="reportTitle" style="text-align: center; border-bottom: 2px dashed #ccc; padding-bottom:10px;">إحصائيات للتاريخ المحدد</h3>
 
         <!-- البطاقات العلوية -->
         <div class="stats-grid">
@@ -337,7 +337,7 @@
     // ==========================================
     // إعدادات التطبيق
     // ==========================================
-    const SCRIPT_URL = "ضع_رابط_التطبيق_هنا_أو_احتفظ_بالموجود"; // استبدل هذا إذا كان مختلفاً
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxlJnpJN9y9h04cOswtY3BGGwUS8rhybOisxDFkIQJ6_9nFSPMJeK-wiuFEECnBY3v5/exec"; 
     
     let rawData = null;
     let chartInstance = null;
@@ -356,8 +356,7 @@
         document.getElementById('authSection').style.display = 'none';
         document.getElementById('loadingSpinner').style.display = 'block';
 
-        // يمكن تعديل الرابط حسب الرابط الفعلي الخاص بك
-        fetch(`https://script.google.com/macros/s/AKfycbycT0R7fF73D8u_71z986R47h0Xj4y_e_D/exec?action=statistics&pass=${pass}`)
+        fetch(`${SCRIPT_URL}?action=statistics&pass=${pass}`)
             .then(res => res.json())
             .then(data => {
                 document.getElementById('loadingSpinner').style.display = 'none';
@@ -370,7 +369,7 @@
                     document.getElementById('authSection').style.display = 'block';
                 }
             }).catch(err => {
-                alert('حدث خطأ في الاتصال');
+                alert('حدث خطأ في الاتصال، يرجى المحاولة مرة أخرى.');
                 document.getElementById('authSection').style.display = 'block';
                 document.getElementById('loadingSpinner').style.display = 'none';
             });
@@ -399,12 +398,9 @@
         document.getElementById('reportTitle').innerText = 
             `الإحصائيات (${stageFilter === 'all' ? 'المدرسة كاملة' : stageFilter}) للفترة من ${startDate} إلى ${endDate}`;
 
-        // 1. معالجة وتجميع بيانات الطلاب حسب (التاريخ -> الطالب -> الحالة)
-        // لأن الطالب قد يرصده أكثر من معلم غائب في نفس اليوم
-        let dailyStats = {}; // { '2026-09-14': { classTotals: {}, students: { 'Name': {class, state, teachers} } } }
+        let dailyStats = {}; 
         let classesList = Object.keys(rawData.classTotals);
 
-        // بناء هيكل الأيام
         let d = new Date(startDate);
         let endD = new Date(endDate);
         while(d <= endD) {
@@ -413,7 +409,6 @@
             d.setDate(d.getDate() + 1);
         }
 
-        // تسجيل الأعذار (تأخير / استئذان) لتكون لها الأولوية على الغياب الكلي
         rawData.lates.forEach(late => {
             if(dailyStats[late.date]) {
                 if(!dailyStats[late.date].students[late.studentName]) {
@@ -427,7 +422,6 @@
             }
         });
 
-        // تسجيل الغيابات من الفورم
         rawData.records.forEach(rec => {
             if(dailyStats[rec.date] && rec.studentName && !rec.studentName.includes('لا يوجد')) {
                 let sName = rec.studentName.replace(/^[\d\s._-]+/, '').trim();
@@ -437,11 +431,10 @@
                     dailyStats[rec.date].students[sName] = {
                         className: rec.className,
                         stage: stg,
-                        state: 'absent', // افتراضي غياب كلي إذا لم يكن في سجل الإدارة
+                        state: 'absent',
                         teachers: rec.teacher
                     };
                 } else {
-                    // إذا كان مسجل مسبقاً (سواء من الإدارة كعذر أو من معلم آخر)
                     if(dailyStats[rec.date].students[sName].state === 'absent') {
                         if(!dailyStats[rec.date].students[sName].teachers.includes(rec.teacher)) {
                             dailyStats[rec.date].students[sName].teachers += ' ، ' + rec.teacher;
@@ -451,15 +444,12 @@
             }
         });
 
-        // 2. حساب المجاميع للإحصائيات (لنطاق التاريخ المحدد والفلتر المحدد)
         let totalStudents = 0;
         let totalAbsent = 0;
         let totalLate = 0;
         let totalLeave = 0;
+        let breakDown = {}; 
 
-        let breakDown = {}; // حسب الفلتر: إذا كان all نقسم للمراحل، وإذا كان مرحلة نقسم للصفوف
-
-        // حساب عدد الطلاب الكلي المطلوب
         classesList.forEach(cls => {
             let stg = extractStage(cls);
             let count = rawData.classTotals[cls];
@@ -471,8 +461,6 @@
             }
         });
 
-        // لحساب المتوسط عبر الأيام، نأخذ المجاميع مقسومة على عدد الأيام (أو اليوم الأخير فقط للبطاقات)
-        // الأفضل للبطاقات أن تعرض إحصائيات *تاريخ البداية* (اليوم المحدد) لتطابق التقرير اليومي
         let focusDateObj = dailyStats[startDate];
         if(focusDateObj) {
             for(let sName in focusDateObj.students) {
@@ -488,9 +476,9 @@
                 }
             }
         }
+        
         let totalPresent = totalStudents - totalAbsent;
 
-        // تحديث البطاقات
         document.getElementById('valPresent').innerText = totalPresent;
         document.getElementById('percPresent').innerText = calcPercent(totalPresent, totalStudents);
         document.getElementById('valAbsent').innerText = totalAbsent;
@@ -500,7 +488,6 @@
         document.getElementById('valLeave').innerText = totalLeave;
         document.getElementById('percLeave').innerText = calcPercent(totalLeave, totalStudents);
 
-        // 3. بناء جدول التفصيل (Breakdown Table)
         let tBodyBreakdown = document.querySelector('#breakdownTable tbody');
         tBodyBreakdown.innerHTML = '';
         for(let k in breakDown) {
@@ -510,15 +497,14 @@
                 <tr>
                     <td style="font-weight:bold;">${k}</td>
                     <td>${row.total}</td>
-                    <td style="color:var(--success)">${rowPresent} <span class="percent" style="background:var(--success); font-size:0.8rem;">${calcPercent(rowPresent, row.total)}</span></td>
-                    <td style="color:var(--danger)">${row.absent} <span class="percent" style="background:var(--danger); font-size:0.8rem;">${calcPercent(row.absent, row.total)}</span></td>
-                    <td style="color:var(--warning)">${row.late} <span class="percent" style="background:var(--warning); font-size:0.8rem;">${calcPercent(row.late, row.total)}</span></td>
-                    <td style="color:var(--info)">${row.leave} <span class="percent" style="background:var(--info); font-size:0.8rem;">${calcPercent(row.leave, row.total)}</span></td>
+                    <td style="color:var(--success)">${rowPresent} <br><span class="percent" style="background:var(--success); font-size:0.8rem; margin-top:5px;">${calcPercent(rowPresent, row.total)}</span></td>
+                    <td style="color:var(--danger)">${row.absent} <br><span class="percent" style="background:var(--danger); font-size:0.8rem; margin-top:5px;">${calcPercent(row.absent, row.total)}</span></td>
+                    <td style="color:var(--warning)">${row.late} <br><span class="percent" style="background:var(--warning); font-size:0.8rem; margin-top:5px;">${calcPercent(row.late, row.total)}</span></td>
+                    <td style="color:var(--info)">${row.leave} <br><span class="percent" style="background:var(--info); font-size:0.8rem; margin-top:5px;">${calcPercent(row.leave, row.total)}</span></td>
                 </tr>
             `;
         }
 
-        // 4. بناء جدول السجلات (التفصيلي للمدير)
         let tBodyDetails = document.querySelector('#detailsTable tbody');
         tBodyDetails.innerHTML = '';
         if(focusDateObj) {
@@ -541,7 +527,6 @@
             }
         }
 
-        // 5. رسم الشارت الزمني (Trend Chart)
         let chartLabels = [];
         let chartDataAbsent = [];
         let chartDataLate = [];
