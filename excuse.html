@@ -3,125 +3,221 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بوابة تقديم الأعذار - مدرسة البلاد القديم</title>
+    <title>بوابة تقديم الأعذار (لغياب طالب خلال يوم دراسي)- مدرسة البلاد القديم</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap');
         
         body {
             font-family: 'Tajawal', sans-serif;
-            background-color: #f0f2f5;
-            margin: 0; padding: 20px;
+            background-color: #e5e7eb;
+            margin: 0; 
+            padding: 20px 10px;
             color: #1f2937;
         }
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            background: #fff;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-        }
-        .header { text-align: center; margin-bottom: 25px; border-bottom: 2px solid #1e3a8a; padding-bottom: 15px; }
-        .header h2 { color: #1e3a8a; margin: 0; }
         
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; font-weight: bold; margin-bottom: 8px; color: #374151; }
-        .form-group input, .form-group textarea {
-            width: 100%; padding: 12px; border: 1px solid #d1d5db;
-            border-radius: 8px; font-family: inherit; font-size: 1rem;
-            box-sizing: border-box;
+        .container {
+            max-width: 650px;
+            margin: 0 auto;
+            background: #ffffff;
+            padding: 0;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            overflow: hidden; /* لضمان عدم خروج الترويسة عن الإطار */
         }
-        .form-group input[readonly] { background-color: #f3f4f6; color: #6b7280; }
+
+        /* الترويسة الرسمية للمدرسة */
+        .school-header {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-bottom: 3px solid #1e3a8a;
+        }
+
+        .form-content {
+            padding: 30px;
+        }
+
+        .page-title { 
+            text-align: center; 
+            margin-top: 0;
+            margin-bottom: 25px; 
+            color: #1e3a8a;
+            font-weight: 800;
+        }
+        
+        .form-group { margin-bottom: 20px; }
+        .form-group label { 
+            display: block; 
+            font-weight: 700; 
+            margin-bottom: 8px; 
+            color: #374151; 
+        }
+        
+        .form-group input, .form-group textarea {
+            width: 100%; 
+            padding: 12px 15px; 
+            border: 1px solid #d1d5db;
+            border-radius: 8px; 
+            font-family: inherit; 
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+            background-color: #f9fafb;
+        }
+        
+        .form-group input:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #2563eb;
+            background-color: #fff;
+        }
+
+        .form-group input[readonly] { 
+            background-color: #e5e7eb; 
+            color: #4b5563; 
+            cursor: not-allowed;
+        }
         
         .search-box { display: flex; gap: 10px; }
         .search-box input { flex: 1; }
         .search-box button {
-            background: #2563eb; color: white; border: none;
-            padding: 0 20px; border-radius: 8px; cursor: pointer; font-family: inherit; font-weight: bold;
+            background: #1e3a8a; 
+            color: white; 
+            border: none;
+            padding: 0 25px; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-family: inherit; 
+            font-weight: bold;
+            transition: background-color 0.3s;
         }
+        .search-box button:hover { background: #172554; }
         
         .btn-submit {
-            width: 100%; background: #16a34a; color: white; border: none;
-            padding: 15px; border-radius: 8px; font-size: 1.2rem; font-weight: bold;
-            cursor: pointer; font-family: inherit; margin-top: 10px;
+            width: 100%; 
+            background: #16a34a; 
+            color: white; 
+            border: none;
+            padding: 16px; 
+            border-radius: 8px; 
+            font-size: 1.2rem; 
+            font-weight: bold;
+            cursor: pointer; 
+            font-family: inherit; 
+            margin-top: 15px;
+            transition: background-color 0.3s, transform 0.1s;
         }
-        .btn-submit:disabled { background: #9ca3af; cursor: not-allowed; }
+        .btn-submit:hover { background: #15803d; }
+        .btn-submit:active { transform: scale(0.98); }
+        .btn-submit:disabled { background: #9ca3af; cursor: not-allowed; transform: none; }
         
-        #manualEntry { display: none; background: #fffbeb; padding: 15px; border-radius: 8px; border: 1px dashed #f59e0b; margin-bottom: 15px;}
-        .alert { padding: 15px; border-radius: 8px; margin-bottom: 15px; display: none; font-weight: bold; text-align: center;}
+        #manualEntry { 
+            display: none; 
+            background: #fffbeb; 
+            padding: 20px; 
+            border-radius: 8px; 
+            border: 1px dashed #f59e0b; 
+            margin-bottom: 20px;
+        }
+        
+        .alert { 
+            padding: 15px; 
+            border-radius: 8px; 
+            margin-bottom: 20px; 
+            display: none; 
+            font-weight: bold; 
+            text-align: center;
+        }
         .alert-error { background: #fee2e2; color: #dc2626; border: 1px solid #f87171; }
         .alert-success { background: #dcfce3; color: #16a34a; border: 1px solid #4ade80; }
-        .loader { display: none; text-align: center; color: #2563eb; font-weight: bold; margin-top: 15px; }
+        
+        .loader { 
+            display: none; 
+            text-align: center; 
+            color: #2563eb; 
+            font-weight: bold; 
+            margin-top: 15px; 
+        }
+
+        /* تنسيق خاص لحقل رفع الملفات */
+        input[type="file"] {
+            background: #fff;
+            padding: 10px;
+            border: 2px dashed #9ca3af;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <div class="header">
-        <h2>تقديم عذر غياب طالب</h2>
-        <p>مدرسة البلاد القديم الابتدائية الإعدادية للبنين</p>
-    </div>
+    <!-- الترويسة الذهبية للمدرسة -->
+    <img src="https://i.postimg.cc/K88X7RLb/trwysyh-dhhbyt.png" alt="ترويسة مدرسة البلاد القديم" class="school-header">
 
-    <div id="alertBox" class="alert"></div>
+    <div class="form-content">
+        <h2 class="page-title">نموذج تقديم عذر غياب</h2>
 
-    <div class="form-group">
-        <label>الرقم الشخصي للطالب:</label>
-        <div class="search-box">
-            <input type="number" id="cpr" placeholder="أدخل الرقم الشخصي للطالب">
-            <button type="button" onclick="searchStudent()" id="searchBtn">بحث</button>
-        </div>
-    </div>
+        <div id="alertBox" class="alert"></div>
 
-    <div id="manualEntry">
-        <p style="color: #d97706; margin-top: 0;">لم يتم العثور على الرقم في النظام. يرجى إدخال البيانات يدوياً:</p>
         <div class="form-group">
-            <label>اسم الطالب الرباعي:</label>
-            <input type="text" id="manualName" placeholder="اكتب اسم الطالب">
+            <label>الرقم الشخصي للطالب:</label>
+            <div class="search-box">
+                <input type="number" id="cpr" placeholder="أدخل الرقم الشخصي للطالب للبحث...">
+                <button type="button" onclick="searchStudent()" id="searchBtn">تحقق</button>
+            </div>
+            <p style="font-size: 0.85rem; color: #6b7280; margin-top:5px; margin-bottom: 0;">أدخل الرقم الشخصي واضغط "تحقق" لجلب بيانات الطالب تلقائياً.</p>
         </div>
+
+        <div id="manualEntry">
+            <p style="color: #d97706; margin-top: 0; font-weight: bold;">لم يتم العثور على الرقم في النظام. يرجى إدخال البيانات يدوياً:</p>
+            <div class="form-group">
+                <label>اسم الطالب الرباعي:</label>
+                <input type="text" id="manualName" placeholder="اكتب اسم الطالب كاملاً">
+            </div>
+            <div class="form-group">
+                <label>الصف:</label>
+                <input type="text" id="manualClass" placeholder="مثال: ثاني إعدادي 3">
+            </div>
+        </div>
+
+        <div id="studentDetails" style="display:none;">
+            <div class="form-group">
+                <label>اسم الطالب:</label>
+                <input type="text" id="studentName" readonly>
+            </div>
+            <div class="form-group">
+                <label>الصف:</label>
+                <input type="text" id="studentClass" readonly>
+            </div>
+        </div>
+
         <div class="form-group">
-            <label>الصف:</label>
-            <input type="text" id="manualClass" placeholder="مثال: ثاني إعدادي 3">
+            <label>تاريخ الغياب (يمكن تعديله للأيام السابقة):</label>
+            <input type="date" id="absenceDate">
         </div>
-    </div>
 
-    <div id="studentDetails" style="display:none;">
         <div class="form-group">
-            <label>اسم الطالب:</label>
-            <input type="text" id="studentName" readonly>
+            <label>رقم هاتف ولي الأمر للتواصل:</label>
+            <input type="tel" id="parentPhone" placeholder="أدخل رقم هاتف فعال">
         </div>
+
         <div class="form-group">
-            <label>الصف:</label>
-            <input type="text" id="studentClass" readonly>
+            <label>سبب الغياب (ملاحظات):</label>
+            <textarea id="reason" rows="3" placeholder="اذكر سبب الغياب باختصار..."></textarea>
         </div>
-    </div>
 
-    <div class="form-group">
-        <label>تاريخ الغياب:</label>
-        <input type="date" id="absenceDate">
-    </div>
+        <div class="form-group">
+            <label>إرفاق المستندات (عذر طبي، تقرير، صورة):</label>
+            <p style="font-size: 0.85rem; color: #6b7280; margin-top:0;">يمكنك تصوير العذر مباشرة بالكاميرا أو اختياره من الهاتف.</p>
+            <input type="file" id="fileUpload" multiple accept="image/*,application/pdf">
+        </div>
 
-    <div class="form-group">
-        <label>رقم هاتف ولي الأمر (للتواصل):</label>
-        <input type="tel" id="parentPhone" placeholder="رقم الهاتف">
+        <button class="btn-submit" id="submitBtn" onclick="submitExcuse()">إرسال العذر للإدارة</button>
+        <div class="loader" id="loader">⏳ جاري معالجة الملفات وإرسال العذر... الرجاء عدم إغلاق الصفحة.</div>
     </div>
-
-    <div class="form-group">
-        <label>سبب الغياب المكتوب:</label>
-        <textarea id="reason" rows="3" placeholder="اذكر سبب الغياب باختصار..."></textarea>
-    </div>
-
-    <div class="form-group">
-        <label>المرفقات (عذر طبي، تقرير، إلخ):</label>
-        <p style="font-size: 0.85rem; color: #6b7280; margin-top:0;">يمكنك اختيار صورة من الاستوديو أو فتح الكاميرا للتصوير مباشرة.</p>
-        <input type="file" id="fileUpload" multiple accept="image/*,application/pdf">
-    </div>
-
-    <button class="btn-submit" id="submitBtn" onclick="submitExcuse()">إرسال العذر</button>
-    <div class="loader" id="loader">جاري رفع الملفات وإرسال العذر... يرجى الانتظار ولا تغلق الصفحة ⏳</div>
 </div>
 
 <script>
-    // الرابط الفعلي لمشروعك تم دمجه هنا
+    // الرابط الفعلي لمشروعك 
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxlJnpJN9y9h04cOswtY3BGGwUS8rhybOisxDFkIQJ6_9nFSPMJeK-wiuFEECnBY3v5/exec"; 
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -133,7 +229,7 @@
         alertBox.textContent = message;
         alertBox.style.display = 'block';
         alertBox.className = 'alert ' + (isSuccess ? 'alert-success' : 'alert-error');
-        window.scrollTo(0, 0);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function searchStudent() {
@@ -141,26 +237,29 @@
         if (!cpr) return showAlert("يرجى إدخال الرقم الشخصي أولاً");
         
         const btn = document.getElementById('searchBtn');
-        btn.textContent = "جاري..."; btn.disabled = true;
+        btn.textContent = "جاري..."; 
+        btn.disabled = true;
         document.getElementById('alertBox').style.display = 'none';
 
         fetch(`${SCRIPT_URL}?action=searchCPR&cpr=${cpr}`)
             .then(res => res.json())
             .then(data => {
-                btn.textContent = "بحث"; btn.disabled = false;
+                btn.textContent = "تحقق"; 
+                btn.disabled = false;
                 if(data.status === "success") {
                     document.getElementById('manualEntry').style.display = 'none';
                     document.getElementById('studentDetails').style.display = 'block';
                     document.getElementById('studentName').value = data.studentName;
                     document.getElementById('studentClass').value = data.className;
-                    showAlert("تم جلب بيانات الطالب بنجاح", true);
+                    showAlert("✅ تم جلب بيانات الطالب بنجاح", true);
                 } else {
                     document.getElementById('studentDetails').style.display = 'none';
                     document.getElementById('manualEntry').style.display = 'block';
                     showAlert("لم يتم العثور على الرقم، يرجى كتابة البيانات يدوياً بالأسفل.");
                 }
             }).catch(err => {
-                btn.textContent = "بحث"; btn.disabled = false;
+                btn.textContent = "تحقق"; 
+                btn.disabled = false;
                 showAlert("حدث خطأ في الاتصال، يمكنك إدخال البيانات يدوياً.");
                 document.getElementById('manualEntry').style.display = 'block';
             });
@@ -181,7 +280,7 @@
         }
 
         if (!cpr || !sName || !sClass || !parentPhone) {
-            return showAlert("يرجى التأكد من كتابة الرقم الشخصي والاسم والصف ورقم الهاتف.");
+            return showAlert("يرجى التأكد من ملء جميع الحقول الأساسية (الرقم الشخصي، الاسم، الصف، رقم الهاتف).");
         }
 
         const fileInput = document.getElementById('fileUpload');
@@ -228,8 +327,8 @@
             document.getElementById('submitBtn').style.display = 'block';
             
             if(data.status === "success") {
-                showAlert("✅ تم إرسال العذر والمرفقات بنجاح! شكراً لك.", true);
-                setTimeout(() => { location.reload(); }, 3000);
+                showAlert("🎉 تم إرسال العذر بنجاح! سيتم مراجعته من قبل الإدارة.", true);
+                setTimeout(() => { location.reload(); }, 4000);
             } else {
                 showAlert("حدث خطأ أثناء الإرسال: " + data.message + " (حاول مرة أخرى)");
             }
