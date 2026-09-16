@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بوابة تقديم الأعذار(لغياب طالب) - مدرسة البلاد القديم</title>
+    <title>بوابة تقديم الأعذار (غياب طالب)- مدرسة البلاد القديم</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap');
         
@@ -24,7 +24,6 @@
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
         }
 
-        /* الترويسة الرسمية للمدرسة (تم التعديل لتظهر كاملة) */
         .school-header-container {
             background-color: #fff;
             text-align: center;
@@ -145,7 +144,6 @@
             margin-top: 15px; 
         }
 
-        /* تنسيق خاص لحقل رفع الملفات */
         input[type="file"] {
             background: #fff;
             padding: 10px;
@@ -157,7 +155,6 @@
 <body>
 
 <div class="container">
-    <!-- الترويسة الذهبية للمدرسة (تم ضبط المقاسات) -->
     <div class="school-header-container">
         <img src="https://i.postimg.cc/K88X7RLb/trwysyh-dhhbyt.png" alt="ترويسة مدرسة البلاد القديم" class="school-header">
     </div>
@@ -215,18 +212,17 @@
         </div>
 
         <div class="form-group">
-            <label>إرفاق المستندات (عذر طبي، تقرير، صورة):</label>
-            <p style="font-size: 0.85rem; color: #6b7280; margin-top:0;">يمكنك تصوير العذر مباشرة بالكاميرا أو اختياره من الهاتف.</p>
+            <label>إرفاق المستندات (عذر طبي، تقرير) - <span style="color: #dc2626;">(اختياري)</span>:</label>
+            <p style="font-size: 0.85rem; color: #6b7280; margin-top:0;">يمكنك تحديد أكثر من صورة أو ملف معاً، أو التصوير مباشرة.</p>
             <input type="file" id="fileUpload" multiple accept="image/*,application/pdf">
         </div>
 
         <button class="btn-submit" id="submitBtn" onclick="submitExcuse()">إرسال العذر للإدارة</button>
-        <div class="loader" id="loader">⏳ جاري معالجة الملفات وإرسال العذر... الرجاء عدم إغلاق الصفحة.</div>
+        <div class="loader" id="loader">⏳ جاري معالجة البيانات وإرسال العذر... الرجاء عدم إغلاق الصفحة.</div>
     </div>
 </div>
 
 <script>
-    // الرابط الفعلي لمشروعك 
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxlJnpJN9y9h04cOswtY3BGGwUS8rhybOisxDFkIQJ6_9nFSPMJeK-wiuFEECnBY3v5/exec"; 
 
     document.addEventListener("DOMContentLoaded", () => {
@@ -288,6 +284,7 @@
             sClass = document.getElementById('manualClass').value;
         }
 
+        // ملاحظة: تم إزالة ملفات المرفقات من الحقول الإجبارية
         if (!cpr || !sName || !sClass || !parentPhone) {
             return showAlert("يرجى التأكد من ملء جميع الحقول الأساسية (الرقم الشخصي، الاسم، الصف، رقم الهاتف).");
         }
@@ -300,6 +297,7 @@
         document.getElementById('loader').style.display = 'block';
         document.getElementById('alertBox').style.display = 'none';
 
+        // قراءة الملفات في حال قام ولي الأمر بإرفاقها
         if (files.length > 0) {
             for (let i = 0; i < files.length; i++) {
                 let file = files[i];
@@ -323,7 +321,7 @@
             absenceDate: absenceDate,
             parentPhone: parentPhone,
             reason: reason,
-            files: fileDataArray
+            files: fileDataArray // سيتم إرساله كـ [] في حال لم يرفق شيء
         };
 
         fetch(SCRIPT_URL, {
@@ -336,7 +334,7 @@
             document.getElementById('submitBtn').style.display = 'block';
             
             if(data.status === "success") {
-                showAlert("🎉 تم إرسال العذر بنجاح! سيتم مراجعته من قبل الإدارة.", true);
+                showAlert("🎉 تم تسجيل العذر بنجاح! شكراً لتعاونكم.", true);
                 setTimeout(() => { location.reload(); }, 4000);
             } else {
                 showAlert("حدث خطأ أثناء الإرسال: " + data.message + " (حاول مرة أخرى)");
@@ -351,4 +349,3 @@
 </script>
 </body>
 </html>
-
