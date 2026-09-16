@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بوابة تقديم الأعذار (لغياب طالب خلال يوم دراسي)- مدرسة البلاد القديم</title>
+    <title>بوابة تقديم الأعذار(لغيلب طالب) - مدرسة البلاد القديم</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap');
         
@@ -22,15 +22,22 @@
             padding: 0;
             border-radius: 12px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-            overflow: hidden; /* لضمان عدم خروج الترويسة عن الإطار */
         }
 
-        /* الترويسة الرسمية للمدرسة */
-        .school-header {
-            width: 100%;
-            height: auto;
-            display: block;
+        /* الترويسة الرسمية للمدرسة (تم التعديل لتظهر كاملة) */
+        .school-header-container {
+            background-color: #fff;
+            text-align: center;
+            padding: 15px 15px 5px 15px;
             border-bottom: 3px solid #1e3a8a;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .school-header {
+            max-width: 100%;
+            height: auto;
+            display: inline-block;
+            object-fit: contain;
         }
 
         .form-content {
@@ -150,8 +157,10 @@
 <body>
 
 <div class="container">
-    <!-- الترويسة الذهبية للمدرسة -->
-    <img src="https://i.postimg.cc/K88X7RLb/trwysyh-dhhbyt.png" alt="ترويسة مدرسة البلاد القديم" class="school-header">
+    <!-- الترويسة الذهبية للمدرسة (تم ضبط المقاسات) -->
+    <div class="school-header-container">
+        <img src="https://i.postimg.cc/K88X7RLb/trwysyh-dhhbyt.png" alt="ترويسة مدرسة البلاد القديم" class="school-header">
+    </div>
 
     <div class="form-content">
         <h2 class="page-title">نموذج تقديم عذر غياب</h2>
