@@ -3,197 +3,519 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بوابة المدير - لوحة القيادة الشاملة</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <title>بوابة الادارة - لوحة التحكم الشاملة</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        body { font-family: 'Tajawal', sans-serif; background-color: #f8fafc; }
-        .hidden { display: none; }
-        .active-period { background-color: #7c3aed !important; color: white !important; font-weight: bold; border-color: #6d28d9 !important; }
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap');
+
+        :root {
+            --primary: #4338ca; /* لون أزرق-بنفسجي فخم */
+            --primary-hover: #3730a3;
+            --secondary: #1e3a8a;
+            --success: #16a34a; 
+            --danger: #dc2626; 
+            --warning: #ca8a04; 
+            --info: #0891b2; 
+            --bg-color: #f3f4f6; 
+            --card-bg: #ffffff; 
+            --text-main: #1f2937;
+        }
+
+        body { font-family: 'Tajawal', sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; padding: 20px; }
+        .container { max-width: 1250px; margin: 0 auto; }
+        
+        /* الترويسة الذهبية (متجاوبة) */
+        .school-header-container {
+            background-color: #fff;
+            text-align: center;
+            padding: 15px;
+            border-bottom: 4px solid var(--primary);
+            border-radius: 12px 12px 0 0;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+        .school-header { max-width: 100%; height: auto; display: inline-block; }
+
+        .header { text-align: center; margin-bottom: 25px; }
+        .header h1 { color: var(--primary); margin: 0 0 5px 0; font-weight: 800; font-size: 2rem;}
+        .header h3 { margin: 0; color: #4b5563; font-weight: 500;}
+
+        /* مربع تسجيل الدخول الأنيق */
+        .auth-card {
+            background: white; max-width: 450px; margin: 50px auto; padding: 40px 30px;
+            border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center;
+            border-top: 5px solid var(--primary);
+        }
+        .auth-card h3 { color: var(--text-main); margin-bottom: 20px; font-weight: 800; }
+        .auth-card input { width: 80%; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; text-align: center; font-size: 1.1rem; margin-bottom: 20px; font-family: inherit;}
+        .auth-card button { width: 80%; padding: 12px; font-size: 1.1rem; border-radius: 8px; }
+
+        /* التبويبات (Tabs) */
+        .tabs-container { display: flex; justify-content: center; gap: 15px; margin-bottom: 25px; flex-wrap: wrap; }
+        .tab-btn { padding: 12px 30px; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; background: #e5e7eb; color: #4b5563; transition: 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.05);}
+        .tab-btn.active { background: var(--primary); color: white; box-shadow: 0 4px 10px rgba(67, 56, 202, 0.3); }
+        .tab-btn:hover:not(.active) { background: #d1d5db; }
+
+        /* الفلاتر */
+        .filters { display: flex; flex-wrap: wrap; gap: 15px; background: var(--card-bg); padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 25px; align-items: center; justify-content: center; }
+        .filter-group { display: flex; flex-direction: column; gap: 8px; }
+        .filter-group label { font-weight: bold; font-size: 0.95rem; color: #4b5563; }
+        .filter-group input, .filter-group select { padding: 10px; border: 1px solid #d1d5db; border-radius: 8px; font-family: inherit; font-size: 1rem;}
+        
+        .btn-action { background-color: var(--primary); color: white; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-family: inherit; font-weight: bold; transition: 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.1);}
+        .btn-action:hover { background-color: var(--primary-hover); transform: translateY(-2px);}
+
+        /* البطاقات الإحصائية */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 25px; }
+        .stat-card { background: var(--card-bg); padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); text-align: center; border-bottom: 5px solid var(--primary); transition: 0.3s;}
+        .stat-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        .stat-card h3 { margin: 0; font-size: 1.2rem; color: #4b5563; }
+        .stat-card .value { font-size: 2.5rem; font-weight: 800; margin: 15px 0; }
+        .stat-card .percent { font-size: 1.1rem; font-weight: bold; padding: 5px 10px; border-radius: 6px; color: white; display: inline-block;}
+        
+        .card-present { border-color: var(--success); } .card-present .value { color: var(--success); } .card-present .percent { background-color: var(--success); }
+        .card-absent { border-color: var(--danger); } .card-absent .value { color: var(--danger); } .card-absent .percent { background-color: var(--danger); }
+        .card-late { border-color: var(--warning); } .card-late .value { color: var(--warning); } .card-late .percent { background-color: var(--warning); }
+        .card-leave { border-color: var(--info); } .card-leave .value { color: var(--info); } .card-leave .percent { background-color: var(--info); }
+
+        .chart-container { background: var(--card-bg); padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 25px; height: 420px; }
+        .table-container { background: var(--card-bg); padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 25px; overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid #e5e7eb; padding: 14px; text-align: center; }
+        th { background-color: var(--primary); color: white; font-size: 1.05rem;}
+        tr:nth-child(even) { background-color: #f9fafb; }
+        tr:hover { background-color: #eff6ff; }
+        .loading { text-align: center; font-size: 1.5rem; color: var(--primary); font-weight: bold; display: none; padding: 50px; }
+
+        /* أزرار الإرشاد الاجتماعي */
+        .btn-excuse { background: var(--success); color: white; padding: 8px 15px; border-radius: 6px; font-weight: bold; border: none; cursor: pointer; transition:0.3s;}
+        .btn-excuse:hover { background: #15803d; }
+        .no-excuse { color: var(--danger); font-weight: bold; background: #fee2e2; padding: 6px 10px; border-radius: 6px; display:inline-block;}
+        
+        .copy-cpr-btn { background: #e5e7eb; border: 1px solid #d1d5db; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-family: inherit; font-size: 0.8rem; margin-right: 5px; transition: 0.3s;}
+        .copy-cpr-btn:hover { background: #d1d5db; }
+
+        .quick-excuse-btn { background: var(--info); color: white; padding: 6px 10px; border-radius: 6px; font-weight: bold; border: none; cursor: pointer; text-decoration: none; font-size: 0.85rem; margin-top:5px; display:inline-block;}
+        .quick-excuse-btn:hover { background: #06b6d4; }
+
+        /* نافذة المرفقات المنبثقة */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); backdrop-filter: blur(4px); }
+        .modal-content { background-color: #fff; margin: 5% auto; padding: 25px; border-radius: 12px; width: 90%; max-width: 500px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
+        .close-btn { color: var(--danger); float: left; font-size: 32px; font-weight: bold; cursor: pointer; line-height: 1;}
+        .modal-field { margin-bottom: 15px; }
+        .modal-field label { font-weight: bold; color: #4b5563; display: block; margin-bottom: 8px; }
+        .modal-field div { background: #f3f4f6; padding: 12px; border-radius: 8px; white-space: pre-wrap; font-size:1.05rem;}
+        .attach-btn { display: inline-block; background: var(--secondary); color: white; padding: 10px 20px; text-decoration: none; border-radius: 8px; margin-top: 5px; font-size: 0.95rem; font-weight: bold; transition:0.3s;}
+        .attach-btn:hover { background: #172554; }
+
+        /* تنسيقات الطباعة الذكية */
         @media print {
-            body { background: white !important; margin: 0 !important; }
-            .no-print { display: none !important; }
-            table { page-break-inside: avoid; }
-            @page { size: A4 portrait; margin: 8mm; }
+            body { background: white; padding: 0; }
+            .no-print, .filters, .tabs-container, button, .auth-card { display: none !important; }
+            .container { max-width: 100%; }
+            .school-header-container { border: none; box-shadow: none; margin-bottom: 10px; }
+            .stat-card { border: 1px solid #000; box-shadow: none; break-inside: avoid; }
+            .percent { -webkit-print-color-adjust: exact; print-color-adjust: exact; color: #000 !important; border: 1px solid #000; }
+            .chart-container { box-shadow: none; border: 1px solid #000; page-break-inside: avoid; height: 350px !important; }
+            .table-container { box-shadow: none; border: none; padding: 0; }
+            table { width: 100% !important; table-layout: fixed; }
+            th, td { border: 1px solid #000 !important; font-size: 12pt; padding: 8px; color: #000; }
+            th { background-color: #e5e7eb !important; color: #000 !important; -webkit-print-color-adjust: exact; }
+            .details-table th:nth-child(5), .details-table td:nth-child(5) { display: none !important; } /* إخفاء الراصدين */
+            .details-table th:nth-child(3), .details-table td:nth-child(3) { width: 40% !important; font-size: 14pt !important; font-weight: bold; }
+            @page { margin: 1cm; size: A4; }
         }
     </style>
 </head>
-<body class="text-gray-800 flex flex-col min-h-screen">
+<body>
 
-    <div id="loginScreen" class="min-h-screen flex items-center justify-center p-4 no-print">
-        <div class="bg-white p-8 rounded-lg shadow-md w-96 border-t-4 border-purple-600">
-            <div class="text-center mb-4">
-                <img src="https://i.postimg.cc/K88X7RLb/trwysyh-dhhbyt.png" class="max-h-20 mx-auto mb-3">
-                <h1 class="text-2xl font-bold text-purple-800">بوابة المدير الشاملة</h1>
-            </div>
-            <input type="password" id="passInput" class="w-full p-2 border rounded mb-4 text-center font-bold" placeholder="admin123">
-            <button onclick="loginAdmin()" class="w-full bg-purple-700 text-white font-bold py-2 rounded">دخول اللوحة</button>
-            <p id="errorMsg" class="text-red-500 text-sm mt-3 text-center hidden"></p>
-        </div>
+<div class="container">
+    <!-- الترويسة الذهبية -->
+    <div class="school-header-container">
+        <img src="https://i.postimg.cc/K88X7RLb/trwysyh-dhhbyt.png" alt="ترويسة مدرسة البلاد القديم" class="school-header">
     </div>
 
-    <div id="adminDashboard" class="hidden p-4 max-w-7xl mx-auto flex-grow w-full">
-        <div class="mb-5 bg-white p-4 rounded shadow border-b border-gray-200">
-            <img src="https://i.postimg.cc/K88X7RLb/trwysyh-dhhbyt.png" class="w-full max-h-24 object-contain mx-auto mb-2">
-            <div class="flex flex-col md:flex-row justify-between items-center gap-3 mt-1">
-                <div>
-                    <h2 class="text-xl font-bold text-purple-950">التقرير الميداني الشامل للمدرسة</h2>
-                    <div class="flex items-center gap-3 mt-1">
-                        <span id="lastUpdatedBadge" class="text-[11px] bg-purple-50 text-purple-700 px-2 py-0.5 rounded font-bold">🟢 متصل ومحدّث</span>
-                    </div>
-                </div>
-                
-                <!-- إضافة محدد التاريخ هنا -->
-                <div class="flex items-center gap-3 bg-purple-50 px-3 py-1.5 rounded border border-purple-200 no-print">
-                    <label class="text-sm font-bold text-purple-900">📅 تاريخ العرض:</label>
-                    <input type="date" id="viewDate" class="p-1.5 border border-purple-300 rounded text-sm font-bold bg-white text-purple-800 outline-none" onchange="selectPeriod(activePeriodNum)">
-                </div>
+    <div class="header" id="mainHeader" style="display:none;">
+        <h1>لوحة التحكم الشاملة (الإدارة والإشراف)</h1>
+        <h3>مدرسة البلاد القديم الابتدائية الإعدادية للبنين</h3>
+    </div>
 
-                <div class="flex items-center gap-2 no-print">
-                    <button id="refreshBtn" onclick="refreshAdminData(false)" class="bg-purple-700 hover:bg-purple-800 text-white font-bold py-2 px-3 rounded text-sm shadow">🔄 تحديث</button>
-                    <button onclick="window.print()" class="bg-blue-600 text-white font-bold py-2 px-3 rounded text-sm shadow">🖨️ طباعة</button>
-                    <button onclick="location.reload()" class="bg-gray-200 px-3 py-2 rounded text-sm font-bold">خروج</button>
-                </div>
-            </div>
+    <!-- مربع تسجيل الدخول -->
+    <div id="authSection" class="auth-card">
+        <h3>الرجاء إدخال كلمة المرور للوصول للنظام</h3>
+        <input type="password" id="passInput" placeholder="كلمة المرور">
+        <br>
+        <button class="btn-action" onclick="authenticate()">دخول آمن</button>
+    </div>
+
+    <div class="loading" id="loadingSpinner">جاري جلب وتحليل البيانات... يرجى الانتظار ⏳</div>
+
+    <!-- المحتوى الرئيسي -->
+    <div id="mainContent" style="display:none;">
+        
+        <!-- التبويبات للتبديل بين الواجهات -->
+        <div class="tabs-container no-print">
+            <button class="tab-btn active" id="tabStatsBtn" onclick="switchTab('stats')">📊 الإحصائيات العامة</button>
+            <button class="tab-btn" id="tabSocialBtn" onclick="switchTab('social')">🛡️ الإرشاد الاجتماعي (الأعذار)</button>
         </div>
 
-        <div class="bg-white p-4 rounded shadow mb-5 border-r-4 border-purple-600">
-            <div class="grid grid-cols-4 md:grid-cols-7 gap-2 mb-5 no-print">
-                <button onclick="selectPeriod(1)" id="btnP1" class="period-btn py-1.5 border rounded text-xs font-bold bg-gray-50">الحصة 1</button>
-                <button onclick="selectPeriod(2)" id="btnP2" class="period-btn py-1.5 border rounded text-xs font-bold bg-gray-50">الحصة 2</button>
-                <button onclick="selectPeriod(3)" id="btnP3" class="period-btn py-1.5 border rounded text-xs font-bold bg-gray-50">الحصة 3</button>
-                <button onclick="selectPeriod(4)" id="btnP4" class="period-btn py-1.5 border rounded text-xs font-bold bg-gray-50">الحصة 4</button>
-                <button onclick="selectPeriod(5)" id="btnP5" class="period-btn py-1.5 border rounded text-xs font-bold bg-gray-50">الحصة 5</button>
-                <button onclick="selectPeriod(6)" id="btnP6" class="period-btn py-1.5 border rounded text-xs font-bold bg-gray-50">الحصة 6</button>
-                <button onclick="selectPeriod(7)" id="btnP7" class="period-btn py-1.5 border rounded text-xs font-bold bg-gray-50">الحصة 7</button>
+        <!-- الفلاتر -->
+        <div class="filters no-print">
+            <div class="filter-group">
+                <label>تاريخ البداية (اليوم):</label>
+                <input type="date" id="startDate">
             </div>
-            <div class="mb-5 grid grid-cols-2 md:grid-cols-4 gap-3 text-center">
-                <div class="bg-white p-3 border border-t-4 border-t-blue-500"><p class="text-[11px] text-gray-500">الطلاب</p><p id="pSumTotal" class="text-xl font-bold">0</p></div>
-                <div class="bg-white p-3 border border-t-4 border-t-green-500"><p class="text-[11px] text-gray-500">الحضور</p><p id="pSumPresent" class="text-xl font-bold text-green-600">0</p></div>
-                <div class="bg-white p-3 border border-t-4 border-t-red-500"><p class="text-[11px] text-gray-500">الغياب</p><p id="pSumAbsent" class="text-xl font-bold text-red-600">0</p></div>
-                <div class="bg-white p-3 border border-t-4 border-t-yellow-500"><p class="text-[11px] text-gray-500">النسبة</p><p id="pSumPercent" class="text-xl font-bold text-yellow-600">0%</p></div>
+            <div class="filter-group">
+                <label>تاريخ النهاية (للرسم البياني):</label>
+                <input type="date" id="endDate">
             </div>
-            <div class="overflow-x-auto border border-gray-200 rounded">
-                <table class="w-full text-xs text-right border-collapse">
-                    <thead class="bg-purple-50 text-purple-950 font-bold border-b">
-                        <tr>
-                            <th class="p-2 border text-center">الصف</th><th class="p-2 border text-center">حالة الرصد</th><th class="p-2 border">المعلم الراصد</th>
-                            <th class="p-2 border text-center">الطلاب</th><th class="p-2 border text-center">الحضور</th><th class="p-2 border text-center">الغياب</th>
-                            <th class="p-2 border min-w-[220px]">الغياب والأعذار (لليوم المحدد)</th>
-                        </tr>
+            <div class="filter-group">
+                <label>المرحلة / الصف:</label>
+                <select id="stageFilter">
+                    <option value="all">كل الفصول المتاحة لي</option>
+                    <option value="سادس ابتدائي">سادس ابتدائي</option>
+                    <option value="أول إعدادي">أول إعدادي</option>
+                    <option value="ثاني إعدادي">ثاني إعدادي</option>
+                    <option value="ثالث إعدادي">ثالث إعدادي</option>
+                </select>
+            </div>
+            <button class="btn-action" onclick="applyFilters()">🔄 تحديث البيانات</button>
+            <button class="btn-action" onclick="window.print()" style="background-color: #4b5563;">🖨️ طباعة التقرير</button>
+        </div>
+
+        <h3 id="reportTitle" style="text-align: center; border-bottom: 2px dashed #d1d5db; padding-bottom:15px; color: #374151;">التقرير المخصص للتاريخ المحدد</h3>
+
+        <!-- ================= قسم الإحصائيات (المدير والمشرفين) ================= -->
+        <div id="viewStats">
+            <div class="stats-grid">
+                <div class="stat-card card-present">
+                    <h3>حضور تام</h3><div class="value" id="valPresent">0</div><div class="percent" id="percPresent">0%</div>
+                </div>
+                <div class="stat-card card-absent">
+                    <h3>غياب كلي</h3><div class="value" id="valAbsent">0</div><div class="percent" id="percAbsent">0%</div>
+                </div>
+                <div class="stat-card card-late">
+                    <h3>تأخير (جزئي)</h3><div class="value" id="valLate">0</div><div class="percent" id="percLate">0%</div>
+                </div>
+                <div class="stat-card card-leave">
+                    <h3>استئذان</h3><div class="value" id="valLeave">0</div><div class="percent" id="percLeave">0%</div>
+                </div>
+            </div>
+
+            <div class="chart-container"><canvas id="trendChart"></canvas></div>
+
+            <div class="table-container">
+                <h3 style="color:var(--primary); margin-top:0;">تفصيل الإحصائيات (العدد والنسبة المئوية)</h3>
+                <table id="breakdownTable">
+                    <thead>
+                        <tr><th>القسم</th><th>العدد الكلي</th><th>الحضور</th><th>الغياب الكلي</th><th>تأخير صباحي</th><th>خروج باستئذان</th></tr>
                     </thead>
-                    <tbody id="periodTableBody"></tbody>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <div class="table-container">
+                <h3 style="color:var(--primary); margin-top:0;">تفاصيل سجلات الغياب والتأخير</h3>
+                <table class="details-table" id="detailsTable">
+                    <thead>
+                        <tr><th>التاريخ</th><th>الصف</th><th>اسم الطالب</th><th>الحالة</th><th>الراصدون</th></tr>
+                    </thead>
+                    <tbody></tbody>
                 </table>
             </div>
         </div>
+
+        <!-- ================= قسم الإرشاد الاجتماعي (الأعذار) ================= -->
+        <div id="viewSocial" style="display:none;">
+            <div class="table-container">
+                <h3 style="color:var(--primary); margin-top:0;">مطابقة سجل الغياب مع الأعذار (حسب تاريخ البداية)</h3>
+                <table id="socialTable">
+                    <thead>
+                        <tr><th>تاريخ الغياب</th><th>الرقم الشخصي</th><th>اسم الطالب</th><th>الصف</th><th>الحصص المفقودة</th><th>موقف العذر</th></tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+
     </div>
+</div>
 
-    <script>
-        const API_URL = "https://script.google.com/macros/s/AKfycbxlJnpJN9y9h04cOswtY3BGGwUS8rhybOisxDFkIQJ6_9nFSPMJeK-wiuFEECnBY3v5/exec";
-        let globalData = null; let activePeriodNum = 1; let currentPass = ""; let timer = null;
+<!-- نافذة عرض العذر -->
+<div id="excuseModal" class="modal no-print">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+        <h3 style="margin-top:0; border-bottom: 2px solid #e5e7eb; padding-bottom:15px; color:var(--primary);">تفاصيل العذر المقدم</h3>
+        <div class="modal-field"><label>وقت التقديم:</label><div id="m-time"></div></div>
+        <div class="modal-field"><label>رقم ولي الأمر:</label><div id="m-phone" style="direction: ltr; text-align: right;"></div></div>
+        <div class="modal-field"><label>سبب الغياب المكتوب:</label><div id="m-reason"></div></div>
+        <div class="modal-field">
+            <label>المرفقات والصور:</label>
+            <div id="m-files" style="background:transparent; padding:0;"></div>
+        </div>
+    </div>
+</div>
 
-        function isNoAbsenceText(name) { return /لا\s*يوجد|حضور|الجميع/i.test(String(name||'').trim()); }
-        function cleanClass(str) { return String(str||'').replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي').replace(/[\s\-_/\\.]/g, '').trim(); }
-        function cleanNameDisplay(name) { return String(name || '').replace(/^\s*\d+\s*[-_.]?\s*/, '').trim(); }
-        function getClassTotal(cName) { const target = cleanClass(cName); for (let k in globalData.classTotals) if (cleanClass(k) === target && globalData.classTotals[k] > 0) return globalData.classTotals[k]; return 31; }
+<script>
+    // ⚠️ الرابط الفعلي الخاص بك 
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxlJnpJN9y9h04cOswtY3BGGwUS8rhybOisxDFkIQJ6_9nFSPMJeK-wiuFEECnBY3v5/exec"; 
+    let rawData = null;
+    let chartInstance = null;
+    let globalExcuses = {};
 
-        function formatDateForInput(date) {
-            let d = new Date(date); if(isNaN(d)) return "";
-            let month = '' + (d.getMonth() + 1), day = '' + d.getDate(), year = d.getFullYear();
-            if (month.length < 2) month = '0' + month; if (day.length < 2) day = '0' + day;
-            return [year, month, day].join('-');
+    document.addEventListener("DOMContentLoaded", () => {
+        const today = new Date().toLocaleDateString('en-CA');
+        document.getElementById('startDate').value = today;
+        document.getElementById('endDate').value = today;
+    });
+
+    function switchTab(tab) {
+        document.getElementById('viewStats').style.display = (tab === 'stats') ? 'block' : 'none';
+        document.getElementById('viewSocial').style.display = (tab === 'social') ? 'block' : 'none';
+        document.getElementById('tabStatsBtn').className = (tab === 'stats') ? 'tab-btn active' : 'tab-btn';
+        document.getElementById('tabSocialBtn').className = (tab === 'social') ? 'tab-btn active' : 'tab-btn';
+    }
+
+    function authenticate() {
+        const pass = document.getElementById('passInput').value;
+        if (!pass) return alert('أدخل كلمة المرور');
+        
+        document.getElementById('authSection').style.display = 'none';
+        document.getElementById('loadingSpinner').style.display = 'block';
+
+        fetch(`${SCRIPT_URL}?action=dashboard_data&pass=${pass}`)
+            .then(res => res.json())
+            .then(data => {
+                document.getElementById('loadingSpinner').style.display = 'none';
+                if(data.status === "success") {
+                    rawData = data;
+                    document.getElementById('mainHeader').style.display = 'block';
+                    document.getElementById('mainContent').style.display = 'block';
+                    applyFilters();
+                } else {
+                    alert('خطأ: ' + data.message);
+                    document.getElementById('authSection').style.display = 'block';
+                }
+            }).catch(err => {
+                alert('حدث خطأ في الاتصال');
+                document.getElementById('authSection').style.display = 'block';
+                document.getElementById('loadingSpinner').style.display = 'none';
+            });
+    }
+
+    function calcPercent(part, total) { return total === 0 ? "0%" : ((part / total) * 100).toFixed(1) + "%"; }
+    function extractStage(className) {
+        if(className.includes('سادس')) return 'سادس ابتدائي';
+        if(className.includes('أول')) return 'أول إعدادي';
+        if(className.includes('ثاني')) return 'ثاني إعدادي';
+        if(className.includes('ثالث')) return 'ثالث إعدادي';
+        return 'أخرى';
+    }
+
+    // نسخ الرقم الشخصي للمشرف بضغطة زر
+    function copyCPR(cprVal) {
+        navigator.clipboard.writeText(cprVal).then(() => {
+            alert("تم نسخ الرقم الشخصي: " + cprVal);
+        }).catch(err => {
+            alert("تعذر النسخ التلقائي، يمكنك تحديده ونسخه يدوياً.");
+        });
+    }
+
+    function applyFilters() {
+        if(!rawData) return;
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+        const stageFilter = document.getElementById('stageFilter').value;
+        
+        document.getElementById('reportTitle').innerText = `التقرير المخصص للفترة من ${startDate} إلى ${endDate}`;
+
+        let dailyStats = {}; 
+        let d = new Date(startDate); let endD = new Date(endDate);
+        while(d <= endD) { dailyStats[d.toLocaleDateString('en-CA')] = { students: {} }; d.setDate(d.getDate() + 1); }
+
+        // معالجة الأعذار
+        globalExcuses = {};
+        rawData.excuses.forEach(ex => {
+            let sName = ex.studentName.replace(/^[\d\s._-]+/, '').trim();
+            globalExcuses[ex.date + "_" + sName] = ex;
+        });
+
+        rawData.lates.forEach(late => {
+            if(dailyStats[late.date]) {
+                if(!dailyStats[late.date].students[late.studentName]) {
+                    dailyStats[late.date].students[late.studentName] = { className: late.className, stage: extractStage(late.className), state: late.excuseType.includes('استئذان') ? 'leave' : 'late', teachers: 'الإدارة' };
+                }
+            }
+        });
+
+        let absMapForSocial = {}; 
+        rawData.records.forEach(rec => {
+            if(dailyStats[rec.date] && rec.studentName && !rec.studentName.includes('لا يوجد')) {
+                let sName = rec.studentName.replace(/^[\d\s._-]+/, '').trim();
+                let stg = extractStage(rec.className);
+                
+                if(!dailyStats[rec.date].students[sName]) {
+                    dailyStats[rec.date].students[sName] = { className: rec.className, stage: stg, state: 'absent', teachers: rec.teacher };
+                } else if(dailyStats[rec.date].students[sName].state === 'absent') {
+                    if(!dailyStats[rec.date].students[sName].teachers.includes(rec.teacher)) dailyStats[rec.date].students[sName].teachers += ' ، ' + rec.teacher;
+                }
+
+                if(rec.date === startDate) {
+                    let key = sName;
+                    if(!absMapForSocial[key]) absMapForSocial[key] = { className: rec.className, rawName: rec.studentName, periods: [] };
+                    if(!absMapForSocial[key].periods.includes(rec.period)) absMapForSocial[key].periods.push(rec.period);
+                }
+            }
+        });
+
+        // ================= تحديث الإحصائيات =================
+        let totalStudents = 0; let totalAbsent = 0; let totalLate = 0; let totalLeave = 0; let breakDown = {}; 
+        Object.keys(rawData.classTotals).forEach(cls => {
+            let stg = extractStage(cls);
+            if(stageFilter === 'all' || stageFilter === stg || stageFilter === cls) {
+                totalStudents += rawData.classTotals[cls];
+                let key = stageFilter === 'all' ? stg : cls;
+                if(!breakDown[key]) breakDown[key] = { total: 0, absent: 0, late: 0, leave: 0 };
+                breakDown[key].total += rawData.classTotals[cls];
+            }
+        });
+
+        let focusDateObj = dailyStats[startDate];
+        if(focusDateObj) {
+            for(let sName in focusDateObj.students) {
+                let info = focusDateObj.students[sName];
+                if((stageFilter === 'all') || (stageFilter === info.stage) || (stageFilter === info.className)) {
+                    let bKey = stageFilter === 'all' ? info.stage : info.className;
+                    if(!breakDown[bKey]) breakDown[bKey] = { total: 0, absent: 0, late: 0, leave: 0 };
+                    if(info.state === 'absent') { totalAbsent++; breakDown[bKey].absent++; }
+                    if(info.state === 'late') { totalLate++; breakDown[bKey].late++; }
+                    if(info.state === 'leave') { totalLeave++; breakDown[bKey].leave++; }
+                }
+            }
+        }
+        
+        let totalPresent = totalStudents - totalAbsent;
+        document.getElementById('valPresent').innerText = totalPresent; document.getElementById('percPresent').innerText = calcPercent(totalPresent, totalStudents);
+        document.getElementById('valAbsent').innerText = totalAbsent; document.getElementById('percAbsent').innerText = calcPercent(totalAbsent, totalStudents);
+        document.getElementById('valLate').innerText = totalLate; document.getElementById('percLate').innerText = calcPercent(totalLate, totalStudents);
+        document.getElementById('valLeave').innerText = totalLeave; document.getElementById('percLeave').innerText = calcPercent(totalLeave, totalStudents);
+
+        let tBodyBreakdown = document.querySelector('#breakdownTable tbody');
+        tBodyBreakdown.innerHTML = '';
+        for(let k in breakDown) {
+            let r = breakDown[k]; let rP = r.total - r.absent;
+            tBodyBreakdown.innerHTML += `<tr><td style="font-weight:bold;">${k}</td><td>${r.total}</td>
+                <td style="color:var(--success); font-weight:bold;">${rP} <br><span class="percent" style="background:var(--success); font-size:0.85rem; margin-top:5px;">${calcPercent(rP, r.total)}</span></td>
+                <td style="color:var(--danger); font-weight:bold;">${r.absent} <br><span class="percent" style="background:var(--danger); font-size:0.85rem; margin-top:5px;">${calcPercent(r.absent, r.total)}</span></td>
+                <td style="color:var(--warning); font-weight:bold;">${r.late} <br><span class="percent" style="background:var(--warning); font-size:0.85rem; margin-top:5px;">${calcPercent(r.late, r.total)}</span></td>
+                <td style="color:var(--info); font-weight:bold;">${r.leave} <br><span class="percent" style="background:var(--info); font-size:0.85rem; margin-top:5px;">${calcPercent(r.leave, r.total)}</span></td></tr>`;
         }
 
-        async function loginAdmin() {
-            const pass = document.getElementById('passInput').value;
-            if (!pass) return; currentPass = pass;
-            
-            // تعيين تاريخ اليوم كافتراضي عند الدخول
-            document.getElementById('viewDate').value = formatDateForInput(new Date());
-
-            if (await fetchAdminData(pass)) {
-                document.getElementById('loginScreen').classList.add('hidden');
-                document.getElementById('adminDashboard').classList.remove('hidden');
-                if (timer) clearInterval(timer);
-                timer = setInterval(() => refreshAdminData(true), 40000);
+        let tBodyDetails = document.querySelector('#detailsTable tbody');
+        tBodyDetails.innerHTML = '';
+        if(focusDateObj) {
+            for(let sName in focusDateObj.students) {
+                let info = focusDateObj.students[sName];
+                if((stageFilter === 'all') || (stageFilter === info.stage) || (stageFilter === info.className)) {
+                    let stateAr = info.state === 'absent' ? 'غياب كلي' : (info.state === 'late' ? 'تأخير صباحي' : 'خروج باستئذان');
+                    let color = info.state === 'absent' ? 'var(--danger)' : (info.state === 'late' ? 'var(--warning)' : 'var(--info)');
+                    tBodyDetails.innerHTML += `<tr><td>${startDate}</td><td>${info.className}</td><td class="student-col" style="font-weight:bold;">${sName}</td><td style="color:${color}; font-weight:bold;">${stateAr}</td><td class="teacher-col" style="font-size:0.9rem; color:#4b5563;">${info.teachers}</td></tr>`;
+                }
             }
         }
 
-        async function fetchAdminData(pass, isSilent = false) {
-            try {
-                const res = await fetch(`${API_URL}?action=supervisor&pass=${pass}&_t=${Date.now()}`);
-                const result = await res.json();
-                if (result.status === "success" && result.stage === "all") {
-                    globalData = result;
-                    document.getElementById('lastUpdatedBadge').innerText = `🟢 التحديث: ${new Date().toLocaleTimeString('ar-EG')}`;
-                    selectPeriod(activePeriodNum);
-                    return true;
+        let cLabels = []; let cAbs = []; let cLate = [];
+        Object.keys(dailyStats).sort().forEach(dKey => {
+            cLabels.push(dKey); let a=0; let l=0;
+            for(let sn in dailyStats[dKey].students) {
+                let i = dailyStats[dKey].students[sn];
+                if((stageFilter === 'all') || (stageFilter === i.stage) || (stageFilter === i.className)) {
+                    if(i.state === 'absent') a++;
+                    if(i.state === 'late' || i.state === 'leave') l++;
                 }
-            } catch (err) {} return false;
-        }
+            }
+            cAbs.push(a); cLate.push(l);
+        });
 
-        async function refreshAdminData(isSilent) {
-            if(!currentPass) return;
-            if(!isSilent) document.getElementById('refreshBtn').innerText = "⏳ تحديث...";
-            await fetchAdminData(currentPass, isSilent);
-            if(!isSilent) document.getElementById('refreshBtn').innerText = "🔄 تحديث";
-        }
+        if(chartInstance) chartInstance.destroy();
+        chartInstance = new Chart(document.getElementById('trendChart').getContext('2d'), {
+            type: 'bar', data: { labels: cLabels, datasets: [{ label: 'الغياب الكلي', data: cAbs, backgroundColor: '#dc2626', borderRadius: 5 }, { label: 'غياب جزئي (تأخير/استئذان)', data: cLate, backgroundColor: '#ca8a04', borderRadius: 5 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: 'مؤشر الغياب للفترة المحددة', font: {size: 18, family: 'Tajawal'} } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+        });
 
-        function selectPeriod(pNum) {
-            activePeriodNum = pNum;
-            document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active-period'));
-            document.getElementById(`btnP${pNum}`).classList.add('active-period');
+        // ================= تحديث قسم الإرشاد الاجتماعي =================
+        let socialTbody = document.querySelector('#socialTable tbody');
+        socialTbody.innerHTML = '';
 
-            const selectedDate = document.getElementById('viewDate').value;
-            const tbody = document.getElementById('periodTableBody');
-            tbody.innerHTML = "";
-            let tStudents = 0, tAbsents = 0;
+        Object.keys(globalExcuses).forEach(key => {
+            let ex = globalExcuses[key];
+            if(ex.date === startDate) {
+                let sName = ex.studentName.replace(/^[\d\s._-]+/, '').trim();
+                if(!absMapForSocial[sName]) {
+                    absMapForSocial[sName] = { className: ex.className, rawName: ex.studentName, periods: ['(تم تقديم العذر مسبقاً)'] };
+                }
+            }
+        });
 
-            globalData.classes.forEach(cName => {
-                const cTotal = getClassTotal(cName); tStudents += cTotal;
+        Object.keys(absMapForSocial).sort().forEach(name => {
+            let info = absMapForSocial[name];
+            let exKey = startDate + "_" + name;
+            let excuse = globalExcuses[exKey];
+            
+            // جلب الرقم الشخصي من الداتا (cprMap) التي أرسلناها من السيرفر
+            let cleanN = info.rawName.replace(/^[\d\s._-]+/, '').trim();
+            let studentCpr = rawData.cprMap && rawData.cprMap[cleanN] ? rawData.cprMap[cleanN] : "غير متوفر";
+            
+            let match = (stageFilter === 'all') || (stageFilter === extractStage(info.className)) || (stageFilter === info.className);
+            if(match) {
+                let excuseHtml = '';
+                if (excuse) {
+                    excuseHtml = `<button class="btn-excuse" onclick="openModal('${exKey}')">📄 يوجد عذر (عرض)</button>`;
+                } else {
+                    excuseHtml = `
+                        <div style="margin-bottom:5px;"><span class="no-excuse">لم يقدم عذر</span></div>
+                        <a href="excuse.html" target="_blank" class="quick-excuse-btn">📝 إضافة عذر بالنيابة</a>
+                    `;
+                }
                 
-                // إضافة فلتر التاريخ (selectedDate) هنا لعدم دمج الأيام
-                const recs = globalData.data.filter(r => 
-                    cleanClass(r.className) === cleanClass(cName) && 
-                    String(r.period).replace(/\D/g,'') === String(pNum) &&
-                    r.date === selectedDate
-                );
-                
-                const isRec = recs.length > 0;
-                
-                let absNamesRaw = recs.filter(r => r.studentName && !isNoAbsenceText(r.studentName) && !r.excuseType).map(r => cleanNameDisplay(r.studentName));
-                let lateNamesRaw = recs.filter(r => r.studentName && !isNoAbsenceText(r.studentName) && r.excuseType === 'تأخير صباحي').map(r => cleanNameDisplay(r.studentName));
-                let excuseNamesRaw = recs.filter(r => r.studentName && !isNoAbsenceText(r.studentName) && r.excuseType === 'خروج باستئذان').map(r => cleanNameDisplay(r.studentName));
-                
-                let absNames = [...new Set(absNamesRaw)];
-                let lateNames = [...new Set(lateNamesRaw)];
-                let excuseNames = [...new Set(excuseNamesRaw)];
-                
-                let absCount = absNames.length;
-                let presCount = isRec ? Math.max(0, cTotal - absCount) : cTotal;
-                if (isRec) tAbsents += absCount;
+                socialTbody.innerHTML += `
+                    <tr>
+                        <td>${startDate}</td>
+                        <td style="font-weight:bold; color:var(--primary); font-size:1.1rem;">
+                            ${studentCpr}
+                            ${studentCpr !== "غير متوفر" ? `<br><button class="copy-cpr-btn no-print" onclick="copyCPR('${studentCpr}')">نسخ 📋</button>` : ''}
+                        </td>
+                        <td style="font-weight:bold; font-size:1.05rem;">${info.rawName}</td>
+                        <td>${info.className}</td>
+                        <td>${info.periods.join(' ، ')}</td>
+                        <td>${excuseHtml}</td>
+                    </tr>
+                `;
+            }
+        });
+    }
 
-                let html = "";
-                if (absNames.length > 0) html += `<ol class="list-decimal list-inside text-red-600 font-bold">` + absNames.map(n=>`<li>${n}</li>`).join('') + `</ol>`;
-                if (lateNames.length > 0) html += `<div class="mt-1 pt-1 border-t"><p class="text-[10px] text-orange-600 font-bold mb-0.5">تأخير صباحي:</p><ul class="list-disc list-inside text-orange-600 font-bold text-[11px]">` + lateNames.map(n=>`<li>${n}</li>`).join('') + `</ul></div>`;
-                if (excuseNames.length > 0) html += `<div class="mt-1 pt-1 border-t"><p class="text-[10px] text-blue-600 font-bold mb-0.5">خروج باستئذان:</p><ul class="list-disc list-inside text-blue-600 font-bold text-[11px]">` + excuseNames.map(n=>`<li>${n}</li>`).join('') + `</ul></div>`;
-                
-                if (absNames.length===0 && lateNames.length===0 && excuseNames.length===0 && isRec) html = `<span class="text-green-700 font-bold bg-green-50 px-2 py-0.5 rounded">✅ الجميع حضور</span>`;
-                else if (!isRec) html = `<span class="text-gray-400">-</span>`;
+    function openModal(exKey) {
+        let ex = globalExcuses[exKey];
+        if(!ex) return;
+        document.getElementById('m-time').innerText = ex.time;
+        document.getElementById('m-phone').innerText = ex.parentPhone;
+        document.getElementById('m-reason').innerText = ex.reason || "لم يكتب ملاحظات";
 
-                tbody.innerHTML += `<tr class="border-b hover:bg-gray-50">
-                    <td class="p-2 border font-bold text-center">${cName}</td>
-                    <td class="p-2 border text-center font-bold">${isRec ? '<span class="text-green-600">✅ تم الرصد</span>' : '<span class="text-red-500">❌ لم يُرصد</span>'}</td>
-                    <td class="p-2 border font-medium">${isRec ? recs[0].teacher : '-'}</td>
-                    <td class="p-2 border text-center">${cTotal}</td><td class="p-2 border text-green-700 text-center">${isRec ? presCount : '-'}</td><td class="p-2 border text-red-600 text-center">${isRec ? absCount : '-'}</td>
-                    <td class="p-2 border">${html}</td></tr>`;
+        let fContainer = document.getElementById('m-files');
+        fContainer.innerHTML = '';
+        if(ex.files && ex.files.trim() !== "") {
+            let links = ex.files.split('\n');
+            links.forEach((l, i) => {
+                if(l.trim() !== "") fContainer.innerHTML += `<a href="${l.trim()}" target="_blank" class="attach-btn">📎 فتح المرفق ${i + 1}</a> `;
             });
-
-            document.getElementById('pSumTotal').innerText = tStudents;
-            document.getElementById('pSumPresent').innerText = Math.max(0, tStudents - tAbsents);
-            document.getElementById('pSumAbsent').innerText = tAbsents;
-            document.getElementById('pSumPercent').innerText = tStudents > 0 ? ((tAbsents/tStudents)*100).toFixed(1)+"%" : "0%";
+        } else {
+            fContainer.innerHTML = '<span style="color:#6b7280; font-weight:bold;">لا توجد مرفقات</span>';
         }
-    </script>
+        document.getElementById('excuseModal').style.display = 'block';
+    }
+
+    function closeModal() { document.getElementById('excuseModal').style.display = 'none'; }
+</script>
 </body>
 </html>
