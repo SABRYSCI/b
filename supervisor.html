@@ -223,6 +223,18 @@
     </div>
 </div>
 
+<!-- 🔴 نافذة عرض تفاصيل العذر (التي كانت مفقودة) 🔴 -->
+<div id="viewSingleExcuseModal" class="modal">
+    <div class="modal-body" style="max-width:500px;">
+        <span class="modal-close" onclick="closeModal('viewSingleExcuseModal')">&times;</span>
+        <h3 style="margin-top:0; color:var(--primary); border-bottom:1px solid #e2e8f0; padding-bottom:8px;">تفاصيل العذر</h3>
+        <div style="margin:12px 0;"><strong>وقت التقديم:</strong> <span id="vTime"></span></div>
+        <div style="margin:12px 0;"><strong>رقم ولي الأمر:</strong> <span id="vPhone" style="direction:ltr; display:inline-block;"></span></div>
+        <div style="margin:12px 0;"><strong>سبب الغياب:</strong> <p id="vReason" style="background:#f8fafc; padding:8px; border-radius:6px; border:1px solid #e2e8f0; margin-top:5px;"></p></div>
+        <div style="margin:12px 0;"><strong>المرفقات:</strong> <div id="vFiles" style="margin-top:5px;"></div></div>
+    </div>
+</div>
+
 <!-- نافذة تسجيل عذر ورقي -->
 <div id="manualExcuseModal" class="modal">
     <div class="modal-body" style="max-width:460px;">
@@ -454,7 +466,9 @@
             let st = stageRecordsMap[sClean];
             let ex = cachedExcusesMap[sClean];
             let cpr = (apiData.cprMap && apiData.cprMap[sClean]) ? apiData.cprMap[sClean] : "غير متوفر";
-            let actionBtn = ex ? `<button class="btn btn-purple" style="padding:4px 8px; font-size:0.8rem;" onclick="alert('سبب العذر: ' + (ex.reason || 'بدون سبب'))">عرض التفاصيل</button>` : `<button class="btn btn-amber" style="padding:4px 8px; font-size:0.8rem;" onclick="quickExcuse('${st.className}', '${st.rawName}')">➕ تسجيل عذر</button>`;
+            
+            // 🔴 التعديل هنا: استدعاء النافذة الجديدة
+            let actionBtn = ex ? `<button class="btn btn-purple" style="padding:4px 8px; font-size:0.8rem;" onclick="viewExcuseDetails('${sClean}')">عرض التفاصيل</button>` : `<button class="btn btn-amber" style="padding:4px 8px; font-size:0.8rem;" onclick="quickExcuse('${st.className}', '${st.rawName}')">➕ تسجيل عذر</button>`;
 
             tbody.innerHTML += `
                 <tr>
@@ -472,6 +486,33 @@
         }
 
         document.getElementById('excusesModal').style.display = 'block';
+    }
+
+    // 🔴 الدالة الجديدة لفتح نافذة التفاصيل 🔴
+    function viewExcuseDetails(sClean) {
+        let ex = cachedExcusesMap[sClean];
+        if(!ex) return;
+
+        document.getElementById('vTime').innerText = ex.time || "غير متوفر";
+        document.getElementById('vPhone').innerText = ex.parentPhone || "غير مسجل";
+        document.getElementById('vReason').innerText = ex.reason || "لم يُذكر سبب";
+
+        let filesDiv = document.getElementById('vFiles');
+        filesDiv.innerHTML = '';
+        if(ex.files && ex.files.trim() !== '') {
+            let links = ex.files.split('\n');
+            links.forEach((l, idx) => {
+                if(l.trim().startsWith('http')) {
+                    filesDiv.innerHTML += `<a href="${l.trim()}" target="_blank" class="btn btn-blue" style="font-size:0.8rem; margin:2px; display:inline-block;">📎 فتح المرفق ${idx+1}</a> `;
+                } else {
+                    filesDiv.innerHTML += `<span>${l}</span>`;
+                }
+            });
+        } else {
+            filesDiv.innerText = "لا توجد مرفقات (عذر ورقي / شفهي)";
+        }
+
+        document.getElementById('viewSingleExcuseModal').style.display = 'block';
     }
 
     function openManualRegisterModal() { document.getElementById('manualExcuseModal').style.display = 'block'; }
