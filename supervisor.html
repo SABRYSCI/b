@@ -381,14 +381,13 @@
             // موقف اليوم (تأخير / استئذان / غياب كلي)
             let dailyStatusHtml = '';
             
-            apiData.data.forEach(r => {
-                if (r.date === targetDate && r.className === cName) {
-                    let sClean = r.studentName.replace(/^[\d\s._-]+/, '').trim();
-                    if (cachedLatesMap[sClean]) {
-                        dailyStatusHtml += `<span class="tag-late">⏱️ ${r.studentName} (${cachedLatesMap[sClean]})</span> `;
+            if (apiData.lates) {
+                apiData.lates.forEach(l => {
+                    if (l.date === targetDate && l.className === cName) {
+                        dailyStatusHtml += `<span class="tag-late">⏱️ ${l.studentName} (${l.excuseType || 'تأخير صباحي'})</span> `;
                     }
-                }
-            });
+                });
+            }
 
             let trueAbsentees = getTrueDailyAbsentees(targetDate, cName);
             Object.keys(trueAbsentees).forEach(sClean => {
