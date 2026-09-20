@@ -69,13 +69,14 @@
             border: none; padding: 8px 14px; border-radius: 6px; font-family: inherit;
             font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: 0.2s;
             display: inline-flex; align-items: center; gap: 5px; color: #fff;
+            text-decoration: none;
         }
         .btn-green { background-color: #059669; }
         .btn-blue { background-color: #2563eb; }
         .btn-amber { background-color: #d97706; }
         .btn-purple { background-color: #7c3aed; }
         .btn-gray { background-color: #64748b; }
-        .btn-red { background-color: #dc2626; } /* تمت إضافة لون الزر الأحمر هنا */
+        .btn-red { background-color: #dc2626; } /* زر المخالفات */
 
         .date-picker-box {
             display: flex; align-items: center; gap: 6px; background: #fff; padding: 4px 8px;
@@ -149,8 +150,8 @@
                 <button class="btn btn-purple" onclick="openExcusesModal()">🛡️ مطابقة الأعذار والتأخير</button>
                 <button class="btn btn-amber" onclick="openManualRegisterModal()">➕ تسجيل عذر ورقي</button>
                 
-                <!-- 🛑 تم إضافة زر المخالفات السلوكية هنا 🛑 -->
-                <a href="https://sabrysci.github.io/b/violations.html" class="btn btn-red" style="text-decoration:none;">🛑 سجل المخالفات السلوكية</a>
+                <!-- 🔴 الزر الجديد للانتقال إلى المخالفات السلوكية 🔴 -->
+                <a href="https://sabrysci.github.io/b/violations.html" class="btn btn-red">🛑 سجل المخالفات السلوكية</a>
 
                 <div class="date-picker-box">
                     <span>تاريخ العرض:</span>
