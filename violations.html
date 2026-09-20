@@ -109,19 +109,47 @@
         .btn-submit:hover { background: var(--primary-hover); }
         .btn-submit:disabled { background: #9ca3af; cursor: not-allowed; }
 
+        .action-buttons { display: none; gap: 10px; margin-top: 15px; }
+        .btn-print { flex: 1; background: #1e40af; color: white; border: none; padding: 15px; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; font-family: inherit; }
+        .btn-new { flex: 1; background: #16a34a; color: white; border: none; padding: 15px; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; font-family: inherit; }
+
         .alert { padding: 15px; border-radius: 8px; margin-bottom: 20px; display: none; font-weight: bold; text-align: center; }
         .alert-success { background: #dcfce3; color: #16a34a; border: 1px solid #4ade80; }
         .alert-error { background: #fee2e2; color: #dc2626; border: 1px solid #f87171; }
+
+        /* منطقة الطباعة المخفية في الوضع العادي */
+        #printArea { display: none; }
+
+        /* تنسيقات الطباعة (ورقة A4) */
+        @media print {
+            body { background: #fff; padding: 0; margin: 0; }
+            .container, .top-nav { display: none !important; }
+            #printArea { 
+                display: block !important; 
+                position: absolute; left: 0; top: 0; width: 100%; 
+                direction: rtl; font-family: 'Tajawal', sans-serif; 
+                padding: 30px; box-sizing: border-box;
+            }
+            .print-header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 15px; margin-bottom: 25px; }
+            .print-header img { max-height: 110px; }
+            .print-title { font-size: 24px; font-weight: 800; margin: 15px 0 5px 0; text-decoration: underline; }
+            .print-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; font-size: 16px; }
+            .print-table td { padding: 12px; border: 1px solid #000; vertical-align: top; }
+            .print-table td:first-child { font-weight: bold; width: 25%; background-color: #f1f5f9; }
+            .signatures { display: flex; justify-content: space-between; margin-top: 60px; text-align: center; font-size: 16px; }
+            .sig-box { width: 30%; }
+            .sig-title { font-weight: bold; margin-bottom: 30px; }
+        }
     </style>
 </head>
 <body>
 
-<div class="container">
+<!-- واجهة إدخال البيانات -->
+<div class="container" id="mainContainer">
     <div class="header">
         <img src="https://i.postimg.cc/K88X7RLb/trwysyh-dhhbyt.png" alt="ترويسة المدرسة">
     </div>
 
-    <!-- شريط التنقل العلوي للربط مع نظام الحضور -->
     <div class="top-nav">
         <!-- ضع هنا لاحقاً رابط لوحة المشرفين -->
         <a href="#" id="backToAttendanceBtn" class="btn-nav">⬅️ العودة لنظام الحضور والغياب</a>
@@ -245,14 +273,53 @@
         </div>
 
         <button class="btn-submit" id="submitBtn" onclick="submitForm()">💾 حفظ المخالفة السلوكية في السجل</button>
+        
+        <div class="action-buttons" id="afterSubmitBtns">
+            <button class="btn-print" onclick="window.print()">🖨️ طباعة إشعار المخالفة</button>
+            <button class="btn-new" onclick="location.reload()">➕ تسجيل مخالفة جديدة</button>
+        </div>
+    </div>
+</div>
+
+<!-- منطقة الطباعة (تظهر فقط عند ضغط زر الطباعة) -->
+<div id="printArea">
+    <div class="print-header">
+        <img src="https://i.postimg.cc/K88X7RLb/trwysyh-dhhbyt.png" alt="ترويسة المدرسة">
+        <div class="print-title">إشعار مخالفة سلوكية (2026-2027)</div>
+    </div>
+    
+    <table class="print-table">
+        <tr><td>تاريخ الواقعة:</td><td id="pDate"></td></tr>
+        <tr><td>اسم الطالب:</td><td id="pStudent"></td></tr>
+        <tr><td>الصف:</td><td id="pClass"></td></tr>
+        <tr><td>المخالفة السلوكية:</td><td id="pType"></td></tr>
+        <tr><td>تفاصيل الواقعة:</td><td id="pDetails"></td></tr>
+        <tr><td>الإجراء المتخذ:</td><td id="pAction"></td></tr>
+        <tr><td>ملاحظات:</td><td id="pNotes"></td></tr>
+    </table>
+
+    <div class="signatures">
+        <div class="sig-box">
+            <div class="sig-title">المشرف المسجل للمخالفة</div>
+            <div id="pSupervisor" style="margin-bottom:15px; font-weight:bold; color:#1e40af;"></div>
+            التوقيع: ..........................
+        </div>
+        <div class="sig-box">
+            <div class="sig-title">المدير المساعد</div>
+            <div style="margin-bottom:15px; font-weight:bold;">الأستاذ عبدالله احمد دليم</div>
+            التوقيع: ..........................
+        </div>
+        <div class="sig-box">
+            <div class="sig-title">مدير المدرسة</div>
+            <div style="margin-bottom:15px; font-weight:bold;">الأستاذ محمد ابراهيم محمد ناصر</div>
+            التوقيع: ..........................
+        </div>
     </div>
 </div>
 
 <script>
-    // رابط Apps Script الخاص بك (لا تقم بتغييره)
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxlJnpJN9y9h04cOswtY3BGGwUS8rhybOisxDFkIQJ6_9nFSPMJeK-wiuFEECnBY3v5/exec";
 
-    // قوائم 14 و 17 سبتمبر المحدثة
     const HARDCODED_ROSTERS = {
       "سادس ابتدائي 1": ["ابراهيم على خليل الحايكي", "السيد حسن صالح الموسوي", "السيد علوي ابراهيم ناصر حسن", "السيد هاشم مجيد فيصل محمد", "إيليا سعيد حسن حسن", "حسن على ميرزا خليل", "حسین اسامه عبد الجليل الجشي", "حسين عمار جاسم الاسكافي", "حيدر على ابراهيم حسن", "سيد صادق جعفر على ناصر", "سيد حامد حسین محمد درویش", "صادق على عبدالله اسماعيل", "عبد العزيز جلال عبد العزيز حاجی عبدالله", "عبدالله حسین عبدالله مال الله", "عبدالله على عباس شاهين", "على حسين على عبد على", "على عيسى ابراهيم الستراوي", "على قاسم عباس حسن", "عمار محمد عبد الامير الحصار", "غسان مهند عقيل مرهون", "قاسم جابر جاسم منصور", "قاسم محمد احمد حسن", "ليث محمود مسعود الوطني", "محمد صالح شوقي البناء", "محمد عباس خميس السودان", "نوح زهير عبد الوهاب غزوان", "يوسف كاظم محمد الحايكي"],
       "سادس ابتدائي 2": ["احمد مهدي احمد احمد", "آدم على عبدالله عبد النبي", "السيد على حسين جعفر على شرف", "السيد يوسف احمد على الموسوي", "أمير مالك حبيب التوبلي", "جاسم محمد حميد السباع", "جواد جاسم جواد عبدالله", "حامد يوسف احمد يحيى", "حبيب حسین میرزا اسماعیل", "حسین عباس عبدالله مرهون", "حسين على احمد عيسى", "حسين علي حسن طاهر", "حيدر عبد الحسين احمد على", "رضا على مهدي على", "رضا میرزا خلف شعبان", "عباس احمد محسن العلواني", "عبدالله حميد عبد الرسول احمد", "على حسن جاسم حسن", "على عبد العزيز عبد الكريم الشيخ حسن", "على عبد الكريم على محمد", "على فاضل على العريبي", "کرار حسین احمد حسين", "ماجد يوسف احمد يحيى", "محمد احمد حسن احمد", "محمد عبد علي سعيد الغنامي", "مهدي جواد احمد مليح"],
@@ -302,6 +369,17 @@
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
+    function preparePrintData(superName, vDate, cls, student, vType, vDetails, finalActionText, notes) {
+        document.getElementById('pDate').innerText = vDate;
+        document.getElementById('pStudent').innerText = student;
+        document.getElementById('pClass').innerText = cls;
+        document.getElementById('pType').innerText = vType;
+        document.getElementById('pDetails').innerText = vDetails || "لا توجد تفاصيل إضافية.";
+        document.getElementById('pAction').innerText = finalActionText || "لم يحدد إجراء بعد.";
+        document.getElementById('pNotes').innerText = notes || "لا توجد ملاحظات.";
+        document.getElementById('pSupervisor').innerText = superName;
+    }
+
     function submitForm() {
         const superName = document.getElementById('supervisorName').value;
         const vDate = document.getElementById('violationDate').value;
@@ -331,9 +409,12 @@
             finalActionText += (finalActionText ? " | ملاحظات: " : "ملاحظات: ") + notes;
         }
 
+        // تجهيز بيانات الطباعة في الخلفية
+        preparePrintData(superName, vDate, cls, student, vType, vDetails, actionsChecked.join(" + "), notes);
+
         const btn = document.getElementById('submitBtn');
         btn.disabled = true;
-        btn.textContent = "⏳ جاري الإرسال...";
+        btn.textContent = "⏳ جاري الإرسال وحفظ البيانات...";
         document.getElementById('alertBox').style.display = 'none';
 
         const payload = {
@@ -354,8 +435,9 @@
         .then(res => res.json())
         .then(data => {
             if(data.status === "success") {
-                showAlert("✅ تم تسجيل المخالفة السلوكية وحفظها في قاعدة البيانات بنجاح!", true);
-                setTimeout(() => { location.reload(); }, 3000);
+                showAlert("✅ تم تسجيل المخالفة بنجاح! يمكنك الآن طباعة الإشعار.", true);
+                btn.style.display = 'none';
+                document.getElementById('afterSubmitBtns').style.display = 'flex';
             } else {
                 showAlert("حدث خطأ: " + data.message, false);
                 btn.disabled = false;
