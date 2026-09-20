@@ -6,7 +6,25 @@
     <title>المشرف الاجتماعي - تسجيل التأخير والاستئذان</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
-    <style>body { font-family: 'Tajawal', sans-serif; background-color: #fdf8f6; }</style>
+    <style>
+        body { font-family: 'Tajawal', sans-serif; background-color: #fdf8f6; }
+        
+        /* تنسيقات الطباعة */
+        @media print {
+            body * { visibility: hidden; }
+            #printReportArea, #printReportArea * { visibility: visible; }
+            #printReportArea { 
+                position: absolute; left: 0; top: 0; width: 100%; 
+                direction: rtl; padding: 20px; background: white;
+            }
+            .print-header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 15px; margin-bottom: 20px; }
+            .print-header img { max-height: 90px; }
+            .print-table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+            .print-table th, .print-table td { border: 1px solid #000; padding: 10px; text-align: center; }
+            .print-table th { background-color: #f3f4f6 !important; -webkit-print-color-adjust: exact; }
+            .signature-area { margin-top: 50px; display: flex; justify-content: space-between; font-weight: bold; }
+        }
+    </style>
 </head>
 <body class="flex flex-col min-h-screen">
 
@@ -39,6 +57,7 @@
             </a>
         </div>
 
+        <!-- تسجيل العذر اليومي -->
         <div class="bg-white p-5 rounded-lg shadow border border-amber-100 mb-6">
             <h2 class="text-lg font-bold text-amber-900 mb-4 border-b pb-2 flex items-center gap-2">
                 <span>⏱️</span> تسجيل عذر طالب (اليوم)
@@ -74,16 +93,85 @@
             <p id="actionMsg" class="text-center text-sm font-bold mt-3 hidden"></p>
         </div>
 
-        <div class="bg-white p-5 rounded-lg shadow border border-gray-200">
+        <!-- قائمة أعذار اليوم -->
+        <div class="bg-white p-5 rounded-lg shadow border border-gray-200 mb-6">
             <h3 class="font-bold text-gray-800 mb-3 border-b pb-2">📋 قائمة الأعذار (اليوم):</h3>
             <ul id="lateList" class="space-y-2"></ul>
+        </div>
+
+        <!-- 🔍 محرك البحث الشامل عن تاريخ الطالب -->
+        <div class="bg-white p-5 rounded-lg shadow border border-indigo-100 mb-6">
+            <h3 class="text-lg font-bold text-indigo-900 mb-4 border-b pb-2 flex items-center gap-2">
+                <span>🔍</span> البحث في السجل التاريخي (التأخير / الاستئذان)
+            </h3>
+            <div class="flex flex-col md:flex-row gap-3 mb-4">
+                <input type="text" id="searchInput" class="w-full p-3 border rounded-lg bg-gray-50" placeholder="اكتب اسم الطالب أو الرقم الشخصي هنا...">
+                <button onclick="searchStudentHistory()" class="bg-indigo-700 text-white px-6 py-3 rounded-lg font-bold hover:bg-indigo-800 shadow">بحث</button>
+            </div>
+            
+            <div id="searchResultsContainer" class="hidden">
+                <button onclick="window.print()" class="w-full bg-gray-800 text-white font-bold py-3 rounded-lg mb-4 flex items-center justify-center gap-2 hover:bg-black">
+                    <span>🖨️</span> طباعة التقرير الشامل لولي الأمر
+                </button>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-center border">
+                        <thead class="bg-indigo-50 font-bold text-indigo-900">
+                            <tr>
+                                <th class="p-3 border">التاريخ</th>
+                                <th class="p-3 border">الاسم</th>
+                                <th class="p-3 border">الصف</th>
+                                <th class="p-3 border">الحالة</th>
+                            </tr>
+                        </thead>
+                        <tbody id="searchTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- منطقة الطباعة المخفية -->
+    <div id="printReportArea" class="hidden">
+        <div class="print-header">
+            <img src="https://i.postimg.cc/K88X7RLb/trwysyh-dhhbyt.png" alt="ترويسة المدرسة">
+            <h2 style="margin-top: 15px; text-decoration: underline;">تقرير المتابعة الاجتماعية (تأخير واستئذان)</h2>
+        </div>
+        
+        <div style="margin-bottom: 20px; font-size: 1.1rem;">
+            <p><strong>اسم الطالب المبحوث عنه / رقمه:</strong> <span id="pSearchQuery" style="color:#b91c1c;"></span></p>
+            <p><strong>إجمالي عدد الحالات المسجلة:</strong> <span id="pSearchCount"></span> حالة</p>
+        </div>
+
+        <table class="print-table">
+            <thead>
+                <tr>
+                    <th>التاريخ</th>
+                    <th>الاسم</th>
+                    <th>الصف</th>
+                    <th>الحالة</th>
+                </tr>
+            </thead>
+            <tbody id="printTableBody"></tbody>
+        </table>
+
+        <div class="signature-area">
+            <div>
+                <p>توقيع المشرف الاجتماعي:</p>
+                <p>.......................................</p>
+            </div>
+            <div>
+                <p>توقيع ولي الأمر (للعلم والاطلاع):</p>
+                <p>.......................................</p>
+            </div>
         </div>
     </div>
 
     <script>
-        // ⚠️ رابط سكربت جوجل الخاص بك
         const API_URL = "https://script.google.com/macros/s/AKfycbxlJnpJN9y9h04cOswtY3BGGwUS8rhybOisxDFkIQJ6_9nFSPMJeK-wiuFEECnBY3v5/exec";
         let rosters = {};
+        let allLatesData = [];
+        let cprMapData = {};
         const ALL_OFFICIAL_CLASSES = ["سادس ابتدائي 1", "سادس ابتدائي 2", "سادس ابتدائي 3", "أول إعدادي 1", "أول إعدادي 2", "أول إعدادي 3", "أول إعدادي 4", "ثاني إعدادي 1", "ثاني إعدادي 2", "ثاني إعدادي 3", "ثاني إعدادي 4", "ثالث إعدادي 1", "ثالث إعدادي 2", "ثالث إعدادي 3", "ثالث إعدادي 4", "ثالث إعدادي 5"];
 
         function cleanNameDisplay(name) { return String(name || '').replace(/^\s*\d+\s*[-_.]?\s*/, '').trim(); }
@@ -93,13 +181,16 @@
             const errorMsg = document.getElementById('errorMsg');
             if (!pass) return;
             errorMsg.classList.add('hidden');
-            document.querySelector('button').innerText = "جاري التحقق...";
+            document.querySelector('button').innerText = "جاري التحقق وجلب السجلات...";
 
             try {
                 const response = await fetch(`${API_URL}?action=social_init&pass=${pass}`);
                 const result = await response.json();
                 if (result.status === "success") {
                     rosters = result.rosters;
+                    allLatesData = result.allLates || []; // تخزين كل السجلات
+                    cprMapData = result.cprMap || {}; // تخزين الأرقام الشخصية
+
                     document.getElementById('loginScreen').classList.add('hidden');
                     document.getElementById('socialDashboard').classList.remove('hidden');
                     
@@ -167,6 +258,9 @@
                     list.innerHTML += `<li class="${bgClass} p-2 rounded border text-sm font-bold flex justify-between">
                         <span>${cleanNameDisplay(sName)} <span class="text-[10px] font-normal mx-1">(${excType})</span></span> <span class="text-xs opacity-75">${cName}</span>
                     </li>`;
+
+                    // إضافة للقائمة الشاملة محلياً كي تظهر في البحث مباشرة
+                    allLatesData.push({ date: new Date().toLocaleDateString('en-CA'), className: cName, studentName: sName, excuseType: excType });
                 }
             } catch (err) {
                 msg.innerText = "حدث خطأ في التسجيل!";
@@ -187,6 +281,46 @@
                     <span>${cleanNameDisplay(l.studentName)} <span class="text-[10px] font-normal mx-1">(${l.excuseType})</span></span> <span class="text-xs opacity-75">${l.className}</span>
                 </li>`;
             });
+        }
+
+        // 🔍 دالة البحث الشامل عن تاريخ الطالب
+        function searchStudentHistory() {
+            const query = document.getElementById('searchInput').value.trim().toLowerCase();
+            const tbody = document.getElementById('searchTableBody');
+            const resContainer = document.getElementById('searchResultsContainer');
+            
+            if(!query) return;
+
+            let results = allLatesData.filter(r => {
+                let sClean = cleanNameDisplay(r.studentName);
+                let cpr = cprMapData[sClean] || "";
+                return r.studentName.toLowerCase().includes(query) || cpr.includes(query);
+            });
+
+            tbody.innerHTML = '';
+            if(results.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" class="p-4 font-bold text-gray-500 text-center">لا توجد سجلات مطابقة لهذا الطالب</td></tr>';
+            } else {
+                // ترتيب النتائج من الأحدث للأقدم
+                [...results].reverse().forEach(r => {
+                    let tagClass = r.excuseType.includes('استئذان') ? 'bg-blue-100 text-blue-800' : 'bg-amber-100 text-amber-800';
+                    tbody.innerHTML += `
+                        <tr>
+                            <td class="p-3 border font-bold text-gray-700">${r.date}</td>
+                            <td class="p-3 border font-bold">${cleanNameDisplay(r.studentName)}</td>
+                            <td class="p-3 border text-sm text-gray-600">${r.className}</td>
+                            <td class="p-3 border"><span class="px-3 py-1 rounded-md text-xs font-bold ${tagClass}">${r.excuseType}</span></td>
+                        </tr>
+                    `;
+                });
+            }
+            
+            resContainer.classList.remove('hidden');
+
+            // تجهيز ورقة الطباعة في الخلفية
+            document.getElementById('pSearchQuery').innerText = query;
+            document.getElementById('pSearchCount').innerText = results.length;
+            document.getElementById('printTableBody').innerHTML = tbody.innerHTML;
         }
     </script>
 </body>
