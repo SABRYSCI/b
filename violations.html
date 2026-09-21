@@ -125,38 +125,39 @@
         .alert-success { background: #dcfce3; color: #16a34a; border: 1px solid #4ade80; }
         .alert-error { background: #fee2e2; color: #dc2626; border: 1px solid #f87171; }
 
-        /* إعدادات الطباعة المزدوجة (فردي vs تقرير شامل) */
+        /* منطقة الطباعة مخفية في الوضع العادي */
         #printArea, #printReportArea { display: none; }
 
+        /* إعدادات الطباعة التي حلت مشكلة الصفحة البيضاء */
         @media print {
-            body * { visibility: hidden; }
+            @page { margin: 1cm; }
+            body { background: #fff; padding: 0; margin: 0; font-family: 'Tajawal', sans-serif; }
             
-            /* إظهار إشعار المخالفة الفردي فقط */
-            body.print-single #printArea, body.print-single #printArea * { visibility: visible; }
-            body.print-single #printArea { 
-                position: absolute; left: 0; top: 0; width: 100%; 
-                direction: rtl; font-family: 'Tajawal', sans-serif; 
-                padding: 30px; box-sizing: border-box;
-            }
+            /* إخفاء الواجهة الأساسية بشكل افتراضي عند الطباعة */
+            #mainContainer, .container:not(#printArea):not(#printReportArea) { display: none !important; }
+            
+            /* إذا كان وضع طباعة الإشعار الفردي */
+            body.print-single #printArea { display: block !important; }
+            body.print-single #printReportArea { display: none !important; }
+            
+            /* إذا كان وضع طباعة التقرير الشامل */
+            body.print-report #printReportArea { display: block !important; }
+            body.print-report #printArea { display: none !important; }
 
-            /* إظهار التقرير الشامل فقط */
-            body.print-report #printReportArea, body.print-report #printReportArea * { visibility: visible; }
-            body.print-report #printReportArea { 
-                position: absolute; left: 0; top: 0; width: 100%; 
-                direction: rtl; font-family: 'Tajawal', sans-serif; 
-                padding: 30px; box-sizing: border-box;
-            }
-
-            .print-header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 15px; margin-bottom: 25px; }
-            .print-header img { max-height: 110px; }
-            .print-title { font-size: 24px; font-weight: 800; margin: 15px 0 5px 0; text-decoration: underline; }
-            .print-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 16px; }
-            .print-table th, .print-table td { padding: 12px; border: 1px solid #000; vertical-align: top; text-align: center; }
-            .print-table td:first-child { font-weight: bold; width: 25%; background-color: #f1f5f9; -webkit-print-color-adjust: exact; }
+            /* تنسيقات الجداول والنصوص داخل الورقة */
+            .print-header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
+            .print-header img { max-height: 100px; }
+            .print-title { font-size: 22px; font-weight: 800; margin: 10px 0; text-decoration: underline; }
             
-            .pledge-box { margin-top: 20px; border: 2px dashed #000; padding: 20px; border-radius: 8px; font-size: 18px; }
+            .print-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 16px; text-align: right; }
+            .print-table th, .print-table td { padding: 12px; border: 1px solid #000; vertical-align: middle; }
+            .print-table th { background-color: #f1f5f9 !important; -webkit-print-color-adjust: exact; text-align: center; }
+            .print-table td:first-child { font-weight: bold; width: 25%; background-color: #f1f5f9 !important; -webkit-print-color-adjust: exact; }
             
-            .signatures { display: flex; justify-content: space-between; margin-top: 50px; text-align: center; font-size: 16px; }
+            /* مربع تعهد الطالب */
+            .pledge-box { margin-top: 20px; border: 2px dashed #000; padding: 20px; border-radius: 8px; font-size: 17px; text-align: right; background-color: #fafafa !important; -webkit-print-color-adjust: exact; }
+            
+            .signatures { display: flex; justify-content: space-between; margin-top: 40px; text-align: center; font-size: 16px; }
             .sig-box { width: 30%; }
             .sig-title { font-weight: bold; margin-bottom: 30px; }
         }
@@ -341,10 +342,10 @@
         <tr><td>ملاحظات:</td><td id="pNotes"></td></tr>
     </table>
 
-    <!-- مربع تعهد الطالب الجديد -->
+    <!-- مربع تعهد الطالب الذي طلبته -->
     <div class="pledge-box">
         <p style="text-decoration: underline; font-weight: bold; margin-top:0;">تعهد الطالب:</p>
-        <p>أتعهد أنا الطالب: <span id="pPledgeName" style="font-weight:bold; border-bottom: 1px dotted #000; padding: 0 10px;"></span> بعدم تكرار المخالفة المذكورة أعلاه مرة أخرى، وألتزم بلوائح الانضباط المدرسي.</p>
+        <p>أتعهد أنا الطالب: <span id="pPledgeName" style="font-weight:bold; color:#1e40af; border-bottom: 1px dotted #000; padding: 0 10px;"></span> بعدم تكرار المخالفة المذكورة أعلاه مرة أخرى، وألتزم بلوائح الانضباط المدرسي.</p>
         <p style="margin-top: 25px; text-align: left; padding-left: 50px;"><strong>توقيع الطالب:</strong> ..........................</p>
     </div>
 
@@ -381,14 +382,14 @@
         </div>
         <div style="display:flex; justify-content:space-between;">
             <div><strong>الصف:</strong> <span id="pRepClass"></span></div>
-            <div><strong>رقم التواصل:</strong> <span id="pRepPhone" style="direction:ltr; display:inline-block;"></span> <span id="pRepOtherData" style="color:#64748b; font-size:14px;">(بيانات إضافية تضاف لاحقاً)</span></div>
+            <div><strong>رقم التواصل:</strong> <span id="pRepPhone" style="direction:ltr; display:inline-block;"></span></div>
         </div>
         <div style="margin-top: 10px; color: #b91c1c; font-size: 20px;">
             <strong>إجمالي عدد المخالفات المسجلة:</strong> <span id="pRepCount"></span> مخالفة
         </div>
     </div>
 
-    <table class="print-table" style="font-size: 15px;">
+    <table class="print-table" style="font-size: 15px; text-align: center;">
         <thead>
             <tr>
                 <th style="width: 20%; background-color:#f1f5f9; -webkit-print-color-adjust: exact;">التاريخ واليوم</th>
@@ -414,7 +415,6 @@
 <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxlJnpJN9y9h04cOswtY3BGGwUS8rhybOisxDFkIQJ6_9nFSPMJeK-wiuFEECnBY3v5/exec";
     
-    // متغيرات البحث الشامل
     let allViolationsData = [];
     let cprMapData = {};
 
@@ -437,7 +437,6 @@
       "ثالث إعدادي 5": ["احمد يعقوب اسحاق يونس", "آدم محمد يوسف المحاسنيه", "السيد محمد جواد درويش الشرخات", "السيد محمد على جعفر الغنى", "السيد هاشم جلال عيسى حسن", "إلياس محمد يوسف المحاسنيه", "حسن محمد داود مشيمع", "حسين على حسن حسن", "حيدر عبد الامير سعيد عبدالوهاب", "حيدر فلاح موسى خميس", "سيد قاسم حسين على ناصر", "سيد محمد حسين محمد درويش", "سيدهاشم السيد فيصل حيدر علوي", "عباس حسن يوسف شريف", "عباس على عبدالوهاب الشيخ على", "عباس فاضل عبد النبي العود", "عبد العزيز حسن على احمد", "على حسن جمعه حسن", "على حسن كاظم العويناتي", "على حسين سلمان على احمد", "على حسين عبدالله عباس", "على حسين عبدالله عبدالله", "على حمد عبد الرضا خمدن", "على عادل احمد عبدالله", "على محمد على عباس", "على مهدي عبدالله مرهون", "على يوسف احمد امان", "على يوسف كاظم القلاف", "عمار على سعيد عباس", "قاسم فاضل جاسم عتيق", "مجتبى عادل احمد کاظم", "محمد حسين مرزوق الجبل", "محمد مهدي رائد عبد الكريم عبد على", "مناف عبدالله ابراهيم ال عميري", "يوسف احمد هلال فردان"]
     };
 
-    // جلب البيانات للمحرك عند تحميل الصفحة
     document.addEventListener("DOMContentLoaded", () => {
         document.getElementById('violationDate').value = new Date().toLocaleDateString('en-CA');
         loadAllDataInBackground();
@@ -445,12 +444,10 @@
 
     async function loadAllDataInBackground() {
         try {
-            // جلب الأرقام الشخصية (من نقطة الاشراف الاجتماعي)
             let resCPR = await fetch(`${SCRIPT_URL}?action=social_init&pass=social123`);
             let cprData = await resCPR.json();
             if(cprData.status === "success" && cprData.cprMap) cprMapData = cprData.cprMap;
 
-            // جلب المخالفات السلوكية
             let resViol = await fetch(`${SCRIPT_URL}?action=getViolations`);
             let violData = await resViol.json();
             if(violData.status === "success" && violData.data) allViolationsData = violData.data;
@@ -464,6 +461,13 @@
         if(isNaN(d.getTime())) return "";
         return days[d.getDay()];
     }
+
+    function getDayAndDate(dateStr) {
+        let dayName = getDayName(dateStr);
+        return dayName ? `${dayName}، ${dateStr}` : dateStr;
+    }
+
+    function cleanNameDisplay(name) { return String(name || '').replace(/^\s*\d+\s*[-_.]?\s*/, '').trim(); }
 
     function populateStudents() {
         const cls = document.getElementById('classSelect').value;
@@ -488,12 +492,7 @@
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    function getDayAndDate(dateStr) {
-        let dayName = getDayName(dateStr);
-        return dayName ? `${dayName}، ${dateStr}` : dateStr;
-    }
-
-    // 1️⃣ إعداد بيانات إشعار المخالفة (فردي)
+    // 1️⃣ إعداد بيانات إشعار المخالفة الفردي
     function preparePrintData(superName, vDate, cls, student, vType, vDetails, finalActionText, notes) {
         document.getElementById('pDate').innerText = getDayAndDate(vDate);
         document.getElementById('pStudent').innerText = student;
@@ -503,7 +502,7 @@
         document.getElementById('pAction').innerText = finalActionText || "لم يحدد إجراء بعد.";
         document.getElementById('pNotes').innerText = notes || "لا توجد ملاحظات.";
         document.getElementById('pSupervisor').innerText = superName;
-        document.getElementById('pPledgeName').innerText = student; // وضع اسم الطالب في التعهد
+        document.getElementById('pPledgeName').innerText = student; // تعبئة التعهد
     }
 
     function submitForm() {
@@ -554,8 +553,6 @@
                 showAlert("✅ تم تسجيل المخالفة بنجاح! يمكنك الآن طباعة الإشعار.", true);
                 btn.style.display = 'none';
                 document.getElementById('afterSubmitBtns').style.display = 'flex';
-                
-                // تحديث القائمة الشاملة محلياً للبحث
                 allViolationsData.push({ date: vDate, className: cls, studentName: student, violationType: finalViolationText, actionTaken: finalActionText });
             } else {
                 showAlert("حدث خطأ: " + data.message, false);
@@ -569,60 +566,70 @@
         });
     }
 
-    // 2️⃣ محرك البحث الشامل
+    // 2️⃣ محرك البحث الذكي للتقرير الشامل
     function searchViolationsHistory() {
         const query = document.getElementById('searchViolationInput').value.trim().toLowerCase();
         const tbodyUI = document.getElementById('searchViolationsTableBody');
         const tbodyPrint = document.getElementById('printRepTableBody');
         const resContainer = document.getElementById('searchViolationsResults');
         
-        if(!query) {
-            alert("يرجى إدخال اسم الطالب أو رقمه الشخصي.");
+        if(!query) { alert("يرجى إدخال اسم الطالب أو رقمه الشخصي."); return; }
+
+        let studentRealName = "";
+        let studentRealClass = "";
+        let studentCPR = "";
+        
+        for (let className in HARDCODED_ROSTERS) {
+            let students = HARDCODED_ROSTERS[className];
+            for (let i = 0; i < students.length; i++) {
+                let sName = students[i];
+                let sClean = cleanNameDisplay(sName);
+                let sCpr = cprMapData[sClean] || "";
+                
+                if (sName.toLowerCase().includes(query) || sCpr.includes(query)) {
+                    studentRealName = cleanNameDisplay(sName);
+                    studentRealClass = className;
+                    studentCPR = sCpr || "غير متوفر";
+                    break;
+                }
+            }
+            if(studentRealName) break;
+        }
+
+        if(!studentRealName) {
+            tbodyUI.innerHTML = '<tr><td colspan="4" style="padding:15px; font-weight:bold; color:#dc2626;">❌ هذا الطالب غير مسجل في قوائم المدرسة، يرجى التأكد من الاسم أو الرقم.</td></tr>';
+            resContainer.style.display = 'block';
             return;
         }
 
         let results = allViolationsData.filter(r => {
             let sClean = String(r.studentName || '').replace(/^[\d\s._-]+/, '').trim();
-            let cpr = cprMapData[sClean] || "";
-            return (r.studentName || '').toLowerCase().includes(query) || cpr.includes(query);
+            return sClean === studentRealName;
         });
 
         tbodyUI.innerHTML = '';
         tbodyPrint.innerHTML = '';
 
-        if(results.length === 0) {
-            tbodyUI.innerHTML = '<tr><td colspan="4" style="padding:15px; font-weight:bold; color:#64748b;">لا توجد مخالفات سابقة مسجلة لهذا الطالب</td></tr>';
-            document.getElementById('pRepCount').innerText = "0";
-            document.getElementById('pRepName').innerText = query;
-            document.getElementById('pRepCPR').innerText = "غير متوفر";
-            document.getElementById('pRepPhone').innerText = "غير متوفر";
-            document.getElementById('pRepClass').innerText = "غير متوفر";
-        } else {
-            // استخراج بيانات الطالب من أول نتيجة
-            let firstRes = results[0];
-            let sCleanFirst = String(firstRes.studentName || '').replace(/^[\d\s._-]+/, '').trim();
-            document.getElementById('pRepName').innerText = cleanNameDisplay(firstRes.studentName);
-            document.getElementById('pRepCPR').innerText = cprMapData[sCleanFirst] || "غير متوفر";
-            document.getElementById('pRepPhone').innerText = firstRes.phone || "غير متوفر";
-            document.getElementById('pRepClass').innerText = firstRes.className || "غير متوفر";
-            document.getElementById('pRepCount').innerText = results.length;
+        document.getElementById('pRepName').innerText = studentRealName;
+        document.getElementById('pRepCPR').innerText = studentCPR;
+        document.getElementById('pRepClass').innerText = studentRealClass;
+        document.getElementById('pRepPhone').innerText = results.length > 0 ? (results[0].phone || "غير متوفر") : "غير متوفر";
+        document.getElementById('pRepCount').innerText = results.length;
 
-            // ترتيب النتائج من الأحدث للأقدم
+        if(results.length === 0) {
+            tbodyUI.innerHTML = `<tr><td colspan="4" style="padding:15px; font-weight:bold; color:#059669;">✅ لا توجد أي مخالفات سلوكية مسجلة للطالب (${studentRealName}). سجل الطالب نظيف!</td></tr>`;
+            tbodyPrint.innerHTML = `<tr><td colspan="3" style="padding:20px; font-weight:bold; color:#059669; font-size:18px;">✅ سجل الطالب نظيف، لا توجد مخالفات سلوكية مدونة.</td></tr>`;
+        } else {
             [...results].reverse().forEach(r => {
                 let fullDate = getDayAndDate(r.date);
-                let cleanName = cleanNameDisplay(r.studentName);
-                
-                // للصفحة
                 tbodyUI.innerHTML += `
                     <tr>
                         <td style="padding: 10px; border: 1px solid var(--border); font-weight:bold; color:#1e40af;">${fullDate}</td>
-                        <td style="padding: 10px; border: 1px solid var(--border); font-weight:bold;">${cleanName}</td>
+                        <td style="padding: 10px; border: 1px solid var(--border); font-weight:bold;">${studentRealName}</td>
                         <td style="padding: 10px; border: 1px solid var(--border); color: #b91c1c;">${r.violationType}</td>
                         <td style="padding: 10px; border: 1px solid var(--border);">${r.actionTaken}</td>
                     </tr>
                 `;
-
-                // للطباعة
                 tbodyPrint.innerHTML += `
                     <tr>
                         <td>${fullDate}</td>
@@ -635,22 +642,23 @@
         resContainer.style.display = 'block';
     }
 
-    function cleanNameDisplay(name) { return String(name || '').replace(/^\s*\d+\s*[-_.]?\s*/, '').trim(); }
-
-    // التحكم في الطباعة
+    // دوال الطباعة الذكية
     function printSingleViolation() {
         document.body.classList.add('print-single');
         document.body.classList.remove('print-report');
         window.print();
+        // إزالة الكلاسات بعد الطباعة ليعود الوضع الطبيعي
+        setTimeout(() => { document.body.classList.remove('print-single'); }, 1000);
     }
 
     function printViolationReport() {
         document.body.classList.add('print-report');
         document.body.classList.remove('print-single');
         window.print();
+        // إزالة الكلاسات بعد الطباعة ليعود الوضع الطبيعي
+        setTimeout(() => { document.body.classList.remove('print-report'); }, 1000);
     }
 </script>
 
 </body>
 </html>
-
