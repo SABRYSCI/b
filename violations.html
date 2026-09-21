@@ -14,6 +14,7 @@
             --card-bg: #ffffff;
             --text-dark: #1e293b;
             --border: #cbd5e1;
+            --accent: #059669;
         }
 
         body {
@@ -128,23 +129,18 @@
         /* منطقة الطباعة مخفية في الوضع العادي */
         #printArea, #printReportArea { display: none; }
 
-        /* إعدادات الطباعة التي حلت مشكلة الصفحة البيضاء */
         @media print {
             @page { margin: 1cm; }
             body { background: #fff; padding: 0; margin: 0; font-family: 'Tajawal', sans-serif; }
             
-            /* إخفاء الواجهة الأساسية بشكل افتراضي عند الطباعة */
             #mainContainer, .container:not(#printArea):not(#printReportArea) { display: none !important; }
             
-            /* إذا كان وضع طباعة الإشعار الفردي */
             body.print-single #printArea { display: block !important; }
             body.print-single #printReportArea { display: none !important; }
             
-            /* إذا كان وضع طباعة التقرير الشامل */
             body.print-report #printReportArea { display: block !important; }
             body.print-report #printArea { display: none !important; }
 
-            /* تنسيقات الجداول والنصوص داخل الورقة */
             .print-header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
             .print-header img { max-height: 100px; }
             .print-title { font-size: 22px; font-weight: 800; margin: 10px 0; text-decoration: underline; }
@@ -154,7 +150,6 @@
             .print-table th { background-color: #f1f5f9 !important; -webkit-print-color-adjust: exact; text-align: center; }
             .print-table td:first-child { font-weight: bold; width: 25%; background-color: #f1f5f9 !important; -webkit-print-color-adjust: exact; }
             
-            /* مربع تعهد الطالب */
             .pledge-box { margin-top: 20px; border: 2px dashed #000; padding: 20px; border-radius: 8px; font-size: 17px; text-align: right; background-color: #fafafa !important; -webkit-print-color-adjust: exact; }
             
             .signatures { display: flex; justify-content: space-between; margin-top: 40px; text-align: center; font-size: 16px; }
@@ -296,18 +291,46 @@
     </div>
 </div>
 
-<!-- 2️⃣ محرك البحث الشامل عن تاريخ المخالفات للطالب -->
-<div class="container" style="margin-bottom: 50px;">
+<!-- 2️⃣ محرك البحث الشامل عن طريق الكتابة -->
+<div class="container" style="margin-bottom: 20px;">
     <div class="form-content" style="padding-top: 10px;">
-        <h3 class="page-title" style="font-size: 1.25rem; color: #1e40af; border-bottom: 2px solid #cbd5e1; padding-bottom: 10px;">🔍 البحث الشامل في سجل المخالفات السلوكية</h3>
+        <h3 class="page-title" style="font-size: 1.25rem; color: #1e40af; border-bottom: 2px solid #cbd5e1; padding-bottom: 10px;">🔍 البحث في السجل (بالاسم أو الرقم الشخصي)</h3>
         
         <div style="display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap;">
             <input type="text" id="searchViolationInput" class="form-control" style="flex: 1;" placeholder="اكتب اسم الطالب أو الرقم الشخصي للبحث...">
-            <button onclick="searchViolationsHistory()" class="btn-nav" style="width: auto; padding: 12px 25px; border-radius: 8px;">بحث واستخراج</button>
+            <button onclick="searchByText()" class="btn-nav" style="width: auto; padding: 12px 25px; border-radius: 8px;">بحث واستخراج</button>
         </div>
+    </div>
+</div>
+
+<!-- 3️⃣ الأداة الجديدة: محرك الاستخراج بالقوائم المنسدلة -->
+<div class="container" style="margin-bottom: 50px;">
+    <div class="form-content" style="padding-top: 10px;">
+        <h3 class="page-title" style="font-size: 1.25rem; color: var(--accent); border-bottom: 2px solid #cbd5e1; padding-bottom: 10px;">📂 استخراج السجل السلوكي والتعهد (بالقوائم المنسدلة)</h3>
         
-        <div id="searchViolationsResults" style="display: none; margin-top: 25px;">
-            <button onclick="printViolationReport()" class="btn-submit" style="background-color: #1e293b; margin-bottom: 15px;">🖨️ طباعة التقرير الشامل للمخالفات لتسليمه لولي الأمر</button>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px;">
+            <div>
+                <label style="font-weight: 700; margin-bottom: 5px; display: block;">اختر الصف:</label>
+                <select id="histClassSelect" class="form-control" onchange="populateHistStudents()">
+                    <option value="">-- اختر الصف --</option>
+                    <option value="سادس ابتدائي 1">سادس ابتدائي 1</option><option value="سادس ابتدائي 2">سادس ابتدائي 2</option><option value="سادس ابتدائي 3">سادس ابتدائي 3</option>
+                    <option value="أول إعدادي 1">أول إعدادي 1</option><option value="أول إعدادي 2">أول إعدادي 2</option><option value="أول إعدادي 3">أول إعدادي 3</option><option value="أول إعدادي 4">أول إعدادي 4</option>
+                    <option value="ثاني إعدادي 1">ثاني إعدادي 1</option><option value="ثاني إعدادي 2">ثاني إعدادي 2</option><option value="ثاني إعدادي 3">ثاني إعدادي 3</option><option value="ثاني إعدادي 4">ثاني إعدادي 4</option>
+                    <option value="ثالث إعدادي 1">ثالث إعدادي 1</option><option value="ثالث إعدادي 2">ثالث إعدادي 2</option><option value="ثالث إعدادي 3">ثالث إعدادي 3</option><option value="ثالث إعدادي 4">ثالث إعدادي 4</option><option value="ثالث إعدادي 5">ثالث إعدادي 5</option>
+                </select>
+            </div>
+            <div>
+                <label style="font-weight: 700; margin-bottom: 5px; display: block;">اختر الطالب:</label>
+                <select id="histStudentSelect" class="form-control">
+                    <option value="">-- اختر الصف أولاً --</option>
+                </select>
+            </div>
+        </div>
+        <button onclick="extractStudentHistory()" class="btn-submit" style="background-color: var(--accent); margin-top: 15px;">استخراج وعرض السجل</button>
+
+        <!-- حاوية عرض النتائج (مشتركة بين البحث والاستخراج) -->
+        <div id="searchViolationsResults" style="display: none; margin-top: 25px; border-top: 2px solid #e2e8f0; padding-top: 20px;">
+            <button onclick="printViolationReport()" class="btn-submit" style="background-color: #1e293b; margin-bottom: 15px;">🖨️ طباعة التقرير الشامل والتعهد لولي الأمر</button>
             <div style="overflow-x: auto; background: #fff; border: 1px solid var(--border); border-radius: 8px;">
                 <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 0.95rem;">
                     <thead style="background-color: #f1f5f9; color: #334155;">
@@ -342,7 +365,6 @@
         <tr><td>ملاحظات:</td><td id="pNotes"></td></tr>
     </table>
 
-    <!-- مربع تعهد الطالب الذي طلبته -->
     <div class="pledge-box">
         <p style="text-decoration: underline; font-weight: bold; margin-top:0;">تعهد الطالب:</p>
         <p>أتعهد أنا الطالب: <span id="pPledgeName" style="font-weight:bold; color:#1e40af; border-bottom: 1px dotted #000; padding: 0 10px;"></span> بعدم تكرار المخالفة المذكورة أعلاه مرة أخرى، وألتزم بلوائح الانضباط المدرسي.</p>
@@ -368,14 +390,14 @@
     </div>
 </div>
 
-<!-- منطقة طباعة 2: التقرير الشامل لولي الأمر -->
+<!-- منطقة طباعة 2: التقرير الشامل والمخالفات السابقة والتعهد -->
 <div id="printReportArea">
     <div class="print-header">
         <img src="https://i.postimg.cc/K88X7RLb/trwysyh-dhhbyt.png" alt="ترويسة المدرسة">
         <div class="print-title">التقرير التاريخي للمخالفات السلوكية</div>
     </div>
     
-    <div style="margin-bottom: 25px; font-size: 18px; line-height: 1.8; border: 2px solid #000; padding: 15px; border-radius: 8px;">
+    <div style="margin-bottom: 20px; font-size: 18px; line-height: 1.8; border: 2px solid #000; padding: 15px; border-radius: 8px;">
         <div style="display:flex; justify-content:space-between;">
             <div><strong>اسم الطالب:</strong> <span id="pRepName" style="font-weight:bold;"></span></div>
             <div><strong>الرقم الشخصي:</strong> <span id="pRepCPR"></span></div>
@@ -400,7 +422,14 @@
         <tbody id="printRepTableBody"></tbody>
     </table>
 
-    <div class="signatures" style="margin-top: 60px;">
+    <!-- مربع التعهد الجديد الخاص بالتقرير الشامل (يظهر فقط إذا كانت هناك مخالفات) -->
+    <div id="reportPledgeBox" class="pledge-box" style="margin-top: 25px; padding: 15px;">
+        <p style="text-decoration: underline; font-weight: bold; margin-top:0;">تعهد الطالب:</p>
+        <p>أتعهد أنا الطالب: <span id="pRepPledgeName" style="font-weight:bold; color:#1e40af; border-bottom: 1px dotted #000; padding: 0 10px;"></span> بعدم تكرار المخالفات المذكورة أعلاه مرة أخرى، وألتزم بلوائح الانضباط المدرسي.</p>
+        <p style="margin-top: 25px; text-align: left; padding-left: 50px;"><strong>توقيع الطالب:</strong> ..........................</p>
+    </div>
+
+    <div class="signatures" style="margin-top: 40px;">
         <div class="sig-box" style="width: 45%;">
             <div class="sig-title">توقيع المشرف / الباحث الاجتماعي</div>
             <p>.......................................</p>
@@ -473,7 +502,20 @@
         const cls = document.getElementById('classSelect').value;
         const studentSelect = document.getElementById('studentSelect');
         studentSelect.innerHTML = '<option value="">-- اختر الطالب --</option>';
+        if (cls && HARDCODED_ROSTERS[cls]) {
+            HARDCODED_ROSTERS[cls].forEach(s => {
+                let opt = document.createElement('option');
+                opt.value = s;
+                opt.textContent = s;
+                studentSelect.appendChild(opt);
+            });
+        }
+    }
 
+    function populateHistStudents() {
+        const cls = document.getElementById('histClassSelect').value;
+        const studentSelect = document.getElementById('histStudentSelect');
+        studentSelect.innerHTML = '<option value="">-- اختر الطالب --</option>';
         if (cls && HARDCODED_ROSTERS[cls]) {
             HARDCODED_ROSTERS[cls].forEach(s => {
                 let opt = document.createElement('option');
@@ -492,7 +534,7 @@
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // 1️⃣ إعداد بيانات إشعار المخالفة الفردي
+    // 1️⃣ تسجيل مخالفة وإعداد بياناتها للطباعة
     function preparePrintData(superName, vDate, cls, student, vType, vDetails, finalActionText, notes) {
         document.getElementById('pDate').innerText = getDayAndDate(vDate);
         document.getElementById('pStudent').innerText = student;
@@ -502,7 +544,7 @@
         document.getElementById('pAction').innerText = finalActionText || "لم يحدد إجراء بعد.";
         document.getElementById('pNotes').innerText = notes || "لا توجد ملاحظات.";
         document.getElementById('pSupervisor').innerText = superName;
-        document.getElementById('pPledgeName').innerText = student; // تعبئة التعهد
+        document.getElementById('pPledgeName').innerText = student;
     }
 
     function submitForm() {
@@ -566,18 +608,13 @@
         });
     }
 
-    // 2️⃣ محرك البحث الذكي للتقرير الشامل
-    function searchViolationsHistory() {
+    // 2️⃣ محرك البحث النصي
+    function searchByText() {
         const query = document.getElementById('searchViolationInput').value.trim().toLowerCase();
-        const tbodyUI = document.getElementById('searchViolationsTableBody');
-        const tbodyPrint = document.getElementById('printRepTableBody');
-        const resContainer = document.getElementById('searchViolationsResults');
-        
         if(!query) { alert("يرجى إدخال اسم الطالب أو رقمه الشخصي."); return; }
-
+        
         let studentRealName = "";
         let studentRealClass = "";
-        let studentCPR = "";
         
         for (let className in HARDCODED_ROSTERS) {
             let students = HARDCODED_ROSTERS[className];
@@ -589,7 +626,6 @@
                 if (sName.toLowerCase().includes(query) || sCpr.includes(query)) {
                     studentRealName = cleanNameDisplay(sName);
                     studentRealClass = className;
-                    studentCPR = sCpr || "غير متوفر";
                     break;
                 }
             }
@@ -597,10 +633,32 @@
         }
 
         if(!studentRealName) {
-            tbodyUI.innerHTML = '<tr><td colspan="4" style="padding:15px; font-weight:bold; color:#dc2626;">❌ هذا الطالب غير مسجل في قوائم المدرسة، يرجى التأكد من الاسم أو الرقم.</td></tr>';
-            resContainer.style.display = 'block';
+            document.getElementById('searchViolationsTableBody').innerHTML = '<tr><td colspan="4" style="padding:15px; font-weight:bold; color:#dc2626;">❌ هذا الطالب غير مسجل في قوائم المدرسة، يرجى التأكد من الاسم أو الرقم.</td></tr>';
+            document.getElementById('searchViolationsResults').style.display = 'block';
             return;
         }
+        
+        displayReportForStudent(studentRealName, studentRealClass);
+    }
+
+    // 3️⃣ أداة الاستخراج بالقوائم
+    function extractStudentHistory() {
+        const cls = document.getElementById('histClassSelect').value;
+        const studentRaw = document.getElementById('histStudentSelect').value;
+        if(!cls || !studentRaw) { alert("يرجى اختيار الصف واسم الطالب أولاً."); return; }
+        
+        let studentRealName = cleanNameDisplay(studentRaw);
+        displayReportForStudent(studentRealName, cls);
+    }
+
+    // الدالة المشتركة لعرض تقرير الطالب وبناء ورقة الطباعة
+    function displayReportForStudent(studentRealName, studentRealClass) {
+        const tbodyUI = document.getElementById('searchViolationsTableBody');
+        const tbodyPrint = document.getElementById('printRepTableBody');
+        const resContainer = document.getElementById('searchViolationsResults');
+        const pledgeBox = document.getElementById('reportPledgeBox');
+
+        let studentCPR = cprMapData[studentRealName] || "غير متوفر";
 
         let results = allViolationsData.filter(r => {
             let sClean = String(r.studentName || '').replace(/^[\d\s._-]+/, '').trim();
@@ -611,6 +669,7 @@
         tbodyPrint.innerHTML = '';
 
         document.getElementById('pRepName').innerText = studentRealName;
+        document.getElementById('pRepPledgeName').innerText = studentRealName;
         document.getElementById('pRepCPR').innerText = studentCPR;
         document.getElementById('pRepClass').innerText = studentRealClass;
         document.getElementById('pRepPhone').innerText = results.length > 0 ? (results[0].phone || "غير متوفر") : "غير متوفر";
@@ -619,9 +678,12 @@
         if(results.length === 0) {
             tbodyUI.innerHTML = `<tr><td colspan="4" style="padding:15px; font-weight:bold; color:#059669;">✅ لا توجد أي مخالفات سلوكية مسجلة للطالب (${studentRealName}). سجل الطالب نظيف!</td></tr>`;
             tbodyPrint.innerHTML = `<tr><td colspan="3" style="padding:20px; font-weight:bold; color:#059669; font-size:18px;">✅ سجل الطالب نظيف، لا توجد مخالفات سلوكية مدونة.</td></tr>`;
+            pledgeBox.style.display = 'none'; // إخفاء التعهد في حال السجل نظيف
         } else {
+            pledgeBox.style.display = 'block'; // إظهار التعهد لأنه توجد مخالفات سابقة
             [...results].reverse().forEach(r => {
                 let fullDate = getDayAndDate(r.date);
+                
                 tbodyUI.innerHTML += `
                     <tr>
                         <td style="padding: 10px; border: 1px solid var(--border); font-weight:bold; color:#1e40af;">${fullDate}</td>
@@ -630,6 +692,7 @@
                         <td style="padding: 10px; border: 1px solid var(--border);">${r.actionTaken}</td>
                     </tr>
                 `;
+
                 tbodyPrint.innerHTML += `
                     <tr>
                         <td>${fullDate}</td>
@@ -640,6 +703,7 @@
             });
         }
         resContainer.style.display = 'block';
+        resContainer.scrollIntoView({ behavior: 'smooth' });
     }
 
     // دوال الطباعة الذكية
@@ -647,7 +711,6 @@
         document.body.classList.add('print-single');
         document.body.classList.remove('print-report');
         window.print();
-        // إزالة الكلاسات بعد الطباعة ليعود الوضع الطبيعي
         setTimeout(() => { document.body.classList.remove('print-single'); }, 1000);
     }
 
@@ -655,7 +718,6 @@
         document.body.classList.add('print-report');
         document.body.classList.remove('print-single');
         window.print();
-        // إزالة الكلاسات بعد الطباعة ليعود الوضع الطبيعي
         setTimeout(() => { document.body.classList.remove('print-report'); }, 1000);
     }
 </script>
