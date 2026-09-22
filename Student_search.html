@@ -32,10 +32,13 @@
     <style>
         body { background-color: #f8fafc; }
         
-        #searchResults::-webkit-scrollbar { width: 6px; }
+        /* Custom Scrollbar for Search */
+        #searchResults::-webkit-scrollbar { width: 8px; }
         #searchResults::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 8px; }
         #searchResults::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
+        #searchResults::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         
+        /* Loading Overlay */
         #loadingOverlay {
             position: fixed; inset: 0; background: rgba(255, 255, 255, 0.9); z-index: 9999;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
@@ -47,7 +50,7 @@
         }
         @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* إعدادات الطباعة الاحترافية */
+        /* Print Settings */
         @media print {
             body { background: white; }
             .print-hidden { display: none !important; }
@@ -61,12 +64,14 @@
 </head>
 <body class="text-gray-800 antialiased font-sans">
 
+    <!-- شاشة التحميل -->
     <div id="loadingOverlay">
         <span class="loader"></span>
         <h2 class="mt-4 text-xl font-bold text-primary-900">جاري الاتصال بقاعدة البيانات...</h2>
         <p class="text-gray-500 mt-2 text-sm">يرجى الانتظار، يتم جلب السجلات الشاملة</p>
     </div>
 
+    <!-- الهيدر الرئيسي -->
     <header class="bg-primary-900 text-white shadow-md print-hidden sticky top-0 z-50">
         <div class="container mx-auto px-4 py-4 flex flex-col md:flex-row items-center justify-between gap-4">
             <div class="flex items-center gap-4">
@@ -87,25 +92,29 @@
 
     <main class="container mx-auto px-4 py-8">
         
+        <!-- قسم البحث -->
         <section class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-8 print-hidden">
             <h2 class="text-xl font-bold text-gray-800 mb-6 border-b pb-3 flex items-center gap-2">
                 <i class="fa-solid fa-magnifying-glass text-primary-600"></i> البحث الشامل
             </h2>
             
             <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+                <!-- البحث النصي -->
                 <div class="md:col-span-6 relative">
-                    <label class="block text-sm font-bold text-gray-600 mb-2">بحث سريع (الاسم أو الرقم الشخصي)</label>
+                    <label class="block text-sm font-bold text-gray-600 mb-2">بحث سريع (جزء من الاسم أو الرقم الشخصي)</label>
                     <div class="relative">
-                        <input type="text" id="searchInput" placeholder="اكتب اسم الطالب أو رقمه الشخصي هنا..." autocomplete="off"
-                            class="w-full pl-10 pr-12 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-gray-50 focus:bg-white transition-all">
+                        <input type="text" id="searchInput" placeholder="اكتب أي جزء من اسم الطالب هنا..." autocomplete="off"
+                            class="w-full pl-10 pr-12 py-3 rounded-xl border border-gray-300 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 bg-gray-50 focus:bg-white transition-all text-lg font-semibold">
                         <i class="fa-solid fa-search absolute right-4 top-4 text-gray-400"></i>
                         <button id="clearSearch" class="absolute left-4 top-4 text-gray-400 hover:text-red-500 hidden">
                             <i class="fa-solid fa-times"></i>
                         </button>
                     </div>
-                    <div id="searchResults" class="absolute z-50 w-full bg-white border border-gray-200 rounded-xl shadow-xl mt-2 hidden max-h-64 overflow-y-auto"></div>
+                    <!-- نتائج البحث (تم زيادة الارتفاع للسماح بعرض نتائج أكثر) -->
+                    <div id="searchResults" class="absolute z-50 w-full bg-white border border-gray-200 rounded-xl shadow-2xl mt-2 hidden max-h-96 overflow-y-auto"></div>
                 </div>
 
+                <!-- البحث بالقوائم -->
                 <div class="md:col-span-3">
                     <label class="block text-sm font-bold text-gray-600 mb-2">تصفية بالصف</label>
                     <div class="relative">
@@ -128,15 +137,17 @@
             </div>
         </section>
 
-        <!-- ترويسة الطباعة -->
+        <!-- ترويسة الطباعة المخفية -->
         <div class="hidden print-only mb-8 border-b-4 border-gray-800 pb-6 text-center">
             <h1 class="text-3xl font-black mb-2">تقرير الطالب الشامل</h1>
             <h2 class="text-xl text-gray-600">مدرسة البلاد القديم الابتدائية الإعدادية للبنين</h2>
             <p class="text-gray-500 mt-2 font-semibold" id="printDate"></p>
         </div>
 
+        <!-- ملف الطالب (مخفي افتراضياً) -->
         <section id="studentProfile" class="hidden animate-[fadeIn_0.5s_ease-out]">
             
+            <!-- أزرار الإجراءات -->
             <div class="flex flex-wrap justify-between items-center mb-6 print-hidden gap-4">
                 <h2 class="text-2xl font-black text-gray-800 border-r-4 border-primary-600 pr-3">الملف الإلكتروني للطالب</h2>
                 <button onclick="window.print()" class="bg-gray-800 hover:bg-black text-white px-5 py-2.5 rounded-xl shadow-md transition-all flex items-center gap-2 font-bold">
@@ -175,6 +186,7 @@
 
             <!-- سجلات الحضور والسلوك (تظهر في الطباعة) -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-200 flex flex-col print-break-inside-avoid">
                     <div class="bg-red-50 p-4 rounded-t-2xl border-b border-red-100 flex justify-between items-center">
                         <h3 class="text-lg font-black text-red-700 flex items-center gap-2">
@@ -218,6 +230,7 @@
                         </table>
                     </div>
                 </div>
+
             </div>
 
             <div class="bg-white rounded-2xl shadow-sm border border-gray-200 flex flex-col mb-8 print-break-inside-avoid">
@@ -247,12 +260,16 @@
         </section>
     </main>
 
+    <!-- توست الإشعارات -->
     <div id="toast" class="fixed bottom-6 left-6 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 transition-all duration-300 opacity-0 translate-y-10 pointer-events-none z-50">
         <i id="toastIcon" class="fa-solid text-2xl"></i>
         <span id="toastMessage" class="font-bold"></span>
     </div>
 
     <script>
+        // ==========================================
+        // 🔴 الإعدادات الأساسية 🔴
+        // ==========================================
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxlJnpJN9y9h04cOswtY3BGGwUS8rhybOisxDFkIQJ6_9nFSPMJeK-wiuFEECnBY3v5/exec"; 
         
         let globalData = {
@@ -271,6 +288,15 @@
             initSystem();
         });
 
+        // دالة لتوحيد النصوص العربية وتسهيل البحث
+        function normalizeArabic(text) {
+            if (!text) return "";
+            return text.replace(/[أإآ]/g, 'ا')
+                       .replace(/ة/g, 'ه')
+                       .replace(/ى/g, 'ي')
+                       .toLowerCase();
+        }
+
         async function initSystem() {
             showLoading(true);
             try {
@@ -286,6 +312,7 @@
                     globalData.absences = data1.records || [];
                     globalData.lates = data1.lates || [];
                     globalData.excuses = data1.excuses || [];
+                    globalData.rosters = data1.rosters || {};
                     
                     buildSearchIndex(data1);
                     populateClassDropdown();
@@ -310,21 +337,38 @@
             searchableStudents = [];
             let classesSet = new Set();
 
-            for (let studentName in data.fullDataMap) {
-                let studentClass = data.fullDataMap[studentName]['الفرقة (الصف)'] || data.fullDataMap[studentName]['الصف'] || "غير محدد";
-                
-                if(studentClass === "غير محدد") {
-                    let foundRecord = data.records.find(r => r.studentName.includes(studentName)) || data.lates.find(l => l.studentName.includes(studentName));
-                    if (foundRecord) studentClass = foundRecord.className;
+            // الطريقة الأولى: بناء القائمة من البيانات الشاملة (لضمان وجود الرقم الشخصي)
+            if (data.fullDataMap && Object.keys(data.fullDataMap).length > 0) {
+                for (let studentName in data.fullDataMap) {
+                    let studentClass = data.fullDataMap[studentName]['الفرقة (الصف)'] || data.fullDataMap[studentName]['الصف'] || "غير محدد";
+                    
+                    if(studentClass === "غير محدد") {
+                        let foundRecord = data.records.find(r => r.studentName.includes(studentName)) || data.lates.find(l => l.studentName.includes(studentName));
+                        if (foundRecord) studentClass = foundRecord.className;
+                    }
+
+                    if(studentClass !== "غير محدد") classesSet.add(studentClass);
+
+                    searchableStudents.push({
+                        name: studentName,
+                        cpr: data.fullDataMap[studentName]['الرقم الشخصي'] || data.fullDataMap[studentName]['رقم الطالب'] || "غير مسجل",
+                        class: studentClass
+                    });
                 }
-
-                if(studentClass !== "غير محدد") classesSet.add(studentClass);
-
-                searchableStudents.push({
-                    name: studentName,
-                    cpr: data.fullDataMap[studentName]['الرقم الشخصي'] || data.fullDataMap[studentName]['رقم الطالب'] || "غير مسجل",
-                    class: studentClass
-                });
+            } 
+            // الطريقة الثانية (طوارئ): بناء القائمة من القوائم المبرمجة لو فشل جلب البيانات الشاملة
+            else if (data.rosters) {
+                for (let className in data.rosters) {
+                    classesSet.add(className);
+                    data.rosters[className].forEach(studentName => {
+                        let cleanName = studentName.replace(/^[\d\s._-]+/, '').trim();
+                        searchableStudents.push({
+                            name: cleanName,
+                            cpr: "سيتم الجلب",
+                            class: className
+                        });
+                    });
+                }
             }
 
             globalData.classesList = Array.from(classesSet).sort();
@@ -348,26 +392,31 @@
         const classSelect = document.getElementById('classSelect');
         const studentSelect = document.getElementById('studentSelect');
 
+        // البحث النصي الذكي المطور (بدون حد أقصى للنتائج)
         searchInput.addEventListener('input', (e) => {
-            const query = e.target.value.trim();
+            const rawQuery = e.target.value.trim();
+            const query = normalizeArabic(rawQuery);
             searchResults.innerHTML = '';
             
             if (query.length > 0) {
                 clearSearchBtn.classList.remove('hidden');
+                
                 const matches = searchableStudents.filter(s => 
-                    s.name.includes(query) || s.cpr.includes(query)
-                ).slice(0, 10);
+                    normalizeArabic(s.name).includes(query) || s.cpr.includes(query)
+                );
 
                 if (matches.length > 0) {
                     searchResults.classList.remove('hidden');
                     matches.forEach(match => {
                         const div = document.createElement('div');
-                        div.className = 'p-3 border-b border-gray-100 hover:bg-primary-50 cursor-pointer flex flex-col transition-colors';
+                        div.className = 'p-4 border-b border-gray-100 hover:bg-primary-50 cursor-pointer flex flex-col transition-colors';
                         div.innerHTML = `
-                            <span class="font-bold text-gray-800 text-sm">${match.name}</span>
-                            <div class="flex justify-between mt-1 text-xs text-gray-500">
-                                <span><i class="fa-solid fa-id-card text-gray-400"></i> ${match.cpr}</span>
-                                <span class="bg-gray-200 px-2 py-0.5 rounded text-gray-700">${match.class}</span>
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-gray-800 text-lg">${match.name}</span>
+                                <span class="bg-primary-100 text-primary-800 font-bold px-3 py-1 rounded-lg text-sm shadow-sm">${match.class}</span>
+                            </div>
+                            <div class="mt-2 text-sm text-gray-500 font-semibold">
+                                <i class="fa-solid fa-id-card text-gray-400"></i> ${match.cpr}
                             </div>
                         `;
                         div.addEventListener('click', () => {
@@ -442,13 +491,12 @@
 
             const cleanName = student.name.replace(/^[\d\s._-]+/, '').trim();
 
-            // === 1. بناء شبكة التفاصيل الشاملة للطباعة المخفية ===
+            // === 1. بناء شبكة التفاصيل الشاملة ===
             const fullDetails = globalData.fullDataMap[cleanName];
             const detailsGrid = document.getElementById('fullDetailsGrid');
             detailsGrid.innerHTML = '';
             
             if(fullDetails) {
-                // الأعمدة المستثناة لأنها موجودة بالترويسة أو غير هامة للعموم
                 const ignoredKeys = ['اسم الطالب', 'الفرقة (الصف)', 'الاسم المدمج للقوائم', 'التسلسل', 'الرقم الشخصي', 'رقم الطالب (مُحدث)', 'حالة القيد']; 
                 
                 for(let key in fullDetails) {
@@ -472,6 +520,7 @@
             
             studentAbsences.forEach(abs => {
                 let currentExcuse = abs.excuseType ? abs.excuseType : "غياب غير مبرر";
+                // نأخذ العذر الأقوى إن وجد بدلا من "غياب غير مبرر"
                 if (!dailyAbsencesMap[abs.date] || (dailyAbsencesMap[abs.date] === "غياب غير مبرر" && currentExcuse !== "غياب غير مبرر")) {
                     dailyAbsencesMap[abs.date] = currentExcuse;
                 }
