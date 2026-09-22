@@ -58,6 +58,10 @@
             .shadow-sm, .shadow-md { box-shadow: none !important; border: 1px solid #e2e8f0; }
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         }
+
+        .match-badge-exact { background:#dcfce7; color:#166534; border:1px solid #86efac; }
+        .match-badge-fuzzy { background:#fef9c3; color:#854d0e; border:1px solid #fde047; }
+        .match-badge-none { background:#fee2e2; color:#991b1b; border:1px solid #fca5a5; }
     </style>
 </head>
 <body class="text-gray-800 antialiased font-sans relative">
@@ -80,6 +84,10 @@
                 </div>
             </div>
             <div class="flex gap-3">
+                <button onclick="openDiagnosticsModal()" class="relative bg-amber-500 hover:bg-amber-600 text-white px-5 py-2 rounded-lg border border-amber-400 transition-colors font-bold shadow-sm flex items-center gap-2">
+                    <i class="fa-solid fa-magnifying-glass-chart"></i> فحص تطابق الأسماء
+                    <span id="unmatchedBadge" class="hidden absolute -top-2 -left-2 bg-red-600 text-white text-xs font-black rounded-full w-6 h-6 flex items-center justify-center border-2 border-white">0</span>
+                </button>
                 <button onclick="openHealthModal()" class="bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-lg border border-red-500 transition-colors font-bold shadow-sm flex items-center gap-2">
                     <i class="fa-solid fa-notes-medical"></i> سجل الحالات الطبية
                 </button>
@@ -157,6 +165,10 @@
                 <div id="healthAlertBadge" class="hidden mb-4 bg-red-100 border border-red-300 text-red-800 px-4 py-2 rounded-lg font-bold flex items-center gap-2 w-fit">
                     <i class="fa-solid fa-notes-medical text-red-600 text-xl"></i>
                     <span>حالة صحية خاصة: <span id="healthAlertText" class="text-red-600">-</span></span>
+                </div>
+
+                <div id="matchTypeBadgeWrap" class="hidden mb-4">
+                    <span id="matchTypeBadge" class="inline-block px-3 py-1 rounded-lg text-xs font-bold border"></span>
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -291,6 +303,46 @@
         </div>
     </div>
 
+    <!-- نافذة منبثقة لتشخيص الأسماء غير المتطابقة -->
+    <div id="diagnosticsModal" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-center items-center backdrop-blur-sm p-4 opacity-0 transition-opacity duration-300">
+        <div class="bg-white w-full max-w-5xl rounded-2xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden transform scale-95 transition-transform duration-300" id="diagnosticsModalContent">
+            <div class="bg-amber-500 p-5 flex justify-between items-center">
+                <h2 class="text-white text-xl font-black flex items-center gap-2">
+                    <i class="fa-solid fa-magnifying-glass-chart"></i> فحص تطابق أسماء الطلاب مع قاعدة البيانات
+                </h2>
+                <button onclick="closeDiagnosticsModal()" class="text-white hover:text-amber-100 transition-colors">
+                    <i class="fa-solid fa-xmark text-2xl"></i>
+                </button>
+            </div>
+            <div class="p-4 bg-amber-50 border-b border-amber-100 text-sm text-amber-800 font-semibold flex items-start gap-2">
+                <i class="fa-solid fa-circle-info mt-0.5"></i>
+                <span>
+                    هذه القائمة تعرض الطلاب الذين لم يتم العثور على رقمهم الشخصي بمطابقة تامة مع أسمائهم في الشيت.
+                    "مطابقة تقريبية" تعني أن النظام وجد اسماً مشابهاً جداً واستخدمه تلقائياً — يُفضّل التحقق منه.
+                    "غير موجود" يعني عدم وجود أي اسم قريب بما يكفي، وقد يكون الاسم في الشيت مكتوباً بشكل مختلف تماماً أو غير مُدخل بعد.
+                </span>
+            </div>
+            <div class="p-6 overflow-y-auto flex-1 bg-gray-50">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-x-auto">
+                    <table class="w-full text-right text-sm">
+                        <thead class="bg-gray-100 text-gray-600 border-b border-gray-200">
+                            <tr>
+                                <th class="p-4 whitespace-nowrap">اسم الطالب (في القائمة)</th>
+                                <th class="p-4 whitespace-nowrap">الصف</th>
+                                <th class="p-4 whitespace-nowrap">حالة المطابقة</th>
+                                <th class="p-4 whitespace-nowrap">نسبة التشابه</th>
+                                <th class="p-4">أقرب اسم موجود في الشيت</th>
+                            </tr>
+                        </thead>
+                        <tbody id="diagnosticsTableBody" class="divide-y divide-gray-100">
+                            <!-- يتم الحقن برمجياً -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="toast" class="fixed bottom-6 left-6 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 transition-all duration-300 opacity-0 translate-y-10 pointer-events-none z-50">
         <i id="toastIcon" class="fa-solid text-2xl"></i>
         <span id="toastMessage" class="font-bold"></span>
@@ -324,9 +376,14 @@
             absences: [],
             excuses: [],
             lates: [],
-            violations: []
+            violations: [],
+            candidateKeys: [],
+            unmatched: []
         };
         let searchableStudents = [];
+
+        // نسبة التشابه اللازمة لقبول مطابقة تقريبية تلقائياً
+        const FUZZY_THRESHOLD = 0.82;
 
         document.addEventListener('DOMContentLoaded', () => {
             const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -334,15 +391,111 @@
             initSystem();
         });
 
-        // دالة الفلترة الذكية للغة العربية لتلافي أخطاء المسافات والهمزات وحرف (ي/ى)
+        // دالة الفلترة الذكية للغة العربية لتلافي أخطاء المسافات والهمزات وحرف (ي/ى) واختلاف الخطوط (عربي/فارسي)
         function normalizeArabic(text) {
             if (!text) return "";
-            return text.replace(/[أإآ]/g, 'ا')
-                       .replace(/ة/g, 'ه')
-                       .replace(/ى/g, 'ي')
-                       .replace(/\s+/g, ' ')
-                       .trim()
-                       .toLowerCase();
+            return text
+                // إزالة التشكيل والتطويل
+                .replace(/[\u064B-\u065F\u0670\u06D6-\u06ED]/g, '')
+                .replace(/\u0640/g, '')
+                // إزالة المسافات غير المرئية (zero-width) التي قد تُنسخ من الشيت
+                .replace(/[\u200B-\u200F\uFEFF]/g, '')
+                // توحيد أشكال الألف والهمزة
+                .replace(/[أإآٱ]/g, 'ا')
+                .replace(/ؤ/g, 'و')
+                .replace(/ئ/g, 'ي')
+                .replace(/ء/g, '')
+                // توحيد التاء المربوطة
+                .replace(/ة/g, 'ه')
+                // توحيد الياء (عربية/فارسية/ألف مقصورة)
+                .replace(/[ىی]/g, 'ي')
+                // توحيد الكاف (عربية/فارسية)
+                .replace(/[کگ]/g, 'ك')
+                // توحيد كل أنواع المسافات (بما فيها nbsp) إلى مسافة واحدة
+                .replace(/\s+/g, ' ')
+                .trim()
+                .toLowerCase();
+        }
+
+        // مسافة ليفنشتاين لحساب مدى التشابه بين نصين
+        function levenshteinDistance(a, b) {
+            const m = a.length, n = b.length;
+            if (m === 0) return n;
+            if (n === 0) return m;
+            let prev = new Array(n + 1);
+            for (let j = 0; j <= n; j++) prev[j] = j;
+            for (let i = 1; i <= m; i++) {
+                let curr = new Array(n + 1);
+                curr[0] = i;
+                for (let j = 1; j <= n; j++) {
+                    curr[j] = (a[i - 1] === b[j - 1])
+                        ? prev[j - 1]
+                        : 1 + Math.min(prev[j - 1], prev[j], curr[j - 1]);
+                }
+                prev = curr;
+            }
+            return prev[n];
+        }
+
+        function similarityScore(a, b) {
+            if (!a || !b) return 0;
+            const maxLen = Math.max(a.length, b.length);
+            if (maxLen === 0) return 1;
+            return 1 - (levenshteinDistance(a, b) / maxLen);
+        }
+
+        // نسبة تطابق الكلمات (مفيدة عند اختلاف ترتيب الأسماء أو وجود اسم إضافي)
+        function tokenOverlapScore(a, b) {
+            const tokensA = a.split(' ').filter(Boolean);
+            const tokensB = b.split(' ').filter(Boolean);
+            if (tokensA.length === 0 || tokensB.length === 0) return 0;
+            const setB = new Set(tokensB);
+            let matched = 0;
+            tokensA.forEach(t => { if (setB.has(t)) matched++; });
+            return matched / Math.max(tokensA.length, tokensB.length);
+        }
+
+        function buildCandidateIndex() {
+            const seen = new Set();
+            globalData.candidateKeys = [];
+            if (globalData.normFullDataMap) {
+                Object.keys(globalData.normFullDataMap).forEach(k => {
+                    if (k && !seen.has(k)) { globalData.candidateKeys.push(k); seen.add(k); }
+                });
+            }
+            if (globalData.normCprMap) {
+                Object.keys(globalData.normCprMap).forEach(k => {
+                    if (k && !seen.has(k)) { globalData.candidateKeys.push(k); seen.add(k); }
+                });
+            }
+        }
+
+        // يحاول إيجاد بيانات الطالب: أولاً بمطابقة تامة، ثم بمطابقة تقريبية كخطة بديلة
+        function getStudentMatch(normName) {
+            if (globalData.normFullDataMap && globalData.normFullDataMap[normName]) {
+                return { matchType: 'exact', matchedKey: normName, score: 1, details: globalData.normFullDataMap[normName] };
+            }
+
+            let directCpr = (globalData.normCprMap && globalData.normCprMap[normName]) ? globalData.normCprMap[normName] : null;
+            if (directCpr) {
+                return { matchType: 'exact', matchedKey: normName, score: 1, details: null, cpr: directCpr };
+            }
+
+            // مطابقة تقريبية عبر كل الأسماء المتوفرة في قاعدة البيانات
+            let bestKey = null, bestScore = 0;
+            (globalData.candidateKeys || []).forEach(key => {
+                const score = Math.max(similarityScore(normName, key), tokenOverlapScore(normName, key));
+                if (score > bestScore) { bestScore = score; bestKey = key; }
+            });
+
+            if (bestKey && bestScore >= FUZZY_THRESHOLD) {
+                const details = globalData.normFullDataMap[bestKey] || null;
+                const cpr = (details && (details['الرقم الشخصي'] || details['رقم الطالب (مُحدث)'] || details['رقم الطالب']))
+                            || (globalData.normCprMap && globalData.normCprMap[bestKey]) || null;
+                return { matchType: 'fuzzy', matchedKey: bestKey, score: bestScore, details, cpr };
+            }
+
+            return { matchType: 'none', matchedKey: null, score: bestScore, suggestion: bestKey, details: null, cpr: null };
         }
 
         async function initSystem() {
@@ -374,7 +527,8 @@
                     globalData.absences = data1.records || [];
                     globalData.lates = data1.lates || [];
                     globalData.excuses = data1.excuses || [];
-                    
+
+                    buildCandidateIndex();
                     buildSearchIndex();
                     populateClassDropdown();
                     showToast("تم مزامنة قاعدة البيانات بنجاح", "success");
@@ -388,6 +542,7 @@
 
             } catch (error) {
                 console.error(error);
+                buildCandidateIndex();
                 buildSearchIndex();
                 populateClassDropdown();
                 showToast("تنبيه: تم جلب الأسماء محلياً. السيرفر لا يستجيب.", "error");
@@ -398,30 +553,118 @@
 
         function buildSearchIndex() {
             searchableStudents = [];
+            globalData.unmatched = [];
             globalData.classesList = Object.keys(HARDCODED_ROSTERS).sort();
 
             for (let className in HARDCODED_ROSTERS) {
                 HARDCODED_ROSTERS[className].forEach(studentName => {
-                    let cleanName = studentName.replace(/^[\d\s._-]+/, '').trim();
+                    let cleanName = studentName.replace(/^[\d\s._-]+/, '').replace(/[\d\s._-]+$/, '').trim();
                     let normName = normalizeArabic(cleanName);
-                    
+
+                    const match = getStudentMatch(normName);
+
                     let cpr = "غير مسجل";
-                    if (globalData.normFullDataMap && globalData.normFullDataMap[normName]) {
-                        cpr = globalData.normFullDataMap[normName]['الرقم الشخصي'] || 
-                              globalData.normFullDataMap[normName]['رقم الطالب (مُحدث)'] || 
-                              globalData.normFullDataMap[normName]['رقم الطالب'] || "غير مسجل";
-                    } else if (globalData.normCprMap && globalData.normCprMap[normName]) {
-                        cpr = globalData.normCprMap[normName];
+                    if (match.matchType === 'exact') {
+                        cpr = (match.details && (match.details['الرقم الشخصي'] ||
+                               match.details['رقم الطالب (مُحدث)'] ||
+                               match.details['رقم الطالب'])) || match.cpr || "غير مسجل";
+                    } else if (match.matchType === 'fuzzy') {
+                        cpr = match.cpr || "غير مسجل";
+                    }
+
+                    if (match.matchType !== 'exact') {
+                        globalData.unmatched.push({
+                            name: cleanName,
+                            class: className,
+                            matchType: match.matchType,
+                            score: Math.round((match.score || 0) * 100),
+                            suggestionKey: match.matchType === 'fuzzy' ? match.matchedKey : (match.suggestion || null)
+                        });
                     }
 
                     searchableStudents.push({
-                        name: cleanName, 
+                        name: cleanName,
                         cpr: cpr,
                         class: className,
-                        normName: normName
+                        normName: normName,
+                        matchType: match.matchType,
+                        matchScore: Math.round((match.score || 0) * 100)
                     });
                 });
             }
+
+            if (globalData.unmatched.length > 0) {
+                console.warn(`⚠️ يوجد ${globalData.unmatched.length} طالب بدون مطابقة تامة مع قاعدة البيانات. اضغط زر "فحص تطابق الأسماء" لعرض التفاصيل.`, globalData.unmatched);
+            }
+            updateUnmatchedBadge();
+        }
+
+        function updateUnmatchedBadge() {
+            const badge = document.getElementById('unmatchedBadge');
+            const count = globalData.unmatched.length;
+            if (count > 0) {
+                badge.textContent = count > 99 ? '99+' : count;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        function findOriginalNameByNormKey(normKey) {
+            if (!normKey) return "-";
+            // نبحث عن الاسم الأصلي (قبل التطبيع) من بيانات الشيت إن توفر ضمن التفاصيل
+            const details = globalData.normFullDataMap[normKey];
+            if (details && details['اسم الطالب']) return details['اسم الطالب'];
+            return normKey;
+        }
+
+        function openDiagnosticsModal() {
+            const modal = document.getElementById('diagnosticsModal');
+            const content = document.getElementById('diagnosticsModalContent');
+            const tbody = document.getElementById('diagnosticsTableBody');
+            tbody.innerHTML = '';
+
+            if (globalData.unmatched.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center text-green-600 font-bold"><i class="fa-solid fa-circle-check mr-2"></i> جميع أسماء الطلاب تمت مطابقتها تماماً مع قاعدة البيانات.</td></tr>`;
+            } else {
+                globalData.unmatched
+                    .slice()
+                    .sort((a, b) => (a.matchType === b.matchType) ? 0 : (a.matchType === 'none' ? -1 : 1))
+                    .forEach(item => {
+                        const isNone = item.matchType === 'none';
+                        const badgeClass = isNone ? 'match-badge-none' : 'match-badge-fuzzy';
+                        const badgeText = isNone ? 'غير موجود' : 'مطابقة تقريبية';
+                        const suggestionName = item.suggestionKey ? findOriginalNameByNormKey(item.suggestionKey) : '-';
+
+                        tbody.innerHTML += `
+                            <tr class="hover:bg-amber-50 transition-colors">
+                                <td class="p-4 font-bold text-gray-800">${item.name}</td>
+                                <td class="p-4"><span class="bg-gray-100 px-2 py-1 rounded border">${item.class}</span></td>
+                                <td class="p-4"><span class="px-2 py-1 rounded-lg text-xs font-bold border ${badgeClass}">${badgeText}</span></td>
+                                <td class="p-4 font-mono">${item.score}%</td>
+                                <td class="p-4 text-gray-600">${suggestionName}</td>
+                            </tr>
+                        `;
+                    });
+            }
+
+            modal.classList.remove('hidden');
+            modal.style.display = 'flex';
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                content.classList.remove('scale-95');
+            }, 10);
+        }
+
+        function closeDiagnosticsModal() {
+            const modal = document.getElementById('diagnosticsModal');
+            const content = document.getElementById('diagnosticsModalContent');
+            modal.classList.add('opacity-0');
+            content.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.style.display = 'none';
+            }, 300);
         }
 
         function populateClassDropdown() {
@@ -517,13 +760,17 @@
                     matches.forEach(match => {
                         const div = document.createElement('div');
                         div.className = 'p-4 border-b border-gray-100 hover:bg-primary-50 cursor-pointer flex flex-col transition-colors';
+                        const warnBadge = match.matchType !== 'exact'
+                            ? `<span class="text-xs font-bold text-amber-600 mr-1"><i class="fa-solid fa-triangle-exclamation"></i> يحتاج تحقق</span>`
+                            : '';
                         div.innerHTML = `
                             <div class="flex justify-between items-center">
                                 <span class="font-bold text-gray-800 text-base">${match.name}</span>
                                 <span class="bg-primary-100 text-primary-800 font-bold px-3 py-1 rounded-lg text-sm shadow-sm whitespace-nowrap">${match.class}</span>
                             </div>
-                            <div class="mt-2 text-xs text-gray-500 font-semibold">
-                                <i class="fa-solid fa-id-card text-gray-400"></i> ${match.cpr}
+                            <div class="mt-2 text-xs text-gray-500 font-semibold flex items-center gap-2">
+                                <span><i class="fa-solid fa-id-card text-gray-400"></i> ${match.cpr}</span>
+                                ${warnBadge}
                             </div>
                         `;
                         div.addEventListener('click', () => {
@@ -567,7 +814,7 @@
                 studentsInClass.forEach(s => {
                     let opt = document.createElement('option');
                     opt.value = s.name;
-                    opt.textContent = s.name;
+                    opt.textContent = s.matchType !== 'exact' ? `${s.name} ⚠️` : s.name;
                     studentSelect.appendChild(opt);
                 });
                 studentSelect.disabled = false;
@@ -602,12 +849,28 @@
             const cardSideColor = document.getElementById('cardSideColor');
             const healthAlertBadge = document.getElementById('healthAlertBadge');
             const healthAlertText = document.getElementById('healthAlertText');
+            const matchTypeBadgeWrap = document.getElementById('matchTypeBadgeWrap');
+            const matchTypeBadge = document.getElementById('matchTypeBadge');
             
             mainProfileCard.classList.remove('bg-red-50', 'border-red-400');
             cardSideColor.classList.replace('bg-red-600', 'bg-primary-600');
             healthAlertBadge.classList.add('hidden');
 
-            const fullDetails = globalData.normFullDataMap[normName];
+            // عرض حالة المطابقة إن لم تكن تامة، لتنبيه المستخدم للتحقق من صحة الرقم
+            if (student.matchType && student.matchType !== 'exact') {
+                matchTypeBadgeWrap.classList.remove('hidden');
+                if (student.matchType === 'fuzzy') {
+                    matchTypeBadge.className = 'inline-block px-3 py-1 rounded-lg text-xs font-bold border match-badge-fuzzy';
+                    matchTypeBadge.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> مطابقة تقريبية (${student.matchScore}%) — يُرجى التحقق من الرقم الشخصي يدوياً`;
+                } else {
+                    matchTypeBadge.className = 'inline-block px-3 py-1 rounded-lg text-xs font-bold border match-badge-none';
+                    matchTypeBadge.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> لم يتم العثور على هذا الاسم في قاعدة البيانات`;
+                }
+            } else {
+                matchTypeBadgeWrap.classList.add('hidden');
+            }
+
+            const fullDetails = globalData.normFullDataMap[normName] || (student.matchType === 'fuzzy' ? getStudentMatch(normName).details : null);
             const detailsGrid = document.getElementById('fullDetailsGrid');
             detailsGrid.innerHTML = '';
             
