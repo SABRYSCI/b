@@ -22,16 +22,13 @@
         input, select, textarea { font-family: inherit; font-size: 18px; border: none; border-bottom: 1px dashed #000; background: transparent; outline: none; text-align: center; color: #000; }
         select { cursor: pointer; }
         
-        /* تعديلات حقول الجدول لتسمح بتعدد الأسطر */
         textarea.action-input { width: 100%; resize: none; border-bottom: 1px dashed #000; padding: 5px; box-sizing: border-box; text-align: right; overflow: hidden; }
-        .notes-area { width: 100%; resize: none; border: 1px dashed #000; padding: 5px; box-sizing: border-box; }
         
         table { width: 100%; border-collapse: collapse; margin-top: 20px; margin-bottom: 20px; table-layout: fixed; }
         th, td { border: 1px solid #000; padding: 10px 5px; text-align: center; vertical-align: middle; }
         th { background-color: #f9f9f9; }
         
-        /* تصغير خط التاريخ ليتسع للنص وتوسيع الأعمدة */
-        .v-date { font-size: 15px !important; width: 100% !important; border-bottom: none; }
+        .v-date { font-size: 15px !important; width: 100% !important; border-bottom: none; cursor: text; }
 
         @media print {
             @page { margin: 0; size: A4; }
@@ -92,21 +89,22 @@
                     <td>الأولى</td>
                     <td><textarea id="v1_type" class="action-input v-input" rows="2" placeholder="اكتب هنا..."></textarea></td>
                     <td><textarea id="v1_action" class="action-input v-input" rows="2" placeholder="اكتب هنا..."></textarea></td>
-                    <td><input type="text" id="v1_date" class="text-center v-date" readonly></td>
+                    <!-- تم إزالة readonly لتتمكن من تعديل الحصة والتاريخ يدوياً -->
+                    <td><input type="text" id="v1_date" class="text-center v-date"></td>
                     <td></td>
                 </tr>
                 <tr data-index="2">
                     <td>الثانية</td>
                     <td><textarea id="v2_type" class="action-input v-input" rows="2" placeholder="اكتب هنا..."></textarea></td>
                     <td><textarea id="v2_action" class="action-input v-input" rows="2" placeholder="اكتب هنا..."></textarea></td>
-                    <td><input type="text" id="v2_date" class="text-center v-date" readonly></td>
+                    <td><input type="text" id="v2_date" class="text-center v-date"></td>
                     <td></td>
                 </tr>
                 <tr data-index="3">
                     <td>الثالثة</td>
                     <td><textarea id="v3_type" class="action-input v-input" rows="2" placeholder="اكتب هنا..."></textarea></td>
                     <td><textarea id="v3_action" class="action-input v-input" rows="2" placeholder="اكتب هنا..."></textarea></td>
-                    <td><input type="text" id="v3_date" class="text-center v-date" readonly></td>
+                    <td><input type="text" id="v3_date" class="text-center v-date"></td>
                     <td></td>
                 </tr>
             </tbody>
@@ -115,25 +113,23 @@
         <div style="display: flex; gap: 15px; align-items: center; margin-top: 20px;">
             <div>
                 تاريخ تحويل الطالب إلى المشرف الإداري:
-                اليوم (<input type="text" id="refDay" style="width: 60px;" readonly>)
-                التاريخ: <input type="text" id="refDate" style="width: 100px;" readonly>
+                اليوم (<input type="text" id="refDay" style="width: 60px;">)
+                التاريخ: <input type="text" id="refDate" style="width: 100px;">
             </div>
             <div>
-                الحصة: <input type="text" id="refPeriod" style="width: 70px;" readonly>
+                <!-- تم إزالة readonly لتتمكن من تعديل حصة التحويل يدوياً -->
+                الحصة: <input type="text" id="refPeriod" style="width: 70px;">
             </div>
         </div>
 
-        <div class="mt-20">
-            <p>❖ ملاحظات:</p>
-            <textarea id="notes" class="notes-area" rows="2" placeholder="اكتب ملاحظاتك هنا..."></textarea>
-        </div>
+        <!-- تم حذف الملاحظات من هنا -->
 
         <p class="mt-20" style="line-height: 1.6;">
             ونحن عندما نبلغكم ذلك فأملنا كبير في أن نتعاون معاً لتلافي جوانب التقصير عند الطالب في المستقبل، حرصاً على مستقبله الدراسي و الأخلاقي .
         </p>
         <p>والسلام عليكم ورحمة الله وبركاته</p>
 
-        <div style="display: flex; justify-content: space-between; margin-top: 40px;">
+        <div style="display: flex; justify-content: space-between; margin-top: 20px;">
             <div>اسم المعلم: <input type="text" value="أ. صبري محمد حمد" style="width: 180px; text-align: right;"></div>
             <div>التوقيع: ............................</div>
         </div>
@@ -276,7 +272,6 @@
                     document.getElementById('refDay').value = data.refDay || '';
                     document.getElementById('refDate').value = data.refDate || '';
                     document.getElementById('refPeriod').value = data.refPeriod || '';
-                    document.getElementById('notes').value = data.notes || '';
                     
                     statusMsg.textContent = "تم استرجاع السجل";
                 } else {
@@ -300,7 +295,7 @@
                 v2_type: document.getElementById('v2_type').value, v2_action: document.getElementById('v2_action').value, v2_date: document.getElementById('v2_date').value,
                 v3_type: document.getElementById('v3_type').value, v3_action: document.getElementById('v3_action').value, v3_date: document.getElementById('v3_date').value,
                 refDay: document.getElementById('refDay').value, refDate: document.getElementById('refDate').value, refPeriod: document.getElementById('refPeriod').value,
-                notes: document.getElementById('notes').value
+                notes: "" // تم إرسال نص فارغ بدلاً من الملاحظات حتى لا يتعطل حفظ Google Sheets
             };
 
             statusMsg.textContent = "جاري الحفظ...";
@@ -320,7 +315,7 @@
         });
 
         function clearForm() {
-            const inputs = document.querySelectorAll('.action-input, .notes-area, #refDay, #refDate, #refPeriod');
+            const inputs = document.querySelectorAll('.action-input, #refDay, #refDate, #refPeriod');
             inputs.forEach(input => input.value = '');
             const dates = document.querySelectorAll('.v-date');
             dates.forEach(input => input.value = '');
