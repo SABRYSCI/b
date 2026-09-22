@@ -48,7 +48,7 @@
         }
         @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* إعدادات الطباعة الاحترافية */
+        /* إعدادات الطباعة */
         @media print {
             body { background: white; }
             .print-hidden { display: none !important; }
@@ -60,7 +60,7 @@
         }
     </style>
 </head>
-<body class="text-gray-800 antialiased font-sans">
+<body class="text-gray-800 antialiased font-sans relative">
 
     <!-- شاشة التحميل -->
     <div id="loadingOverlay">
@@ -70,7 +70,7 @@
     </div>
 
     <!-- الهيدر الرئيسي -->
-    <header class="bg-primary-900 text-white shadow-md print-hidden sticky top-0 z-50">
+    <header class="bg-primary-900 text-white shadow-md print-hidden sticky top-0 z-40">
         <div class="container mx-auto px-4 py-4 flex flex-col md:flex-row items-center justify-between gap-4">
             <div class="flex items-center gap-4">
                 <div class="bg-white text-primary-900 p-3 rounded-xl shadow-inner">
@@ -81,9 +81,14 @@
                     <p class="text-primary-100 text-sm">مدرسة البلاد القديم الابتدائية الإعدادية للبنين</p>
                 </div>
             </div>
-            <div class="flex items-center gap-3 bg-primary-800 px-5 py-2 rounded-lg border border-primary-700">
-                <i class="fa-solid fa-calendar-check text-primary-100"></i>
-                <span class="font-semibold text-sm">العام الدراسي 2026 - 2027</span>
+            <div class="flex gap-3">
+                <button onclick="openHealthModal()" class="bg-red-600 hover:bg-red-700 text-white px-5 py-2 rounded-lg border border-red-500 transition-colors font-bold shadow-sm flex items-center gap-2">
+                    <i class="fa-solid fa-notes-medical"></i> سجل الحالات الطبية
+                </button>
+                <div class="flex items-center gap-3 bg-primary-800 px-5 py-2 rounded-lg border border-primary-700">
+                    <i class="fa-solid fa-calendar-check text-primary-100"></i>
+                    <span class="font-semibold text-sm">العام الدراسي 2026 - 2027</span>
+                </div>
             </div>
         </div>
     </header>
@@ -91,7 +96,7 @@
     <main class="container mx-auto px-4 py-8">
         
         <!-- قسم البحث -->
-        <section class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-8 print-hidden">
+        <section class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-8 print-hidden relative z-30">
             <h2 class="text-xl font-bold text-gray-800 mb-6 border-b pb-3 flex items-center gap-2">
                 <i class="fa-solid fa-magnifying-glass text-primary-600"></i> البحث الشامل
             </h2>
@@ -108,7 +113,6 @@
                             <i class="fa-solid fa-times"></i>
                         </button>
                     </div>
-                    <!-- نتائج البحث -->
                     <div id="searchResults" class="absolute z-50 w-full bg-white border border-gray-200 rounded-xl shadow-2xl mt-2 hidden max-h-96 overflow-y-auto"></div>
                 </div>
 
@@ -135,44 +139,50 @@
             </div>
         </section>
 
-        <!-- ترويسة الطباعة المخفية -->
+        <!-- ترويسة الطباعة -->
         <div class="hidden print-only mb-8 border-b-4 border-gray-800 pb-6 text-center">
             <h1 class="text-3xl font-black mb-2">تقرير الطالب الشامل</h1>
             <h2 class="text-xl text-gray-600">مدرسة البلاد القديم الابتدائية الإعدادية للبنين</h2>
             <p class="text-gray-500 mt-2 font-semibold" id="printDate"></p>
         </div>
 
-        <!-- ملف الطالب (مخفي افتراضياً) -->
+        <!-- ملف الطالب -->
         <section id="studentProfile" class="hidden animate-[fadeIn_0.5s_ease-out]">
             
-            <!-- أزرار الإجراءات -->
             <div class="flex flex-wrap justify-between items-center mb-6 print-hidden gap-4">
                 <h2 class="text-2xl font-black text-gray-800 border-r-4 border-primary-600 pr-3">الملف الإلكتروني للطالب</h2>
                 <button onclick="window.print()" class="bg-gray-800 hover:bg-black text-white px-5 py-2.5 rounded-xl shadow-md transition-all flex items-center gap-2 font-bold">
-                    <i class="fa-solid fa-print"></i> طباعة التقرير (متغيرات فقط)
+                    <i class="fa-solid fa-print"></i> طباعة التقرير
                 </button>
             </div>
 
-            <!-- البطاقة الأساسية (تظهر في الطباعة) -->
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-8 print-break-inside-avoid relative overflow-hidden">
-                <div class="absolute top-0 right-0 w-2 h-full bg-primary-600"></div>
+            <!-- البطاقة الأساسية للطالب (تتلون باللون الأحمر إذا كان مريضاً) -->
+            <div id="mainProfileCard" class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-8 print-break-inside-avoid relative overflow-hidden transition-colors duration-300">
+                <div id="cardSideColor" class="absolute top-0 right-0 w-2 h-full bg-primary-600"></div>
+                
+                <!-- شريط التنبيه الطبي (مخفي افتراضياً) -->
+                <div id="healthAlertBadge" class="hidden mb-4 bg-red-100 border border-red-300 text-red-800 px-4 py-2 rounded-lg font-bold flex items-center gap-2 w-fit">
+                    <i class="fa-solid fa-notes-medical text-red-600 text-xl"></i>
+                    <span>حالة صحية خاصة: <span id="healthAlertText" class="text-red-600">-</span></span>
+                </div>
+
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     <div class="lg:col-span-2">
                         <p class="text-sm font-bold text-gray-400 mb-1">الاسم الرباعي</p>
-                        <p class="font-black text-2xl text-primary-900" id="profileName">-</p>
+                        <p class="font-black text-2xl text-gray-900" id="profileName">-</p>
                     </div>
                     <div>
                         <p class="text-sm font-bold text-gray-400 mb-1">الفرقة / الصف</p>
-                        <span class="inline-block bg-primary-100 text-primary-800 font-bold px-3 py-1 rounded-lg text-lg" id="profileClass">-</span>
+                        <span class="inline-block bg-white/50 text-gray-800 font-bold px-3 py-1 rounded-lg border border-gray-300 text-lg shadow-sm" id="profileClass">-</span>
                     </div>
                     <div>
                         <p class="text-sm font-bold text-gray-400 mb-1">الرقم الشخصي</p>
-                        <p class="font-bold text-xl text-gray-700 font-mono tracking-wider bg-gray-50 inline-block px-3 py-1 rounded-lg border" id="profileCpr">-</p>
+                        <p class="font-bold text-xl text-gray-700 font-mono tracking-wider bg-white/50 inline-block px-3 py-1 rounded-lg border border-gray-300 shadow-sm" id="profileCpr">-</p>
                     </div>
                 </div>
             </div>
 
-            <!-- التفاصيل الإضافية لجميع أعمدة قاعدة البيانات (مخفية في الطباعة) -->
+            <!-- التفاصيل الشاملة من قاعدة البيانات -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-8 print-hidden">
                 <h3 class="text-lg font-black text-gray-700 mb-4 border-b pb-3 flex items-center gap-2">
                     <i class="fa-solid fa-address-card text-primary-500"></i> التفاصيل الشاملة من قاعدة البيانات
@@ -182,9 +192,8 @@
                 </div>
             </div>
 
-            <!-- سجلات الحضور والسلوك (تظهر في الطباعة) -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-                
+                <!-- سجل الغياب -->
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-200 flex flex-col print-break-inside-avoid">
                     <div class="bg-red-50 p-4 rounded-t-2xl border-b border-red-100 flex justify-between items-center">
                         <h3 class="text-lg font-black text-red-700 flex items-center gap-2">
@@ -207,6 +216,7 @@
                     </div>
                 </div>
 
+                <!-- سجل التأخير -->
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-200 flex flex-col print-break-inside-avoid">
                     <div class="bg-orange-50 p-4 rounded-t-2xl border-b border-orange-100 flex justify-between items-center">
                         <h3 class="text-lg font-black text-orange-700 flex items-center gap-2">
@@ -228,9 +238,9 @@
                         </table>
                     </div>
                 </div>
-
             </div>
 
+            <!-- سجل المخالفات -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-200 flex flex-col mb-8 print-break-inside-avoid">
                 <div class="bg-purple-50 p-4 rounded-t-2xl border-b border-purple-100 flex justify-between items-center">
                     <h3 class="text-lg font-black text-purple-700 flex items-center gap-2">
@@ -254,11 +264,40 @@
                     </table>
                 </div>
             </div>
-
         </section>
     </main>
 
-    <!-- توست الإشعارات -->
+    <!-- نافذة منبثقة (Modal) للحالات الطبية -->
+    <div id="healthModal" class="fixed inset-0 bg-black/60 z-50 hidden flex-col justify-center items-center backdrop-blur-sm p-4 opacity-0 transition-opacity duration-300">
+        <div class="bg-white w-full max-w-4xl rounded-2xl shadow-2xl flex flex-col max-h-[90vh] overflow-hidden transform scale-95 transition-transform duration-300" id="healthModalContent">
+            <div class="bg-red-600 p-5 flex justify-between items-center">
+                <h2 class="text-white text-xl font-black flex items-center gap-2">
+                    <i class="fa-solid fa-file-medical"></i> سجل الحالات الطبية للطلاب
+                </h2>
+                <button onclick="closeHealthModal()" class="text-white hover:text-red-200 transition-colors">
+                    <i class="fa-solid fa-xmark text-2xl"></i>
+                </button>
+            </div>
+            <div class="p-6 overflow-y-auto flex-1 bg-gray-50">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-x-auto">
+                    <table class="w-full text-right text-sm">
+                        <thead class="bg-gray-100 text-gray-600 border-b border-gray-200">
+                            <tr>
+                                <th class="p-4 whitespace-nowrap">اسم الطالب</th>
+                                <th class="p-4 whitespace-nowrap">الصف</th>
+                                <th class="p-4 whitespace-nowrap">الرقم الشخصي</th>
+                                <th class="p-4">الحالة الصحية / المرض</th>
+                            </tr>
+                        </thead>
+                        <tbody id="healthModalTableBody" class="divide-y divide-gray-100">
+                            <!-- يتم الحقن برمجياً -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="toast" class="fixed bottom-6 left-6 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 transition-all duration-300 opacity-0 translate-y-10 pointer-events-none z-50">
         <i id="toastIcon" class="fa-solid text-2xl"></i>
         <span id="toastMessage" class="font-bold"></span>
@@ -270,7 +309,7 @@
         // ==========================================
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxlJnpJN9y9h04cOswtY3BGGwUS8rhybOisxDFkIQJ6_9nFSPMJeK-wiuFEECnBY3v5/exec"; 
         
-        // قوائم المدرسة الرسمية (مدمجة هنا لضمان عمل البحث دائماً مهما حدث للسيرفر)
+        // قوائم المدرسة (كخطة بديلة للبحث)
         const HARDCODED_ROSTERS = {
           "سادس ابتدائي 1": ["ابراهيم على خليل الحايكي", "السيد حسن صالح الموسوي", "السيد علوي ابراهيم ناصر حسن", "السيد هاشم مجيد فيصل محمد", "إيليا سعيد حسن حسن", "حسن على ميرزا خليل", "حسین اسامه عبد الجليل الجشي", "حسين عمار جاسم الاسكافي", "حيدر على ابراهيم حسن", "سيد صادق جعفر على ناصر", "سيد حامد حسین محمد درویش", "صادق على عبدالله اسماعيل", "عبد العزيز جلال عبد العزيز حاجی عبدالله", "عبدالله حسین عبدالله مال الله", "عبدالله على عباس شاهين", "على حسين على عبد على", "على عيسى ابراهيم الستراوي", "على قاسم عباس حسن", "عمار محمد عبد الامير الحصار", "غسان مهند عقيل مرهون", "قاسم جابر جاسم منصور", "قاسم محمد احمد حسن", "ليث محمود مسعود الوطني", "محمد صالح شوقي البناء", "محمد عباس خميس السودان", "نوح زهير عبد الوهاب غزوان", "يوسف كاظم محمد الحايكي"],
           "سادس ابتدائي 2": ["احمد مهدي احمد احمد", "آدم على عبدالله عبد النبي", "السيد على حسين جعفر على شرف", "السيد يوسف احمد على الموسوي", "أمير مالك حبيب التوبلي", "جاسم محمد حميد السباع", "جواد جاسم جواد عبدالله", "حامد يوسف احمد يحيى", "حبيب حسین میرزا اسماعیل", "حسین عباس عبدالله مرهون", "حسين على احمد عيسى", "حسين علي حسن طاهر", "حيدر عبد الحسين احمد على", "رضا على مهدي على", "رضا میرزا خلف شعبان", "عباس احمد محسن العلواني", "عبدالله حميد عبد الرسول احمد", "على حسن جاسم حسن", "على عبد العزيز عبد الكريم الشيخ حسن", "على عبد الكريم على محمد", "کرار حسین احمد حسين", "ماجد يوسف احمد يحيى", "محمد احمد حسن احمد", "محمد عبد علي سعيد الغنامي", "مهدي جواد احمد مليح"],
@@ -306,13 +345,9 @@
             initSystem();
         });
 
-        // دالة لمعالجة النصوص العربية لجعل البحث مرناً وذكياً
         function normalizeArabic(text) {
             if (!text) return "";
-            return text.replace(/[أإآ]/g, 'ا')
-                       .replace(/ة/g, 'ه')
-                       .replace(/ى/g, 'ي')
-                       .toLowerCase();
+            return text.replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي').toLowerCase();
         }
 
         async function initSystem() {
@@ -334,7 +369,7 @@
                     
                     buildSearchIndex();
                     populateClassDropdown();
-                    showToast("تم مزامنة قاعدة البيانات بنجاح", "success");
+                    showToast("تم جلب البيانات وتحديثها بنجاح", "success");
                 } else {
                     throw new Error(data1.message || "فشل جلب البيانات الأساسية");
                 }
@@ -345,16 +380,14 @@
 
             } catch (error) {
                 console.error(error);
-                // حتى لو فشل الاتصال، نبني البحث من القوائم المدمجة (لن يتعطل البحث أبداً)
                 buildSearchIndex();
                 populateClassDropdown();
-                showToast("حدث خطأ في الاتصال، يتم عرض القوائم المخزنة محلياً.", "error");
+                showToast("تنبيه: تم جلب الأسماء محلياً. قد تكون البيانات الشاملة غير متزامنة.", "error");
             } finally {
                 showLoading(false);
             }
         }
 
-        // بناء الفهرس بالاعتماد الكامل على القوائم المدمجة (HARDCODED_ROSTERS) لضمان الاستقرار
         function buildSearchIndex() {
             searchableStudents = [];
             globalData.classesList = Object.keys(HARDCODED_ROSTERS).sort();
@@ -362,26 +395,20 @@
             for (let className in HARDCODED_ROSTERS) {
                 HARDCODED_ROSTERS[className].forEach(studentName => {
                     let cleanName = studentName.replace(/^[\d\s._-]+/, '').trim();
-                    
                     let cpr = "غير مسجل";
                     if (globalData.fullDataMap && globalData.fullDataMap[cleanName]) {
                         cpr = globalData.fullDataMap[cleanName]['الرقم الشخصي'] || globalData.fullDataMap[cleanName]['رقم الطالب (مُحدث)'] || globalData.fullDataMap[cleanName]['رقم الطالب'] || "غير مسجل";
                     } else if (globalData.cprMap && globalData.cprMap[cleanName]) {
                         cpr = globalData.cprMap[cleanName];
                     }
-
-                    searchableStudents.push({
-                        name: cleanName,
-                        cpr: cpr,
-                        class: className
-                    });
+                    searchableStudents.push({ name: cleanName, cpr: cpr, class: className });
                 });
             }
         }
 
         function populateClassDropdown() {
             const classSelect = document.getElementById('classSelect');
-            classSelect.innerHTML = '<option value="">-- كل الصفوف --</option>'; // تفريغ
+            classSelect.innerHTML = '<option value="">-- كل الصفوف --</option>';
             globalData.classesList.forEach(cls => {
                 let opt = document.createElement('option');
                 opt.value = cls;
@@ -390,13 +417,73 @@
             });
         }
 
+        // =======================
+        // نافذة السجل الطبي
+        // =======================
+        function openHealthModal() {
+            const modal = document.getElementById('healthModal');
+            const content = document.getElementById('healthModalContent');
+            const tbody = document.getElementById('healthModalTableBody');
+            tbody.innerHTML = '';
+
+            let sickStudentsCount = 0;
+
+            if (globalData.fullDataMap && Object.keys(globalData.fullDataMap).length > 0) {
+                for (let studentName in globalData.fullDataMap) {
+                    let details = globalData.fullDataMap[studentName];
+                    let healthStatus = details['الحالة الصحية للطالب']; 
+                    
+                    if (healthStatus && healthStatus.trim() !== '' && healthStatus.trim() !== 'سليم') {
+                        sickStudentsCount++;
+                        let studentClass = details['الفرقة (الصف)'] || details['الصف'] || "-";
+                        let cpr = details['الرقم الشخصي'] || "-";
+                        let diseases = details['الامراض التي يعاني منها الطالب'] || "-";
+                        
+                        let displayDisease = diseases !== "-" ? `${healthStatus} (${diseases})` : healthStatus;
+
+                        tbody.innerHTML += `
+                            <tr class="hover:bg-red-50 transition-colors">
+                                <td class="p-4 font-bold text-gray-800">${studentName}</td>
+                                <td class="p-4"><span class="bg-gray-100 px-2 py-1 rounded border">${studentClass}</span></td>
+                                <td class="p-4 font-mono">${cpr}</td>
+                                <td class="p-4 text-red-600 font-bold">${displayDisease}</td>
+                            </tr>
+                        `;
+                    }
+                }
+            }
+
+            if (sickStudentsCount === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" class="p-6 text-center text-gray-500 font-bold">لا توجد حالات طبية مسجلة في قاعدة البيانات المحدثة أو السيرفر غير متصل.</td></tr>`;
+            }
+
+            modal.classList.remove('hidden');
+            modal.style.display = 'flex';
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                content.classList.remove('scale-95');
+            }, 10);
+        }
+
+        function closeHealthModal() {
+            const modal = document.getElementById('healthModal');
+            const content = document.getElementById('healthModalContent');
+            
+            modal.classList.add('opacity-0');
+            content.classList.add('scale-95');
+            
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.style.display = 'none';
+            }, 300);
+        }
+
         const searchInput = document.getElementById('searchInput');
         const searchResults = document.getElementById('searchResults');
         const clearSearchBtn = document.getElementById('clearSearch');
         const classSelect = document.getElementById('classSelect');
         const studentSelect = document.getElementById('studentSelect');
 
-        // البحث المطور بمرونة اللغة العربية
         searchInput.addEventListener('input', (e) => {
             const rawQuery = e.target.value.trim();
             const query = normalizeArabic(rawQuery);
@@ -404,10 +491,7 @@
             
             if (query.length > 0) {
                 clearSearchBtn.classList.remove('hidden');
-                
-                const matches = searchableStudents.filter(s => 
-                    normalizeArabic(s.name).includes(query) || s.cpr.includes(query)
-                );
+                const matches = searchableStudents.filter(s => normalizeArabic(s.name).includes(query) || s.cpr.includes(query));
 
                 if (matches.length > 0) {
                     searchResults.classList.remove('hidden');
@@ -458,9 +542,7 @@
             studentSelect.innerHTML = '<option value="">-- اختر الطالب --</option>';
             
             if (selectedClass) {
-                const studentsInClass = searchableStudents.filter(s => s.class === selectedClass)
-                                        .sort((a,b) => a.name.localeCompare(b.name, 'ar'));
-                
+                const studentsInClass = searchableStudents.filter(s => s.class === selectedClass).sort((a,b) => a.name.localeCompare(b.name, 'ar'));
                 studentsInClass.forEach(s => {
                     let opt = document.createElement('option');
                     opt.value = s.name;
@@ -494,23 +576,53 @@
             document.getElementById('profileCpr').textContent = student.cpr;
 
             const cleanName = student.name.replace(/^[\d\s._-]+/, '').trim();
-
-            // === 1. بناء شبكة التفاصيل الشاملة (مخفية بالطباعة) ===
             const fullDetails = globalData.fullDataMap[cleanName];
+            
+            // 🔴 منطق الحالة الصحية 🔴
+            const mainProfileCard = document.getElementById('mainProfileCard');
+            const cardSideColor = document.getElementById('cardSideColor');
+            const healthAlertBadge = document.getElementById('healthAlertBadge');
+            const healthAlertText = document.getElementById('healthAlertText');
+            
+            // إعادة ضبط الألوان للوضع الافتراضي
+            mainProfileCard.classList.remove('bg-red-50', 'border-red-400');
+            cardSideColor.classList.replace('bg-red-600', 'bg-primary-600');
+            healthAlertBadge.classList.add('hidden');
+
             const detailsGrid = document.getElementById('fullDetailsGrid');
             detailsGrid.innerHTML = '';
             
             if(fullDetails && Object.keys(fullDetails).length > 0) {
-                const ignoredKeys = ['م', 'اسم الطالب', 'الفرقة (الصف)', 'الاسم المدمج للقوائم', 'التسلسل', 'الرقم الشخصي', 'رقم الطالب (مُحدث)', 'حالة القيد']; 
                 
+                // فحص الحالة الصحية في العمود AF
+                const healthStatus = fullDetails['الحالة الصحية للطالب'];
+                const diseases = fullDetails['الامراض التي يعاني منها الطالب'];
+                
+                if (healthStatus && healthStatus.trim() !== '' && healthStatus.trim() !== 'سليم') {
+                    mainProfileCard.classList.add('bg-red-50', 'border-red-400');
+                    cardSideColor.classList.replace('bg-primary-600', 'bg-red-600');
+                    healthAlertBadge.classList.remove('hidden');
+                    
+                    if (diseases && diseases.trim() !== '') {
+                        healthAlertText.textContent = `${healthStatus} - يعاني من: ${diseases}`;
+                    } else {
+                        healthAlertText.textContent = healthStatus;
+                    }
+                }
+
+                // عرض بقية البيانات والتفاصيل الشاملة
+                const ignoredKeys = ['م', 'اسم الطالب', 'الفرقة (الصف)', 'الاسم المدمج للقوائم', 'التسلسل', 'الرقم الشخصي', 'رقم الطالب (مُحدث)', 'حالة القيد']; 
                 for(let key in fullDetails) {
                     let value = fullDetails[key];
                     if(ignoredKeys.includes(key) || !value || value.trim() === '') continue;
                     
+                    let textColorClass = "text-gray-800";
+                    if (key === 'الحالة الصحية للطالب' && value !== 'سليم') textColorClass = "text-red-600 font-black";
+
                     detailsGrid.innerHTML += `
                         <div class="bg-gray-50 p-3 rounded-xl border border-gray-100 flex flex-col justify-center">
                             <p class="text-xs font-bold text-gray-400 mb-1">${key}</p>
-                            <p class="font-bold text-gray-800 text-sm">${value}</p>
+                            <p class="font-bold text-sm ${textColorClass}">${value}</p>
                         </div>
                     `;
                 }
@@ -518,10 +630,9 @@
                      detailsGrid.innerHTML = '<div class="col-span-full p-4 text-center text-gray-400 font-bold">لا توجد بيانات تفصيلية إضافية لهذا الطالب</div>';
                 }
             } else {
-                detailsGrid.innerHTML = '<div class="col-span-full p-4 text-center text-gray-400 font-bold">لا توجد بيانات تفصيلية إضافية</div>';
+                detailsGrid.innerHTML = '<div class="col-span-full p-4 text-center text-gray-400 font-bold">يرجى التأكد من اتصال السيرفر لجلب التفاصيل الشاملة (البيانات تظهر فارغة حالياً).</div>';
             }
 
-            // === 2. تجميع الغياب (حساب اليوم مرة واحدة فقط) ===
             let dailyAbsencesMap = {};
             let studentAbsences = globalData.absences.filter(r => r.studentName.includes(cleanName));
             
@@ -541,11 +652,9 @@
                 return { date: date, details: dailyAbsencesMap[date] };
             });
 
-            // === 3. تجميع التأخير والمخالفات ===
             let studentLates = globalData.lates.filter(l => l.studentName.includes(cleanName));
             let studentViolations = globalData.violations.filter(v => v.studentName.includes(cleanName));
 
-            // عرض الجداول
             document.getElementById('absencesCount').textContent = combinedAbsences.length;
             renderTable('absencesTable', combinedAbsences, ['date', 'details'], "حضور منتظم (لا توجد غيابات)");
 
