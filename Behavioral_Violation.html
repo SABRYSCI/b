@@ -21,15 +21,17 @@
         
         input, select, textarea { font-family: inherit; font-size: 18px; border: none; border-bottom: 1px dashed #000; background: transparent; outline: none; text-align: center; color: #000; }
         select { cursor: pointer; }
-        textarea { width: 100%; resize: none; border: 1px dashed #000; padding: 5px; box-sizing: border-box; }
         
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; margin-bottom: 20px; }
-        th, td { border: 1px solid #000; padding: 12px 8px; text-align: center; }
+        /* تعديلات حقول الجدول لتسمح بتعدد الأسطر */
+        textarea.action-input { width: 100%; resize: none; border-bottom: 1px dashed #000; padding: 5px; box-sizing: border-box; text-align: right; overflow: hidden; }
+        .notes-area { width: 100%; resize: none; border: 1px dashed #000; padding: 5px; box-sizing: border-box; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; margin-bottom: 20px; table-layout: fixed; }
+        th, td { border: 1px solid #000; padding: 10px 5px; text-align: center; vertical-align: middle; }
         th { background-color: #f9f9f9; }
-        .action-input { width: 95%; border-bottom: none; text-align: right; }
         
-        /* تصغير خط التاريخ ليتسع للنص الجديد (اليوم والحصة والتاريخ) */
-        .v-date { font-size: 15px !important; width: 100% !important; }
+        /* تصغير خط التاريخ ليتسع للنص وتوسيع الأعمدة */
+        .v-date { font-size: 15px !important; width: 100% !important; border-bottom: none; }
 
         @media print {
             @page { margin: 0; size: A4; }
@@ -39,7 +41,7 @@
             input, select, textarea { border-bottom: none !important; border: none !important; appearance: none; -webkit-appearance: none; }
             textarea { padding: 0; }
             select { background-image: none; }
-            input::placeholder { color: transparent; }
+            input::placeholder, textarea::placeholder { color: transparent; }
         }
     </style>
 </head>
@@ -78,33 +80,33 @@
         <table id="violationsTable">
             <thead>
                 <tr>
-                    <th style="width: 10%;">تسلسل المخالفة</th>
-                    <th style="width: 25%;">نوع المخالفة</th>
-                    <th style="width: 40%;">إجراءات المعلم</th>
-                    <th style="width: 15%;">تاريخ المخالفة</th>
-                    <th style="width: 10%;">توقيع الطالب</th>
+                    <th style="width: 8%;">تسلسل المخالفة</th>
+                    <th style="width: 26%;">نوع المخالفة</th>
+                    <th style="width: 35%;">إجراءات المعلم</th>
+                    <th style="width: 19%;">تاريخ المخالفة</th>
+                    <th style="width: 12%;">توقيع الطالب</th>
                 </tr>
             </thead>
             <tbody>
                 <tr data-index="1">
                     <td>الأولى</td>
-                    <td><input type="text" id="v1_type" class="action-input v-input"></td>
-                    <td><input type="text" id="v1_action" class="action-input v-input"></td>
-                    <td><input type="text" id="v1_date" class="action-input text-center v-date" readonly></td>
+                    <td><textarea id="v1_type" class="action-input v-input" rows="2" placeholder="اكتب هنا..."></textarea></td>
+                    <td><textarea id="v1_action" class="action-input v-input" rows="2" placeholder="اكتب هنا..."></textarea></td>
+                    <td><input type="text" id="v1_date" class="text-center v-date" readonly></td>
                     <td></td>
                 </tr>
                 <tr data-index="2">
                     <td>الثانية</td>
-                    <td><input type="text" id="v2_type" class="action-input v-input"></td>
-                    <td><input type="text" id="v2_action" class="action-input v-input"></td>
-                    <td><input type="text" id="v2_date" class="action-input text-center v-date" readonly></td>
+                    <td><textarea id="v2_type" class="action-input v-input" rows="2" placeholder="اكتب هنا..."></textarea></td>
+                    <td><textarea id="v2_action" class="action-input v-input" rows="2" placeholder="اكتب هنا..."></textarea></td>
+                    <td><input type="text" id="v2_date" class="text-center v-date" readonly></td>
                     <td></td>
                 </tr>
                 <tr data-index="3">
                     <td>الثالثة</td>
-                    <td><input type="text" id="v3_type" class="action-input v-input"></td>
-                    <td><input type="text" id="v3_action" class="action-input v-input"></td>
-                    <td><input type="text" id="v3_date" class="action-input text-center v-date" readonly></td>
+                    <td><textarea id="v3_type" class="action-input v-input" rows="2" placeholder="اكتب هنا..."></textarea></td>
+                    <td><textarea id="v3_action" class="action-input v-input" rows="2" placeholder="اكتب هنا..."></textarea></td>
+                    <td><input type="text" id="v3_date" class="text-center v-date" readonly></td>
                     <td></td>
                 </tr>
             </tbody>
@@ -123,7 +125,7 @@
 
         <div class="mt-20">
             <p>❖ ملاحظات:</p>
-            <textarea id="notes" rows="2" placeholder="اكتب ملاحظاتك هنا..."></textarea>
+            <textarea id="notes" class="notes-area" rows="2" placeholder="اكتب ملاحظاتك هنا..."></textarea>
         </div>
 
         <p class="mt-20" style="line-height: 1.6;">
@@ -142,10 +144,8 @@
     <input type="hidden" id="sysDay">
 
     <script>
-        // === تم إضافة الرابط الخاص بك هنا ===
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycby-haqBhDdXsfP6TuegxjzP7e4YHwFiHRb9g9DItu5tIskMfnJlP0ZKiDS1BLaMBTe1fg/exec";
         
-        // 1. قاعدة البيانات وقوائم الفصول
         const HARDCODED_ROSTERS = {
           "سادس ابتدائي 1": ["ابراهيم على خليل الحايكي", "السيد حسن صالح الموسوي", "السيد علوي ابراهيم ناصر حسن", "السيد هاشم مجيد فيصل محمد", "إيليا سعيد حسن حسن", "حسن على ميرزا خليل", "حسین اسامه عبد الجليل الجشي", "حسين عمار جاسم الاسكافي", "حيدر على ابراهيم حسن", "سيد صادق جعفر على ناصر", "سيد حامد حسین محمد درویش", "صادق على عبدالله اسماعيل", "عبد العزيز جلال عبد العزيز حاجی عبدالله", "عبدالله حسین عبدالله مال الله", "عبدالله على عباس شاهين", "على حسين على عبد على", "على عيسى ابراهيم الستراوي", "على قاسم عباس حسن", "عمار محمد عبد الامير الحصار", "غسان مهند عقيل مرهون", "قاسم جابر جاسم منصور", "قاسم محمد احمد حسن", "ليث محمود مسعود الوطني", "محمد صالح شوقي البناء", "محمد عباس خميس السودان", "نوح زهير عبد الوهاب غزوان", "يوسف كاظم محمد الحايكي"],
           "سادس ابتدائي 2": ["احمد مهدي احمد احمد", "آدم على عبدالله عبد النبي", "السيد على حسين جعفر على شرف", "السيد يوسف احمد على الموسوي", "أمير مالك حبيب التوبلي", "جاسم محمد حميد السباع", "جواد جاسم جواد عبدالله", "حامد يوسف احمد يحيى", "حبيب حسین میرزا اسماعیل", "حسین عباس عبدالله مرهون", "حسين على احمد عيسى", "حسين علي حسن طاهر", "حيدر عبد الحسين احمد على", "رضا على مهدي على", "رضا میرزا خلف شعبان", "عباس احمد محسن العلواني", "عبدالله حميد عبد الرسول احمد", "على حسن جاسم حسن", "على عبد العزيز عبد الكريم الشيخ حسن", "على عبد الكريم على محمد", "کرار حسین احمد حسين", "ماجد يوسف احمد يحيى", "محمد احمد حسن احمد", "محمد عبد علي سعيد الغنامي", "مهدي جواد احمد مليح"],
@@ -165,7 +165,6 @@
           "ثالث إعدادي 5": ["احمد يعقوب اسحاق يونس", "آدم محمد يوسف المحاسنيه", "السيد محمد جواد درويش الشرخات", "السيد محمد على جعفر الغنى", "السيد هاشم جلال عيسى حسن", "إلياس محمد يوسف المحاسنيه", "حسن محمد داود مشيمع", "حسين على حسن حسن", "حيدر عبد الامير سعيد عبدالوهاب", "حيدر فلاح موسى خميس", "سید قاسم حسين على ناصر", "سید محمد حسين محمد درويش", "سيدهاشم السيد فيصل حيدر علوي", "عباس حسن يوسف شريف", "عباس على عبدالوهاب الشيخ على", "عباس فاضل عبد النبي العود", "عبد العزيز حسن علی احمد", "على حسن جمعه حسن", "على حسن كاظم العويناتي", "على حسين سلمان على احمد", "على حسين عبدالله عباس", "على حسین عبدالله عبدالله", "على حمد عبد الرضا خمدن", "على عادل احمد عبدالله", "على محمد علی عباس", "علي مهدي عبدالله مرهون", "على يوسف احمد امان", "على يوسف كاظم القلاف", "عمار على سعيد عباس", "قاسم فاضل جاسم عتيق", "مجتبى عادل احمد کاظم", "محمد حبيب عبد الرسول احمد", "محمد حسين مرزوق الجبل", "محمد مهدي رائد عبد الكريم عبد على", "مناف عبدالله ابراهيم ال عميري", "يوسف احمد هلال فردان"]
         };
 
-        // 2. دوال الوقت والتاريخ
         function initializeDates() {
             const daysArabic = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
             const today = new Date();
@@ -197,21 +196,14 @@
             return "خارج الدوام";
         }
 
-        // دالة مساعدة لتحويل اسم الحصة لرقم ليتوافق مع طلبك (حصة2 ، حصة3 .. الخ)
         function getPeriodShortName(periodString) {
             const map = {
-                "الأولى": "1",
-                "الثانية": "2",
-                "الثالثة": "3",
-                "الرابعة": "4",
-                "الخامسة": "5",
-                "السادسة": "6",
-                "السابعة": "7"
+                "الأولى": "1", "الثانية": "2", "الثالثة": "3", "الرابعة": "4",
+                "الخامسة": "5", "السادسة": "6", "السابعة": "7"
             };
             return map[periodString] || periodString;
         }
 
-        // 3. التعبئة التلقائية للبيانات عند الكتابة
         const vInputs = document.querySelectorAll('.v-input');
         vInputs.forEach(input => {
             input.addEventListener('input', function() {
@@ -220,7 +212,6 @@
                 const index = tr.getAttribute('data-index');
                 const isPrimary = document.getElementById('classSelect').value.includes('سادس');
                 
-                // ملء التاريخ المخصص (مثل: الاحد حصة2 -22-9) إذا لم يكن ممتلئاً مسبقاً
                 if(this.value.trim() !== '' && dateField.value === '') {
                     const today = new Date();
                     const dd = today.getDate();
@@ -228,14 +219,11 @@
                     const dayName = document.getElementById('sysDay').value;
                     const periodString = calculatePeriod(isPrimary ? 'primary' : 'prep');
                     let periodNum = getPeriodShortName(periodString);
-                    
                     let periodText = (periodNum === "الفسحة" || periodNum === "خارج الدوام") ? periodNum : "حصة" + periodNum;
                     
-                    // دمج النص بالشكل المطلوب
                     dateField.value = `${dayName} ${periodText} -${dd}-${mm}`;
                 }
 
-                // إذا كانت المخالفة الثالثة، املأ بيانات التحويل للمشرف
                 if(index === "3" && this.value.trim() !== '') {
                     document.getElementById('refDay').value = document.getElementById('sysDay').value;
                     document.getElementById('refDate').value = document.getElementById('sysDate').value;
@@ -244,7 +232,6 @@
             });
         });
 
-        // 4. تعبئة الفصول والطلاب
         const classSelect = document.getElementById('classSelect');
         const studentSelect = document.getElementById('studentSelect');
         const statusMsg = document.getElementById('statusMsg');
@@ -264,7 +251,6 @@
             }
         });
 
-        // 5. جلب بيانات الطالب من Google Sheets عند اختياره
         studentSelect.addEventListener('change', async function() {
             clearForm();
             if(!this.value || !classSelect.value) return;
@@ -302,7 +288,6 @@
             setTimeout(() => statusMsg.textContent = '', 3000);
         });
 
-        // 6. حفظ البيانات في Google Sheets
         document.getElementById('btnSave').addEventListener('click', async function() {
             if(!studentSelect.value || !classSelect.value) {
                 alert("يرجى اختيار الصف والطالب أولاً"); return;
@@ -334,10 +319,11 @@
             setTimeout(() => statusMsg.textContent = '', 3000);
         });
 
-        // مسح الحقول 
         function clearForm() {
-            const inputs = document.querySelectorAll('.action-input, #refDay, #refDate, #refPeriod, #notes');
+            const inputs = document.querySelectorAll('.action-input, .notes-area, #refDay, #refDate, #refPeriod');
             inputs.forEach(input => input.value = '');
+            const dates = document.querySelectorAll('.v-date');
+            dates.forEach(input => input.value = '');
         }
     </script>
 </body>
