@@ -349,6 +349,7 @@
     </div>
 
     <script>
+        // رابط السكربت الخاص بك
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxlJnpJN9y9h04cOswtY3BGGwUS8rhybOisxDFkIQJ6_9nFSPMJeK-wiuFEECnBY3v5/exec"; 
         
         const HARDCODED_ROSTERS = {
@@ -382,7 +383,6 @@
         };
         let searchableStudents = [];
 
-        // نسبة التشابه اللازمة لقبول مطابقة تقريبية تلقائياً
         const FUZZY_THRESHOLD = 0.82;
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -391,33 +391,24 @@
             initSystem();
         });
 
-        // دالة الفلترة الذكية للغة العربية لتلافي أخطاء المسافات والهمزات وحرف (ي/ى) واختلاف الخطوط (عربي/فارسي)
         function normalizeArabic(text) {
             if (!text) return "";
             return text
-                // إزالة التشكيل والتطويل
                 .replace(/[\u064B-\u065F\u0670\u06D6-\u06ED]/g, '')
                 .replace(/\u0640/g, '')
-                // إزالة المسافات غير المرئية (zero-width) التي قد تُنسخ من الشيت
                 .replace(/[\u200B-\u200F\uFEFF]/g, '')
-                // توحيد أشكال الألف والهمزة
                 .replace(/[أإآٱ]/g, 'ا')
                 .replace(/ؤ/g, 'و')
                 .replace(/ئ/g, 'ي')
                 .replace(/ء/g, '')
-                // توحيد التاء المربوطة
                 .replace(/ة/g, 'ه')
-                // توحيد الياء (عربية/فارسية/ألف مقصورة)
                 .replace(/[ىی]/g, 'ي')
-                // توحيد الكاف (عربية/فارسية)
                 .replace(/[کگ]/g, 'ك')
-                // توحيد كل أنواع المسافات (بما فيها nbsp) إلى مسافة واحدة
                 .replace(/\s+/g, ' ')
                 .trim()
                 .toLowerCase();
         }
 
-        // مسافة ليفنشتاين لحساب مدى التشابه بين نصين
         function levenshteinDistance(a, b) {
             const m = a.length, n = b.length;
             if (m === 0) return n;
@@ -444,7 +435,6 @@
             return 1 - (levenshteinDistance(a, b) / maxLen);
         }
 
-        // نسبة تطابق الكلمات (مفيدة عند اختلاف ترتيب الأسماء أو وجود اسم إضافي)
         function tokenOverlapScore(a, b) {
             const tokensA = a.split(' ').filter(Boolean);
             const tokensB = b.split(' ').filter(Boolean);
@@ -456,21 +446,22 @@
         }
 
         function buildCandidateIndex() {
-            const seen = new Set();
-            globalData.candidateKeys = [];
-            if (globalData.normFullDataMap) {
-                Object.keys(globalData.normFullDataMap).forEach(k => {
-                    if (k && !seen.has(k)) { globalData.candidateKeys.push(k); seen.add(k); }
-                });
-            }
-            if (globalData.normCprMap) {
-                Object.keys(globalData.normCprMap).forEach(k => {
-                    if (k && !seen.has(k)) { globalData.candidateKeys.push(k); seen.add(k); }
-                });
-            }
+            try {
+                const seen = new Set();
+                globalData.candidateKeys = [];
+                if (globalData.normFullDataMap) {
+                    Object.keys(globalData.normFullDataMap).forEach(k => {
+                        if (k && !seen.has(k)) { globalData.candidateKeys.push(k); seen.add(k); }
+                    });
+                }
+                if (globalData.normCprMap) {
+                    Object.keys(globalData.normCprMap).forEach(k => {
+                        if (k && !seen.has(k)) { globalData.candidateKeys.push(k); seen.add(k); }
+                    });
+                }
+            } catch(e) { console.error("Error in buildCandidateIndex:", e); }
         }
 
-        // يحاول إيجاد بيانات الطالب: أولاً بمطابقة تامة، ثم بمطابقة تقريبية كخطة بديلة
         function getStudentMatch(normName) {
             if (globalData.normFullDataMap && globalData.normFullDataMap[normName]) {
                 return { matchType: 'exact', matchedKey: normName, score: 1, details: globalData.normFullDataMap[normName] };
@@ -481,7 +472,6 @@
                 return { matchType: 'exact', matchedKey: normName, score: 1, details: null, cpr: directCpr };
             }
 
-            // مطابقة تقريبية عبر كل الأسماء المتوفرة في قاعدة البيانات
             let bestKey = null, bestScore = 0;
             (globalData.candidateKeys || []).forEach(key => {
                 const score = Math.max(similarityScore(normName, key), tokenOverlapScore(normName, key));
@@ -509,7 +499,6 @@
                 const data2 = await res2.json();
 
                 if (data1.status === "success") {
-                    // بناء قواميس بحث (دليل) معقمة من أخطاء الكتابة العربية
                     globalData.normFullDataMap = {};
                     if (data1.fullDataMap) {
                         for(let key in data1.fullDataMap) {
@@ -541,10 +530,15 @@
                 }
 
             } catch (error) {
-                console.error(error);
-                buildCandidateIndex();
-                buildSearchIndex();
-                populateClassDropdown();
+                console.error("Error connecting to server:", error);
+                // Fallback: Populate UI anyway using local HARDCODED_ROSTERS
+                try {
+                    buildCandidateIndex();
+                    buildSearchIndex();
+                    populateClassDropdown();
+                } catch(e2) {
+                    console.error("Critical error building local index:", e2);
+                }
                 showToast("تنبيه: تم جلب الأسماء محلياً. السيرفر لا يستجيب.", "error");
             } finally {
                 showLoading(false);
@@ -552,55 +546,60 @@
         }
 
         function buildSearchIndex() {
-            searchableStudents = [];
-            globalData.unmatched = [];
-            globalData.classesList = Object.keys(HARDCODED_ROSTERS).sort();
+            try {
+                searchableStudents = [];
+                globalData.unmatched = [];
+                globalData.classesList = Object.keys(HARDCODED_ROSTERS).sort();
 
-            for (let className in HARDCODED_ROSTERS) {
-                HARDCODED_ROSTERS[className].forEach(studentName => {
-                    let cleanName = studentName.replace(/^[\d\s._-]+/, '').replace(/[\d\s._-]+$/, '').trim();
-                    let normName = normalizeArabic(cleanName);
+                for (let className in HARDCODED_ROSTERS) {
+                    HARDCODED_ROSTERS[className].forEach(studentName => {
+                        let cleanName = studentName.replace(/^[\d\s._-]+/, '').replace(/[\d\s._-]+$/, '').trim();
+                        let normName = normalizeArabic(cleanName);
 
-                    const match = getStudentMatch(normName);
+                        const match = getStudentMatch(normName);
 
-                    let cpr = "غير مسجل";
-                    if (match.matchType === 'exact') {
-                        cpr = (match.details && (match.details['الرقم الشخصي'] ||
-                               match.details['رقم الطالب (مُحدث)'] ||
-                               match.details['رقم الطالب'])) || match.cpr || "غير مسجل";
-                    } else if (match.matchType === 'fuzzy') {
-                        cpr = match.cpr || "غير مسجل";
-                    }
+                        let cpr = "غير مسجل";
+                        if (match.matchType === 'exact') {
+                            cpr = (match.details && (match.details['الرقم الشخصي'] ||
+                                   match.details['رقم الطالب (مُحدث)'] ||
+                                   match.details['رقم الطالب'])) || match.cpr || "غير مسجل";
+                        } else if (match.matchType === 'fuzzy') {
+                            cpr = match.cpr || "غير مسجل";
+                        }
 
-                    if (match.matchType !== 'exact') {
-                        globalData.unmatched.push({
+                        if (match.matchType !== 'exact') {
+                            globalData.unmatched.push({
+                                name: cleanName,
+                                class: className,
+                                matchType: match.matchType,
+                                score: Math.round((match.score || 0) * 100),
+                                suggestionKey: match.matchType === 'fuzzy' ? match.matchedKey : (match.suggestion || null)
+                            });
+                        }
+
+                        searchableStudents.push({
                             name: cleanName,
+                            cpr: cpr,
                             class: className,
+                            normName: normName,
                             matchType: match.matchType,
-                            score: Math.round((match.score || 0) * 100),
-                            suggestionKey: match.matchType === 'fuzzy' ? match.matchedKey : (match.suggestion || null)
+                            matchScore: Math.round((match.score || 0) * 100)
                         });
-                    }
-
-                    searchableStudents.push({
-                        name: cleanName,
-                        cpr: cpr,
-                        class: className,
-                        normName: normName,
-                        matchType: match.matchType,
-                        matchScore: Math.round((match.score || 0) * 100)
                     });
-                });
-            }
+                }
 
-            if (globalData.unmatched.length > 0) {
-                console.warn(`⚠️ يوجد ${globalData.unmatched.length} طالب بدون مطابقة تامة مع قاعدة البيانات. اضغط زر "فحص تطابق الأسماء" لعرض التفاصيل.`, globalData.unmatched);
+                if (globalData.unmatched.length > 0) {
+                    console.warn(`⚠️ يوجد ${globalData.unmatched.length} طالب بدون مطابقة تامة مع قاعدة البيانات. اضغط زر "فحص تطابق الأسماء" لعرض التفاصيل.`);
+                }
+                updateUnmatchedBadge();
+            } catch(e) {
+                console.error("Error in buildSearchIndex:", e);
             }
-            updateUnmatchedBadge();
         }
 
         function updateUnmatchedBadge() {
             const badge = document.getElementById('unmatchedBadge');
+            if(!badge) return;
             const count = globalData.unmatched.length;
             if (count > 0) {
                 badge.textContent = count > 99 ? '99+' : count;
@@ -612,7 +611,6 @@
 
         function findOriginalNameByNormKey(normKey) {
             if (!normKey) return "-";
-            // نبحث عن الاسم الأصلي (قبل التطبيع) من بيانات الشيت إن توفر ضمن التفاصيل
             const details = globalData.normFullDataMap[normKey];
             if (details && details['اسم الطالب']) return details['اسم الطالب'];
             return normKey;
@@ -667,16 +665,17 @@
             }, 300);
         }
 
-        // دالة جديدة لفتح ملف الطالب عند الضغط على اسمه في نافذة الحالات الطبية
-        window.viewStudentFromModal = function(studentName) {
-            closeHealthModal(); // إغلاق النافذة الطبية
-            const student = searchableStudents.find(s => s.name === studentName);
+        // دالة آمنة لفتح ملف الطالب عبر النقر على اسمه
+        window.viewStudentFromModal = function(normKey) {
+            closeHealthModal();
+            // البحث بدقة عبر مفتاح الاسم المعياري
+            const student = searchableStudents.find(s => s.normName === normKey);
             if(student) {
-                // تحديث حقل البحث وفتح الملف
                 document.getElementById('searchInput').value = student.name;
                 loadStudentProfile(student);
-                // التمرير بسلاسة إلى بطاقة الطالب
                 document.getElementById('studentProfile').scrollIntoView({ behavior: 'smooth' });
+            } else {
+                showToast("عذراً، هذا الطالب غير موجود في قوائم الفصول الحالية.", "error");
             }
         };
 
@@ -693,20 +692,20 @@
                     let details = globalData.normFullDataMap[normKey];
                     let healthStatus = details['الحالة الصحية للطالب']; 
                     
-                    if (healthStatus && healthStatus.trim() !== '' && healthStatus.trim() !== 'سليم') {
+                    if (healthStatus && String(healthStatus).trim() !== '' && String(healthStatus).trim() !== 'سليم') {
                         sickStudentsCount++;
                         let studentNameRaw = details['اسم الطالب'] || normKey;
                         let studentClass = details['الفرقة (الصف)'] || details['الصف'] || "-";
                         let cpr = details['الرقم الشخصي'] || "-";
                         let diseases = details['الامراض التي يعاني منها الطالب'] || "";
                         
-                        // عرض المرض مباشرة إذا كان متوفراً، وإلا نعرض الحالة الصحية العامة
-                        let displayDisease = (diseases && diseases.trim() !== "" && diseases !== "-") ? diseases : healthStatus;
+                        let safeDiseaseStr = String(diseases).trim();
+                        let displayDisease = (safeDiseaseStr !== "" && safeDiseaseStr !== "-") ? safeDiseaseStr : healthStatus;
 
                         tbody.innerHTML += `
                             <tr class="hover:bg-red-50 transition-colors">
                                 <td class="p-4 font-bold text-gray-800">
-                                    <button onclick="viewStudentFromModal('${studentNameRaw}')" class="text-primary-600 hover:text-primary-800 hover:underline flex items-center gap-2 cursor-pointer transition-colors text-right">
+                                    <button onclick="viewStudentFromModal('${normKey}')" class="text-primary-600 hover:text-primary-800 hover:underline flex items-center gap-2 cursor-pointer transition-colors text-right">
                                         <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i> ${studentNameRaw}
                                     </button>
                                 </td>
@@ -750,209 +749,231 @@
         const classSelect = document.getElementById('classSelect');
         const studentSelect = document.getElementById('studentSelect');
 
-        searchInput.addEventListener('input', (e) => {
-            const rawQuery = e.target.value;
-            const query = normalizeArabic(rawQuery);
-            searchResults.innerHTML = '';
-            
-            if (query.length > 0) {
-                clearSearchBtn.classList.remove('hidden');
+        if(searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                const rawQuery = e.target.value;
+                const query = normalizeArabic(rawQuery);
+                searchResults.innerHTML = '';
                 
-                const matches = searchableStudents.filter(s => 
-                    s.normName.includes(query) || s.cpr.includes(query)
-                );
+                if (query.length > 0) {
+                    clearSearchBtn.classList.remove('hidden');
+                    
+                    const matches = searchableStudents.filter(s => 
+                        s.normName.includes(query) || s.cpr.includes(query)
+                    );
 
-                if (matches.length > 0) {
-                    searchResults.classList.remove('hidden');
-                    matches.forEach(match => {
-                        const div = document.createElement('div');
-                        div.className = 'p-4 border-b border-gray-100 hover:bg-primary-50 cursor-pointer flex flex-col transition-colors';
-                        const warnBadge = match.matchType !== 'exact'
-                            ? `<span class="text-xs font-bold text-amber-600 mr-1"><i class="fa-solid fa-triangle-exclamation"></i> يحتاج تحقق</span>`
-                            : '';
-                        div.innerHTML = `
-                            <div class="flex justify-between items-center">
-                                <span class="font-bold text-gray-800 text-base">${match.name}</span>
-                                <span class="bg-primary-100 text-primary-800 font-bold px-3 py-1 rounded-lg text-sm shadow-sm whitespace-nowrap">${match.class}</span>
-                            </div>
-                            <div class="mt-2 text-xs text-gray-500 font-semibold flex items-center gap-2">
-                                <span><i class="fa-solid fa-id-card text-gray-400"></i> ${match.cpr}</span>
-                                ${warnBadge}
-                            </div>
-                        `;
-                        div.addEventListener('click', () => {
-                            searchInput.value = match.name;
-                            searchResults.classList.add('hidden');
-                            loadStudentProfile(match);
+                    if (matches.length > 0) {
+                        searchResults.classList.remove('hidden');
+                        matches.forEach(match => {
+                            const div = document.createElement('div');
+                            div.className = 'p-4 border-b border-gray-100 hover:bg-primary-50 cursor-pointer flex flex-col transition-colors';
+                            const warnBadge = match.matchType !== 'exact'
+                                ? `<span class="text-xs font-bold text-amber-600 mr-1"><i class="fa-solid fa-triangle-exclamation"></i> يحتاج تحقق</span>`
+                                : '';
+                            div.innerHTML = `
+                                <div class="flex justify-between items-center">
+                                    <span class="font-bold text-gray-800 text-base">${match.name}</span>
+                                    <span class="bg-primary-100 text-primary-800 font-bold px-3 py-1 rounded-lg text-sm shadow-sm whitespace-nowrap">${match.class}</span>
+                                </div>
+                                <div class="mt-2 text-xs text-gray-500 font-semibold flex items-center gap-2">
+                                    <span><i class="fa-solid fa-id-card text-gray-400"></i> ${match.cpr}</span>
+                                    ${warnBadge}
+                                </div>
+                            `;
+                            div.addEventListener('click', () => {
+                                searchInput.value = match.name;
+                                searchResults.classList.add('hidden');
+                                loadStudentProfile(match);
+                            });
+                            searchResults.appendChild(div);
                         });
-                        searchResults.appendChild(div);
-                    });
+                    } else {
+                        searchResults.classList.remove('hidden');
+                        searchResults.innerHTML = '<div class="p-4 text-center text-sm font-bold text-red-500">لا توجد نتائج مطابقة</div>';
+                    }
                 } else {
-                    searchResults.classList.remove('hidden');
-                    searchResults.innerHTML = '<div class="p-4 text-center text-sm font-bold text-red-500">لا توجد نتائج مطابقة</div>';
+                    clearSearchBtn.classList.add('hidden');
+                    searchResults.classList.add('hidden');
                 }
-            } else {
-                clearSearchBtn.classList.add('hidden');
-                searchResults.classList.add('hidden');
-            }
-        });
+            });
+        }
 
-        clearSearchBtn.addEventListener('click', () => {
-            searchInput.value = '';
-            searchResults.classList.add('hidden');
-            clearSearchBtn.classList.add('hidden');
-            document.getElementById('studentProfile').classList.add('hidden');
-        });
+        if(clearSearchBtn) {
+            clearSearchBtn.addEventListener('click', () => {
+                searchInput.value = '';
+                searchResults.classList.add('hidden');
+                clearSearchBtn.classList.add('hidden');
+                document.getElementById('studentProfile').classList.add('hidden');
+            });
+        }
 
         document.addEventListener('click', (e) => {
-            if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+            if (searchInput && searchResults && !searchInput.contains(e.target) && !searchResults.contains(e.target)) {
                 searchResults.classList.add('hidden');
             }
         });
 
-        classSelect.addEventListener('change', (e) => {
-            const selectedClass = e.target.value;
-            studentSelect.innerHTML = '<option value="">-- اختر الطالب --</option>';
-            
-            if (selectedClass) {
-                const studentsInClass = searchableStudents.filter(s => s.class === selectedClass)
-                                        .sort((a,b) => a.name.localeCompare(b.name, 'ar'));
-                
-                studentsInClass.forEach(s => {
-                    let opt = document.createElement('option');
-                    opt.value = s.name;
-                    opt.textContent = s.matchType !== 'exact' ? `${s.name} ⚠️` : s.name;
-                    studentSelect.appendChild(opt);
-                });
-                studentSelect.disabled = false;
-                studentSelect.classList.remove('bg-gray-100', 'cursor-not-allowed');
-                studentSelect.classList.add('bg-white', 'focus:ring-2', 'focus:ring-primary-500');
-            } else {
-                studentSelect.disabled = true;
-                studentSelect.classList.add('bg-gray-100', 'cursor-not-allowed');
-                studentSelect.classList.remove('bg-white', 'focus:ring-2', 'focus:ring-primary-500');
-                document.getElementById('studentProfile').classList.add('hidden');
-            }
-        });
+        function populateClassDropdown() {
+            if (!classSelect) return;
+            classSelect.innerHTML = '<option value="">-- كل الصفوف --</option>';
+            globalData.classesList.forEach(cls => {
+                let opt = document.createElement('option');
+                opt.value = cls;
+                opt.textContent = cls;
+                classSelect.appendChild(opt);
+            });
+        }
 
-        studentSelect.addEventListener('change', (e) => {
-            const studentName = e.target.value;
-            if (studentName) {
-                const student = searchableStudents.find(s => s.name === studentName);
-                if(student) loadStudentProfile(student);
-            } else {
-                document.getElementById('studentProfile').classList.add('hidden');
-            }
-        });
+        if(classSelect) {
+            classSelect.addEventListener('change', (e) => {
+                const selectedClass = e.target.value;
+                studentSelect.innerHTML = '<option value="">-- اختر الطالب --</option>';
+                
+                if (selectedClass) {
+                    const studentsInClass = searchableStudents.filter(s => s.class === selectedClass)
+                                            .sort((a,b) => a.name.localeCompare(b.name, 'ar'));
+                    
+                    studentsInClass.forEach(s => {
+                        let opt = document.createElement('option');
+                        opt.value = s.name;
+                        opt.textContent = s.matchType !== 'exact' ? `${s.name} ⚠️` : s.name;
+                        studentSelect.appendChild(opt);
+                    });
+                    studentSelect.disabled = false;
+                    studentSelect.classList.remove('bg-gray-100', 'cursor-not-allowed');
+                    studentSelect.classList.add('bg-white', 'focus:ring-2', 'focus:ring-primary-500');
+                } else {
+                    studentSelect.disabled = true;
+                    studentSelect.classList.add('bg-gray-100', 'cursor-not-allowed');
+                    studentSelect.classList.remove('bg-white', 'focus:ring-2', 'focus:ring-primary-500');
+                    document.getElementById('studentProfile').classList.add('hidden');
+                }
+            });
+        }
+
+        if(studentSelect) {
+            studentSelect.addEventListener('change', (e) => {
+                const studentName = e.target.value;
+                if (studentName) {
+                    const student = searchableStudents.find(s => s.name === studentName);
+                    if(student) loadStudentProfile(student);
+                } else {
+                    document.getElementById('studentProfile').classList.add('hidden');
+                }
+            });
+        }
 
         function loadStudentProfile(student) {
-            document.getElementById('profileName').textContent = student.name;
-            document.getElementById('profileClass').textContent = student.class;
-            document.getElementById('profileCpr').textContent = student.cpr;
+            try {
+                document.getElementById('profileName').textContent = student.name;
+                document.getElementById('profileClass').textContent = student.class;
+                document.getElementById('profileCpr').textContent = student.cpr;
 
-            const normName = student.normName;
-            
-            const mainProfileCard = document.getElementById('mainProfileCard');
-            const cardSideColor = document.getElementById('cardSideColor');
-            const healthAlertBadge = document.getElementById('healthAlertBadge');
-            const healthAlertText = document.getElementById('healthAlertText');
-            const matchTypeBadgeWrap = document.getElementById('matchTypeBadgeWrap');
-            const matchTypeBadge = document.getElementById('matchTypeBadge');
-            
-            mainProfileCard.classList.remove('bg-red-50', 'border-red-400');
-            cardSideColor.classList.replace('bg-red-600', 'bg-primary-600');
-            healthAlertBadge.classList.add('hidden');
-
-            // عرض حالة المطابقة إن لم تكن تامة، لتنبيه المستخدم للتحقق من صحة الرقم
-            if (student.matchType && student.matchType !== 'exact') {
-                matchTypeBadgeWrap.classList.remove('hidden');
-                if (student.matchType === 'fuzzy') {
-                    matchTypeBadge.className = 'inline-block px-3 py-1 rounded-lg text-xs font-bold border match-badge-fuzzy';
-                    matchTypeBadge.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> مطابقة تقريبية (${student.matchScore}%) — يُرجى التحقق من الرقم الشخصي يدوياً`;
-                } else {
-                    matchTypeBadge.className = 'inline-block px-3 py-1 rounded-lg text-xs font-bold border match-badge-none';
-                    matchTypeBadge.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> لم يتم العثور على هذا الاسم في قاعدة البيانات`;
-                }
-            } else {
-                matchTypeBadgeWrap.classList.add('hidden');
-            }
-
-            const fullDetails = globalData.normFullDataMap[normName] || (student.matchType === 'fuzzy' ? getStudentMatch(normName).details : null);
-            const detailsGrid = document.getElementById('fullDetailsGrid');
-            detailsGrid.innerHTML = '';
-            
-            if(fullDetails && Object.keys(fullDetails).length > 0) {
-                const healthStatus = fullDetails['الحالة الصحية للطالب'];
-                const diseases = fullDetails['الامراض التي يعاني منها الطالب'];
+                const normName = student.normName;
                 
-                if (healthStatus && healthStatus.trim() !== '' && healthStatus.trim() !== 'سليم') {
-                    mainProfileCard.classList.add('bg-red-50', 'border-red-400');
-                    cardSideColor.classList.replace('bg-primary-600', 'bg-red-600');
-                    healthAlertBadge.classList.remove('hidden');
-                    
-                    // عرض اسم المرض فقط بدلاً من العبارة العامة
-                    if (diseases && diseases.trim() !== '' && diseases !== '-') {
-                        healthAlertText.textContent = diseases;
+                const mainProfileCard = document.getElementById('mainProfileCard');
+                const cardSideColor = document.getElementById('cardSideColor');
+                const healthAlertBadge = document.getElementById('healthAlertBadge');
+                const healthAlertText = document.getElementById('healthAlertText');
+                const matchTypeBadgeWrap = document.getElementById('matchTypeBadgeWrap');
+                const matchTypeBadge = document.getElementById('matchTypeBadge');
+                
+                mainProfileCard.classList.remove('bg-red-50', 'border-red-400');
+                cardSideColor.classList.replace('bg-red-600', 'bg-primary-600');
+                healthAlertBadge.classList.add('hidden');
+
+                if (student.matchType && student.matchType !== 'exact') {
+                    matchTypeBadgeWrap.classList.remove('hidden');
+                    if (student.matchType === 'fuzzy') {
+                        matchTypeBadge.className = 'inline-block px-3 py-1 rounded-lg text-xs font-bold border match-badge-fuzzy';
+                        matchTypeBadge.innerHTML = `<i class="fa-solid fa-triangle-exclamation"></i> مطابقة تقريبية (${student.matchScore}%) — يُرجى التحقق من الرقم الشخصي يدوياً`;
                     } else {
-                        healthAlertText.textContent = healthStatus;
+                        matchTypeBadge.className = 'inline-block px-3 py-1 rounded-lg text-xs font-bold border match-badge-none';
+                        matchTypeBadge.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> لم يتم العثور على هذا الاسم في قاعدة البيانات`;
                     }
+                } else {
+                    matchTypeBadgeWrap.classList.add('hidden');
                 }
 
-                const ignoredKeys = ['م', 'اسم الطالب', 'الفرقة (الصف)', 'الاسم المدمج للقوائم', 'التسلسل', 'الرقم الشخصي', 'رقم الطالب (مُحدث)', 'حالة القيد']; 
-                for(let key in fullDetails) {
-                    let value = fullDetails[key];
-                    if(ignoredKeys.includes(key) || !value || value.trim() === '') continue;
+                const fullDetails = globalData.normFullDataMap[normName] || (student.matchType === 'fuzzy' ? getStudentMatch(normName).details : null);
+                const detailsGrid = document.getElementById('fullDetailsGrid');
+                detailsGrid.innerHTML = '';
+                
+                if(fullDetails && Object.keys(fullDetails).length > 0) {
+                    const healthStatus = fullDetails['الحالة الصحية للطالب'];
+                    const diseases = fullDetails['الامراض التي يعاني منها الطالب'];
                     
-                    let textColorClass = "text-gray-800";
-                    if (key === 'الحالة الصحية للطالب' && value !== 'سليم') textColorClass = "text-red-600 font-black";
+                    if (healthStatus && String(healthStatus).trim() !== '' && String(healthStatus).trim() !== 'سليم') {
+                        mainProfileCard.classList.add('bg-red-50', 'border-red-400');
+                        cardSideColor.classList.replace('bg-primary-600', 'bg-red-600');
+                        healthAlertBadge.classList.remove('hidden');
+                        
+                        let safeDiseaseStr = String(diseases || "").trim();
+                        if (safeDiseaseStr !== '' && safeDiseaseStr !== '-') {
+                            healthAlertText.textContent = safeDiseaseStr;
+                        } else {
+                            healthAlertText.textContent = healthStatus;
+                        }
+                    }
 
-                    detailsGrid.innerHTML += `
-                        <div class="bg-gray-50 p-3 rounded-xl border border-gray-100 flex flex-col justify-center">
-                            <p class="text-xs font-bold text-gray-400 mb-1">${key}</p>
-                            <p class="font-bold text-sm ${textColorClass}">${value}</p>
-                        </div>
-                    `;
+                    const ignoredKeys = ['م', 'اسم الطالب', 'الفرقة (الصف)', 'الاسم المدمج للقوائم', 'التسلسل', 'الرقم الشخصي', 'رقم الطالب (مُحدث)', 'حالة القيد']; 
+                    for(let key in fullDetails) {
+                        let value = fullDetails[key];
+                        if(ignoredKeys.includes(key) || !value || String(value).trim() === '') continue;
+                        
+                        let textColorClass = "text-gray-800";
+                        if (key === 'الحالة الصحية للطالب' && value !== 'سليم') textColorClass = "text-red-600 font-black";
+
+                        detailsGrid.innerHTML += `
+                            <div class="bg-gray-50 p-3 rounded-xl border border-gray-100 flex flex-col justify-center">
+                                <p class="text-xs font-bold text-gray-400 mb-1">${key}</p>
+                                <p class="font-bold text-sm ${textColorClass}">${value}</p>
+                            </div>
+                        `;
+                    }
+                    if(detailsGrid.innerHTML === '') {
+                         detailsGrid.innerHTML = '<div class="col-span-full p-4 text-center text-gray-400 font-bold">لا توجد بيانات تفصيلية إضافية لهذا الطالب</div>';
+                    }
+                } else {
+                    detailsGrid.innerHTML = '<div class="col-span-full p-4 text-center text-gray-400 font-bold">يرجى التأكد من اتصال السيرفر لجلب التفاصيل الشاملة (البيانات تظهر فارغة حالياً).</div>';
                 }
-                if(detailsGrid.innerHTML === '') {
-                     detailsGrid.innerHTML = '<div class="col-span-full p-4 text-center text-gray-400 font-bold">لا توجد بيانات تفصيلية إضافية لهذا الطالب</div>';
-                }
-            } else {
-                detailsGrid.innerHTML = '<div class="col-span-full p-4 text-center text-gray-400 font-bold">يرجى التأكد من اتصال السيرفر لجلب التفاصيل الشاملة (البيانات تظهر فارغة حالياً).</div>';
+
+                let dailyAbsencesMap = {};
+                let studentAbsences = globalData.absences.filter(r => normalizeArabic(r.studentName).includes(normName));
+                
+                studentAbsences.forEach(abs => {
+                    let currentExcuse = abs.excuseType ? abs.excuseType : "غياب غير مبرر";
+                    if (!dailyAbsencesMap[abs.date] || (dailyAbsencesMap[abs.date] === "غياب غير مبرر" && currentExcuse !== "غياب غير مبرر")) {
+                        dailyAbsencesMap[abs.date] = currentExcuse;
+                    }
+                });
+
+                let studentExcuses = globalData.excuses.filter(e => normalizeArabic(e.studentName).includes(normName));
+                studentExcuses.forEach(exc => {
+                    dailyAbsencesMap[exc.date] = `عذر مقدم: ${exc.reason}`;
+                });
+
+                let combinedAbsences = Object.keys(dailyAbsencesMap).map(date => {
+                    return { date: date, details: dailyAbsencesMap[date] };
+                });
+
+                let studentLates = globalData.lates.filter(l => normalizeArabic(l.studentName).includes(normName));
+                let studentViolations = globalData.violations.filter(v => normalizeArabic(v.studentName).includes(normName));
+
+                document.getElementById('absencesCount').textContent = combinedAbsences.length;
+                renderTable('absencesTable', combinedAbsences, ['date', 'details'], "حضور منتظم (لا توجد غيابات)");
+
+                document.getElementById('latesCount').textContent = studentLates.length;
+                renderTable('latesTable', studentLates, ['date', 'excuseType'], "لا يوجد تأخير مسجل");
+
+                document.getElementById('violationsCount').textContent = studentViolations.length;
+                renderTable('violationsTable', studentViolations, ['date', 'supervisor', 'violationType', 'actionTaken'], "لا توجد مخالفات سلوكية");
+
+                const profile = document.getElementById('studentProfile');
+                profile.classList.remove('hidden');
+            } catch (err) {
+                console.error("Error generating student profile:", err);
             }
-
-            let dailyAbsencesMap = {};
-            let studentAbsences = globalData.absences.filter(r => normalizeArabic(r.studentName).includes(normName));
-            
-            studentAbsences.forEach(abs => {
-                let currentExcuse = abs.excuseType ? abs.excuseType : "غياب غير مبرر";
-                if (!dailyAbsencesMap[abs.date] || (dailyAbsencesMap[abs.date] === "غياب غير مبرر" && currentExcuse !== "غياب غير مبرر")) {
-                    dailyAbsencesMap[abs.date] = currentExcuse;
-                }
-            });
-
-            let studentExcuses = globalData.excuses.filter(e => normalizeArabic(e.studentName).includes(normName));
-            studentExcuses.forEach(exc => {
-                dailyAbsencesMap[exc.date] = `عذر مقدم: ${exc.reason}`;
-            });
-
-            let combinedAbsences = Object.keys(dailyAbsencesMap).map(date => {
-                return { date: date, details: dailyAbsencesMap[date] };
-            });
-
-            let studentLates = globalData.lates.filter(l => normalizeArabic(l.studentName).includes(normName));
-            let studentViolations = globalData.violations.filter(v => normalizeArabic(v.studentName).includes(normName));
-
-            document.getElementById('absencesCount').textContent = combinedAbsences.length;
-            renderTable('absencesTable', combinedAbsences, ['date', 'details'], "حضور منتظم (لا توجد غيابات)");
-
-            document.getElementById('latesCount').textContent = studentLates.length;
-            renderTable('latesTable', studentLates, ['date', 'excuseType'], "لا يوجد تأخير مسجل");
-
-            document.getElementById('violationsCount').textContent = studentViolations.length;
-            renderTable('violationsTable', studentViolations, ['date', 'supervisor', 'violationType', 'actionTaken'], "لا توجد مخالفات سلوكية");
-
-            const profile = document.getElementById('studentProfile');
-            profile.classList.remove('hidden');
         }
 
         function renderTable(tbodyId, dataArray, keys, emptyMessage) {
@@ -985,24 +1006,26 @@
         }
 
         function showLoading(show) {
-            document.getElementById('loadingOverlay').style.display = show ? 'flex' : 'none';
+            const overlay = document.getElementById('loadingOverlay');
+            if(overlay) overlay.style.display = show ? 'flex' : 'none';
         }
 
         function showToast(message, type = "success") {
             const toast = document.getElementById('toast');
             const icon = document.getElementById('toastIcon');
             
-            toast.className = `fixed bottom-6 left-6 px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 transition-all duration-300 z-50 text-white font-sans ${type === 'success' ? 'bg-green-600' : 'bg-red-600'}`;
-            icon.className = `text-2xl fa-solid ${type === 'success' ? 'fa-circle-check' : 'fa-triangle-exclamation'}`;
-            document.getElementById('toastMessage').textContent = message;
-            
-            toast.classList.remove('opacity-0', 'translate-y-10', 'pointer-events-none');
-            
-            setTimeout(() => {
-                toast.classList.add('opacity-0', 'translate-y-10', 'pointer-events-none');
-            }, 3500);
+            if(toast && icon) {
+                toast.className = `fixed bottom-6 left-6 px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 transition-all duration-300 z-50 text-white font-sans ${type === 'success' ? 'bg-green-600' : 'bg-red-600'}`;
+                icon.className = `text-2xl fa-solid ${type === 'success' ? 'fa-circle-check' : 'fa-triangle-exclamation'}`;
+                document.getElementById('toastMessage').textContent = message;
+                
+                toast.classList.remove('opacity-0', 'translate-y-10', 'pointer-events-none');
+                
+                setTimeout(() => {
+                    toast.classList.add('opacity-0', 'translate-y-10', 'pointer-events-none');
+                }, 3500);
+            }
         }
     </script>
 </body>
 </html>
-
