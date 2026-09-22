@@ -32,12 +32,10 @@
     <style>
         body { background-color: #f8fafc; }
         
-        /* Custom Scrollbar for Search */
         #searchResults::-webkit-scrollbar { width: 6px; }
         #searchResults::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 8px; }
         #searchResults::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 8px; }
         
-        /* Loading Overlay */
         #loadingOverlay {
             position: fixed; inset: 0; background: rgba(255, 255, 255, 0.9); z-index: 9999;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
@@ -49,7 +47,7 @@
         }
         @keyframes rotation { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* Print Settings */
+        /* إعدادات الطباعة الاحترافية */
         @media print {
             body { background: white; }
             .print-hidden { display: none !important; }
@@ -57,19 +55,18 @@
             .print-break-inside-avoid { page-break-inside: avoid; }
             .container { max-width: 100% !important; padding: 0 !important; margin: 0 !important; }
             .shadow-sm, .shadow-md { box-shadow: none !important; border: 1px solid #e2e8f0; }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         }
     </style>
 </head>
 <body class="text-gray-800 antialiased font-sans">
 
-    <!-- شاشة التحميل -->
     <div id="loadingOverlay">
         <span class="loader"></span>
         <h2 class="mt-4 text-xl font-bold text-primary-900">جاري الاتصال بقاعدة البيانات...</h2>
-        <p class="text-gray-500 mt-2 text-sm">يرجى الانتظار، يتم جلب السجلات</p>
+        <p class="text-gray-500 mt-2 text-sm">يرجى الانتظار، يتم جلب السجلات الشاملة</p>
     </div>
 
-    <!-- الهيدر الرئيسي -->
     <header class="bg-primary-900 text-white shadow-md print-hidden sticky top-0 z-50">
         <div class="container mx-auto px-4 py-4 flex flex-col md:flex-row items-center justify-between gap-4">
             <div class="flex items-center gap-4">
@@ -90,14 +87,12 @@
 
     <main class="container mx-auto px-4 py-8">
         
-        <!-- قسم البحث -->
         <section class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-8 print-hidden">
             <h2 class="text-xl font-bold text-gray-800 mb-6 border-b pb-3 flex items-center gap-2">
                 <i class="fa-solid fa-magnifying-glass text-primary-600"></i> البحث الشامل
             </h2>
             
             <div class="grid grid-cols-1 md:grid-cols-12 gap-6">
-                <!-- البحث النصي -->
                 <div class="md:col-span-6 relative">
                     <label class="block text-sm font-bold text-gray-600 mb-2">بحث سريع (الاسم أو الرقم الشخصي)</label>
                     <div class="relative">
@@ -108,11 +103,9 @@
                             <i class="fa-solid fa-times"></i>
                         </button>
                     </div>
-                    <!-- نتائج البحث -->
                     <div id="searchResults" class="absolute z-50 w-full bg-white border border-gray-200 rounded-xl shadow-xl mt-2 hidden max-h-64 overflow-y-auto"></div>
                 </div>
 
-                <!-- البحث بالقوائم -->
                 <div class="md:col-span-3">
                     <label class="block text-sm font-bold text-gray-600 mb-2">تصفية بالصف</label>
                     <div class="relative">
@@ -135,27 +128,23 @@
             </div>
         </section>
 
-        <!-- ترويسة الطباعة المخفية -->
+        <!-- ترويسة الطباعة -->
         <div class="hidden print-only mb-8 border-b-4 border-gray-800 pb-6 text-center">
             <h1 class="text-3xl font-black mb-2">تقرير الطالب الشامل</h1>
             <h2 class="text-xl text-gray-600">مدرسة البلاد القديم الابتدائية الإعدادية للبنين</h2>
             <p class="text-gray-500 mt-2 font-semibold" id="printDate"></p>
         </div>
 
-        <!-- ملف الطالب (مخفي افتراضياً) -->
         <section id="studentProfile" class="hidden animate-[fadeIn_0.5s_ease-out]">
             
-            <!-- أزرار الإجراءات -->
             <div class="flex flex-wrap justify-between items-center mb-6 print-hidden gap-4">
                 <h2 class="text-2xl font-black text-gray-800 border-r-4 border-primary-600 pr-3">الملف الإلكتروني للطالب</h2>
-                <div class="flex gap-3">
-                    <button onclick="window.print()" class="bg-gray-800 hover:bg-black text-white px-5 py-2.5 rounded-xl shadow-md transition-all flex items-center gap-2 font-bold">
-                        <i class="fa-solid fa-print"></i> طباعة التقرير
-                    </button>
-                </div>
+                <button onclick="window.print()" class="bg-gray-800 hover:bg-black text-white px-5 py-2.5 rounded-xl shadow-md transition-all flex items-center gap-2 font-bold">
+                    <i class="fa-solid fa-print"></i> طباعة التقرير (متغيرات فقط)
+                </button>
             </div>
 
-            <!-- بطاقة البيانات الأساسية -->
+            <!-- البطاقة الأساسية (تظهر في الطباعة) -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-8 print-break-inside-avoid relative overflow-hidden">
                 <div class="absolute top-0 right-0 w-2 h-full bg-primary-600"></div>
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -174,10 +163,18 @@
                 </div>
             </div>
 
-            <!-- الجداول التفصيلية -->
+            <!-- التفاصيل الإضافية لجميع أعمدة قاعدة البيانات (مخفية في الطباعة) -->
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 mb-8 print-hidden">
+                <h3 class="text-lg font-black text-gray-700 mb-4 border-b pb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-address-card text-primary-500"></i> التفاصيل الشاملة من قاعدة البيانات
+                </h3>
+                <div id="fullDetailsGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    <!-- يتم الحقن برمجياً -->
+                </div>
+            </div>
+
+            <!-- سجلات الحضور والسلوك (تظهر في الطباعة) -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-                
-                <!-- سجل الغياب والأعذار -->
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-200 flex flex-col print-break-inside-avoid">
                     <div class="bg-red-50 p-4 rounded-t-2xl border-b border-red-100 flex justify-between items-center">
                         <h3 class="text-lg font-black text-red-700 flex items-center gap-2">
@@ -200,7 +197,6 @@
                     </div>
                 </div>
 
-                <!-- سجل التأخير -->
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-200 flex flex-col print-break-inside-avoid">
                     <div class="bg-orange-50 p-4 rounded-t-2xl border-b border-orange-100 flex justify-between items-center">
                         <h3 class="text-lg font-black text-orange-700 flex items-center gap-2">
@@ -222,10 +218,8 @@
                         </table>
                     </div>
                 </div>
-
             </div>
 
-            <!-- سجل المخالفات السلوكية -->
             <div class="bg-white rounded-2xl shadow-sm border border-gray-200 flex flex-col mb-8 print-break-inside-avoid">
                 <div class="bg-purple-50 p-4 rounded-t-2xl border-b border-purple-100 flex justify-between items-center">
                     <h3 class="text-lg font-black text-purple-700 flex items-center gap-2">
@@ -253,47 +247,34 @@
         </section>
     </main>
 
-    <!-- توست الإشعارات -->
     <div id="toast" class="fixed bottom-6 left-6 text-white px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 transition-all duration-300 opacity-0 translate-y-10 pointer-events-none z-50">
         <i id="toastIcon" class="fa-solid text-2xl"></i>
         <span id="toastMessage" class="font-bold"></span>
     </div>
 
     <script>
-        // ==========================================
-        // 🔴 الإعدادات الأساسية 🔴
-        // ==========================================
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxlJnpJN9y9h04cOswtY3BGGwUS8rhybOisxDFkIQJ6_9nFSPMJeK-wiuFEECnBY3v5/exec"; 
         
-        // المتغيرات العامة لتخزين البيانات
         let globalData = {
             rosters: {},
-            cprMap: {},
-            absences: [], // من سجل الغياب المنظم
-            excuses: [],  // من سجل الأعذار
-            lates: [],    // من سجل التأخير
-            violations: [] // من سجل المخالفات
+            fullDataMap: {},
+            absences: [],
+            excuses: [],
+            lates: [],
+            violations: []
         };
-        let searchableStudents = []; // مصفوفة لتسهيل البحث (الاسم، الصف، الرقم)
+        let searchableStudents = [];
 
         document.addEventListener('DOMContentLoaded', () => {
-            // ضبط تاريخ الطباعة
             const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             document.getElementById('printDate').innerText = new Date().toLocaleDateString('ar-BH', options);
-            
-            // تهيئة النظام
             initSystem();
         });
 
-        // ==========================================
-        // جلب البيانات من السيرفر
-        // ==========================================
         async function initSystem() {
             showLoading(true);
             try {
-                // نطلب البيانات العامة (غياب، تأخير، أعذار، أسماء)
                 const req1 = fetch(`${SCRIPT_URL}?action=dashboard_data&pass=admin123`);
-                // نطلب المخالفات
                 const req2 = fetch(`${SCRIPT_URL}?action=getViolations`);
 
                 const [res1, res2] = await Promise.all([req1, req2]);
@@ -301,13 +282,11 @@
                 const data2 = await res2.json();
 
                 if (data1.status === "success") {
-                    globalData.cprMap = data1.cprMap || {};
+                    globalData.fullDataMap = data1.fullDataMap || {};
                     globalData.absences = data1.records || [];
                     globalData.lates = data1.lates || [];
                     globalData.excuses = data1.excuses || [];
                     
-                    // استخراج القوائم من البيانات (سنعتمد على cprMap لبناء قائمة الطلاب)
-                    // بما أن التطبيق يحتاج القوائم المحدثة، سنبنيها من السجلات
                     buildSearchIndex(data1);
                     populateClassDropdown();
                     showToast("تم مزامنة قاعدة البيانات بنجاح", "success");
@@ -327,33 +306,27 @@
             }
         }
 
-        // ==========================================
-        // معالجة البيانات وبناء الفهارس
-        // ==========================================
         function buildSearchIndex(data) {
             searchableStudents = [];
             let classesSet = new Set();
 
-            // نمر على قائمة الأرقام الشخصية التي تم جلبها من "قاعدة البيانات المحدثة"
-            for (let studentName in data.cprMap) {
-                // لمحاولة معرفة الصف، سنبحث عنه في سجلات الغياب أو التأخير
-                let studentClass = "غير محدد";
-                let foundRecord = data.records.find(r => r.studentName.includes(studentName)) || 
-                                  data.lates.find(l => l.studentName.includes(studentName));
+            for (let studentName in data.fullDataMap) {
+                let studentClass = data.fullDataMap[studentName]['الفرقة (الصف)'] || data.fullDataMap[studentName]['الصف'] || "غير محدد";
                 
-                if (foundRecord) {
-                    studentClass = foundRecord.className;
-                    classesSet.add(studentClass);
+                if(studentClass === "غير محدد") {
+                    let foundRecord = data.records.find(r => r.studentName.includes(studentName)) || data.lates.find(l => l.studentName.includes(studentName));
+                    if (foundRecord) studentClass = foundRecord.className;
                 }
+
+                if(studentClass !== "غير محدد") classesSet.add(studentClass);
 
                 searchableStudents.push({
                     name: studentName,
-                    cpr: data.cprMap[studentName] || "غير مسجل",
+                    cpr: data.fullDataMap[studentName]['الرقم الشخصي'] || data.fullDataMap[studentName]['رقم الطالب'] || "غير مسجل",
                     class: studentClass
                 });
             }
 
-            // ترتيب الصفوف وإضافتها للدروب داون
             globalData.classesList = Array.from(classesSet).sort();
         }
 
@@ -369,27 +342,21 @@
             });
         }
 
-        // ==========================================
-        // أحداث واجهة المستخدم (Events)
-        // ==========================================
         const searchInput = document.getElementById('searchInput');
         const searchResults = document.getElementById('searchResults');
         const clearSearchBtn = document.getElementById('clearSearch');
         const classSelect = document.getElementById('classSelect');
         const studentSelect = document.getElementById('studentSelect');
 
-        // البحث النصي الذكي
         searchInput.addEventListener('input', (e) => {
             const query = e.target.value.trim();
             searchResults.innerHTML = '';
             
             if (query.length > 0) {
                 clearSearchBtn.classList.remove('hidden');
-                
-                // فلترة تعتمد على الاسم أو الرقم الشخصي
                 const matches = searchableStudents.filter(s => 
                     s.name.includes(query) || s.cpr.includes(query)
-                ).slice(0, 10); // عرض أول 10 نتائج فقط لعدم الإثقال
+                ).slice(0, 10);
 
                 if (matches.length > 0) {
                     searchResults.classList.remove('hidden');
@@ -427,14 +394,12 @@
             document.getElementById('studentProfile').classList.add('hidden');
         });
 
-        // إغلاق قائمة البحث عند النقر خارجها
         document.addEventListener('click', (e) => {
             if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
                 searchResults.classList.add('hidden');
             }
         });
 
-        // تصفية بالصف
         classSelect.addEventListener('change', (e) => {
             const selectedClass = e.target.value;
             studentSelect.innerHTML = '<option value="">-- اختر الطالب --</option>';
@@ -445,7 +410,7 @@
                 
                 studentsInClass.forEach(s => {
                     let opt = document.createElement('option');
-                    opt.value = s.name; // استخدام الاسم كمعرف
+                    opt.value = s.name;
                     opt.textContent = s.name;
                     studentSelect.appendChild(opt);
                 });
@@ -470,46 +435,65 @@
             }
         });
 
-        // ==========================================
-        // بناء وعرض الملف الشخصي
-        // ==========================================
         function loadStudentProfile(student) {
             document.getElementById('profileName').textContent = student.name;
             document.getElementById('profileClass').textContent = student.class;
             document.getElementById('profileCpr').textContent = student.cpr;
 
-            // تنظيف الاسم لتطابقه مع السجلات
             const cleanName = student.name.replace(/^[\d\s._-]+/, '').trim();
 
-            // 1. تجميع الغياب والأعذار
-            let studentAbsences = globalData.absences.filter(r => r.studentName.includes(cleanName));
-            let studentExcuses = globalData.excuses.filter(e => e.studentName.includes(cleanName));
+            // === 1. بناء شبكة التفاصيل الشاملة للطباعة المخفية ===
+            const fullDetails = globalData.fullDataMap[cleanName];
+            const detailsGrid = document.getElementById('fullDetailsGrid');
+            detailsGrid.innerHTML = '';
             
-            // دمج الغياب والأعذار لعدم التكرار (نعرض الغياب، وإذا كان له عذر نعرضه)
-            let combinedAbsences = [];
+            if(fullDetails) {
+                // الأعمدة المستثناة لأنها موجودة بالترويسة أو غير هامة للعموم
+                const ignoredKeys = ['اسم الطالب', 'الفرقة (الصف)', 'الاسم المدمج للقوائم', 'التسلسل', 'الرقم الشخصي', 'رقم الطالب (مُحدث)', 'حالة القيد']; 
+                
+                for(let key in fullDetails) {
+                    let value = fullDetails[key];
+                    if(ignoredKeys.includes(key) || !value || value.trim() === '') continue;
+                    
+                    detailsGrid.innerHTML += `
+                        <div class="bg-gray-50 p-3 rounded-xl border border-gray-100 flex flex-col justify-center">
+                            <p class="text-xs font-bold text-gray-400 mb-1">${key}</p>
+                            <p class="font-bold text-gray-800 text-sm">${value}</p>
+                        </div>
+                    `;
+                }
+            } else {
+                detailsGrid.innerHTML = '<div class="col-span-full p-4 text-center text-gray-400 font-bold">لا توجد بيانات تفصيلية إضافية</div>';
+            }
+
+            // === 2. تجميع الغياب (حساب اليوم مرة واحدة فقط) ===
+            let dailyAbsencesMap = {};
+            let studentAbsences = globalData.absences.filter(r => r.studentName.includes(cleanName));
+            
             studentAbsences.forEach(abs => {
-                let excuseForThisDate = studentExcuses.find(e => e.date === abs.date);
-                combinedAbsences.push({
-                    date: abs.date,
-                    details: excuseForThisDate ? `عذر مقدم: ${excuseForThisDate.reason}` : (abs.excuseType ? abs.excuseType : "غياب غير مبرر")
-                });
-            });
-            // إضافة الأعذار التي ليس لها سجل غياب مباشر (إن وجدت)
-            studentExcuses.forEach(exc => {
-                if(!combinedAbsences.find(a => a.date === exc.date)) {
-                    combinedAbsences.push({ date: exc.date, details: `عذر مقدم: ${exc.reason}` });
+                let currentExcuse = abs.excuseType ? abs.excuseType : "غياب غير مبرر";
+                if (!dailyAbsencesMap[abs.date] || (dailyAbsencesMap[abs.date] === "غياب غير مبرر" && currentExcuse !== "غياب غير مبرر")) {
+                    dailyAbsencesMap[abs.date] = currentExcuse;
                 }
             });
 
-            // 2. تجميع التأخير
-            let studentLates = globalData.lates.filter(l => l.studentName.includes(cleanName));
+            // إضافة الأعذار التي قد لا تكون في سجل الغياب
+            let studentExcuses = globalData.excuses.filter(e => e.studentName.includes(cleanName));
+            studentExcuses.forEach(exc => {
+                dailyAbsencesMap[exc.date] = `عذر مقدم: ${exc.reason}`;
+            });
 
-            // 3. تجميع المخالفات
+            let combinedAbsences = Object.keys(dailyAbsencesMap).map(date => {
+                return { date: date, details: dailyAbsencesMap[date] };
+            });
+
+            // === 3. تجميع التأخير والمخالفات ===
+            let studentLates = globalData.lates.filter(l => l.studentName.includes(cleanName));
             let studentViolations = globalData.violations.filter(v => v.studentName.includes(cleanName));
 
             // عرض الجداول
             document.getElementById('absencesCount').textContent = combinedAbsences.length;
-            renderTable('absencesTable', combinedAbsences, ['date', 'details'], "لا توجد سجلات غياب");
+            renderTable('absencesTable', combinedAbsences, ['date', 'details'], "حضور منتظم (لا توجد غيابات)");
 
             document.getElementById('latesCount').textContent = studentLates.length;
             renderTable('latesTable', studentLates, ['date', 'excuseType'], "لا يوجد تأخير مسجل");
@@ -517,12 +501,10 @@
             document.getElementById('violationsCount').textContent = studentViolations.length;
             renderTable('violationsTable', studentViolations, ['date', 'supervisor', 'violationType', 'actionTaken'], "لا توجد مخالفات سلوكية");
 
-            // إظهار القسم بأنيميشن
             const profile = document.getElementById('studentProfile');
             profile.classList.remove('hidden');
         }
 
-        // دالة مساعدة لطباعة الجداول
         function renderTable(tbodyId, dataArray, keys, emptyMessage) {
             const tbody = document.getElementById(tbodyId);
             tbody.innerHTML = '';
@@ -532,7 +514,6 @@
                 return;
             }
 
-            // ترتيب زمني تنازلي (الأحدث أولاً) إن أمكن
             dataArray.sort((a,b) => new Date(b.date) - new Date(a.date));
 
             dataArray.forEach(item => {
@@ -553,9 +534,6 @@
             });
         }
 
-        // ==========================================
-        // أدوات مساعدة (UI Utils)
-        // ==========================================
         function showLoading(show) {
             document.getElementById('loadingOverlay').style.display = show ? 'flex' : 'none';
         }
