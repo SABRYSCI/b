@@ -349,7 +349,6 @@
     </div>
 
     <script>
-        // رابط السكربت الخاص بك
         const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxlJnpJN9y9h04cOswtY3BGGwUS8rhybOisxDFkIQJ6_9nFSPMJeK-wiuFEECnBY3v5/exec"; 
         
         const HARDCODED_ROSTERS = {
@@ -668,7 +667,6 @@
         // دالة آمنة لفتح ملف الطالب عبر النقر على اسمه
         window.viewStudentFromModal = function(normKey) {
             closeHealthModal();
-            // البحث بدقة عبر مفتاح الاسم المعياري
             const student = searchableStudents.find(s => s.normName === normKey);
             if(student) {
                 document.getElementById('searchInput').value = student.name;
@@ -690,14 +688,17 @@
             if (globalData.normFullDataMap && Object.keys(globalData.normFullDataMap).length > 0) {
                 for (let normKey in globalData.normFullDataMap) {
                     let details = globalData.normFullDataMap[normKey];
-                    let healthStatus = details['الحالة الصحية للطالب']; 
+                    // جلب الحالة بأي شكل مكتوب به العمود
+                    let healthStatus = details['الحالة الصحية للطالب'] || details['الحالة الصحية'] || ""; 
                     
                     if (healthStatus && String(healthStatus).trim() !== '' && String(healthStatus).trim() !== 'سليم') {
                         sickStudentsCount++;
                         let studentNameRaw = details['اسم الطالب'] || normKey;
                         let studentClass = details['الفرقة (الصف)'] || details['الصف'] || "-";
                         let cpr = details['الرقم الشخصي'] || "-";
-                        let diseases = details['الامراض التي يعاني منها الطالب'] || "";
+                        
+                        // هنا الحل للمشكلة: استخراج اسم المرض بجميع أشكال كتابة اسم العمود في الشيت
+                        let diseases = details['الأمراض التي يعاني منها الطالب'] || details['الامراض التي يعاني منها الطالب'] || details['الأمراض'] || "";
                         
                         let safeDiseaseStr = String(diseases).trim();
                         let displayDisease = (safeDiseaseStr !== "" && safeDiseaseStr !== "-") ? safeDiseaseStr : healthStatus;
@@ -900,8 +901,9 @@
                 detailsGrid.innerHTML = '';
                 
                 if(fullDetails && Object.keys(fullDetails).length > 0) {
-                    const healthStatus = fullDetails['الحالة الصحية للطالب'];
-                    const diseases = fullDetails['الامراض التي يعاني منها الطالب'];
+                    let healthStatus = fullDetails['الحالة الصحية للطالب'] || fullDetails['الحالة الصحية'] || "";
+                    // هنا أيضاً تحديث لكشف اسم المرض بكافة الصيغ
+                    let diseases = fullDetails['الأمراض التي يعاني منها الطالب'] || fullDetails['الامراض التي يعاني منها الطالب'] || fullDetails['الأمراض'] || "";
                     
                     if (healthStatus && String(healthStatus).trim() !== '' && String(healthStatus).trim() !== 'سليم') {
                         mainProfileCard.classList.add('bg-red-50', 'border-red-400');
@@ -922,7 +924,7 @@
                         if(ignoredKeys.includes(key) || !value || String(value).trim() === '') continue;
                         
                         let textColorClass = "text-gray-800";
-                        if (key === 'الحالة الصحية للطالب' && value !== 'سليم') textColorClass = "text-red-600 font-black";
+                        if ((key === 'الحالة الصحية للطالب' || key === 'الحالة الصحية') && value !== 'سليم') textColorClass = "text-red-600 font-black";
 
                         detailsGrid.innerHTML += `
                             <div class="bg-gray-50 p-3 rounded-xl border border-gray-100 flex flex-col justify-center">
