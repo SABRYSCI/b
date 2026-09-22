@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>نموذج تحويل طالب للمشرف الإداري</title>
     <style>
+        /* استيراد خط الرقعة اليدوي من جوجل */
+        @import url('https://fonts.googleapis.com/css2?family=Aref+Ruqaa&display=swap');
+
         body { font-family: 'Sakkal Majalla', 'Arial', sans-serif; background-color: #e9ecef; margin: 0; padding: 20px; font-size: 18px; }
         .a4-page { background: white; width: 210mm; min-height: 297mm; margin: 0 auto; padding: 15mm 20mm; box-sizing: border-box; box-shadow: 0 4px 8px rgba(0,0,0,0.1); position: relative; }
         .header-image { width: 100%; height: auto; margin-bottom: 20px; }
@@ -19,16 +22,29 @@
         .mt-10 { margin-top: 10px; }
         .mt-20 { margin-top: 20px; }
         
-        input, select, textarea { font-family: inherit; font-size: 18px; border: none; border-bottom: 1px dashed #000; background: transparent; outline: none; text-align: center; color: #000; }
+        /* تطبيق الخط اليدوي واللون الأزرق الغامق على جميع المدخلات */
+        input, select, textarea { 
+            font-family: 'Aref Ruqaa', serif !important; 
+            font-size: 22px !important; /* تكبير الخط قليلاً ليكون واضحاً */
+            color: #00008b !important; /* أزرق غامق */
+            border: none; 
+            border-bottom: 1px dashed #000; 
+            background: transparent; 
+            outline: none; 
+            text-align: center; 
+        }
         select { cursor: pointer; }
         
+        /* تنسيق القوائم المنسدلة ومربعات النص */
+        .action-select { width: 100%; padding: 5px; border: 1px dashed #000; background-color: #fdfdfd; cursor: pointer; text-align: right; }
         textarea.action-input { width: 100%; resize: none; border-bottom: 1px dashed #000; padding: 5px; box-sizing: border-box; text-align: right; overflow: hidden; }
         
         table { width: 100%; border-collapse: collapse; margin-top: 20px; margin-bottom: 20px; table-layout: fixed; }
         th, td { border: 1px solid #000; padding: 10px 5px; text-align: center; vertical-align: middle; }
         th { background-color: #f9f9f9; }
         
-        .v-date { font-size: 15px !important; width: 100% !important; border-bottom: none; cursor: text; }
+        /* تصغير خط التاريخ اليدوي ليتناسب مع الجدول */
+        .v-date { font-size: 17px !important; width: 100% !important; border-bottom: none; cursor: text; }
 
         @media print {
             @page { margin: 0; size: A4; }
@@ -36,9 +52,14 @@
             .controls { display: none !important; }
             .a4-page { box-shadow: none; margin: 0; width: 100%; height: 100%; page-break-after: avoid; page-break-inside: avoid; }
             input, select, textarea { border-bottom: none !important; border: none !important; appearance: none; -webkit-appearance: none; }
+            
+            /* إخفاء القوائم المنسدلة في الطباعة وإظهار النص فقط */
+            .action-select { display: none !important; }
+            .action-input { display: block !important; border: none !important; padding: 0 !important; }
+            
             textarea { padding: 0; }
             select { background-image: none; }
-            input::placeholder, textarea::placeholder { color: transparent; }
+            input::placeholder, textarea::placeholder { color: transparent !important; }
         }
     </style>
 </head>
@@ -85,25 +106,105 @@
                 </tr>
             </thead>
             <tbody>
+                <!-- المخالفة الأولى -->
                 <tr data-index="1">
                     <td>الأولى</td>
-                    <td><textarea id="v1_type" class="action-input v-input" rows="2" placeholder="اكتب هنا..."></textarea></td>
-                    <td><textarea id="v1_action" class="action-input v-input" rows="2" placeholder="اكتب هنا..."></textarea></td>
-                    <!-- تم إزالة readonly لتتمكن من تعديل الحصة والتاريخ يدوياً -->
+                    <td>
+                        <select id="v1_type_sel" class="action-select" onchange="syncInput(this, 'v1_type')">
+                            <option value="">-- اختر المخالفة --</option>
+                            <option value="عدم احضار كراسة الانشطة(الملزمة) أو الكتاب المدرسي">عدم احضار الكتاب أو الملزمة</option>
+                            <option value="عدم متابعة الشرح والانشغال عن الدرس">عدم متابعة الشرح والانشغال</option>
+                            <option value="الاحاديث الجانبية وتعطيل الحصة">الاحاديث الجانبية وتعطيل الحصة</option>
+                            <option value="الحركة في الصف بدون استئذان">الحركة في الصف بدون استئذان</option>
+                            <option value="سب زميله او رمي اشياء عليه">سب زميله او رمي اشياء عليه</option>
+                            <option value="النوم على الطاولة">النوم على الطاولة</option>
+                            <option value="كثرة الخروج للحمام">كثرة الخروج للحمام</option>
+                            <option value="الهروب من الحصة">الهروب من الحصة</option>
+                            <option value="اصدار اصوات">اصدار اصوات</option>
+                            <option value="other">أخرى (كتابة يدوية)</option>
+                        </select>
+                        <textarea id="v1_type" class="action-input v-input" rows="2" style="display:none;" placeholder="اكتب المخالفة..."></textarea>
+                    </td>
+                    <td>
+                        <select id="v1_action_sel" class="action-select" onchange="syncInput(this, 'v1_action')">
+                            <option value="">-- اختر الإجراء --</option>
+                            <option value="النصح والتوجيه والارشاد">النصح والتوجيه والارشاد</option>
+                            <option value="لفت نظر شفهي">لفت نظر شفهي</option>
+                            <option value="تعهد الطالب بعدم تكرار المخالفة">تعهد الطالب بعدم تكرار المخالفة</option>
+                            <option value="تغيير مكان جلوس الطالب">تغيير مكان جلوس الطالب</option>
+                            <option value="التواصل مع ولي امر الطالب وابلاغه">التواصل مع ولي امر الطالب وابلاغه</option>
+                            <option value="other">أخرى (كتابة يدوية)</option>
+                        </select>
+                        <textarea id="v1_action" class="action-input v-input" rows="2" style="display:none;" placeholder="اكتب الإجراء..."></textarea>
+                    </td>
                     <td><input type="text" id="v1_date" class="text-center v-date"></td>
                     <td></td>
                 </tr>
+                <!-- المخالفة الثانية -->
                 <tr data-index="2">
                     <td>الثانية</td>
-                    <td><textarea id="v2_type" class="action-input v-input" rows="2" placeholder="اكتب هنا..."></textarea></td>
-                    <td><textarea id="v2_action" class="action-input v-input" rows="2" placeholder="اكتب هنا..."></textarea></td>
+                    <td>
+                        <select id="v2_type_sel" class="action-select" onchange="syncInput(this, 'v2_type')">
+                            <option value="">-- اختر المخالفة --</option>
+                            <option value="عدم احضار كراسة الانشطة(الملزمة) أو الكتاب المدرسي">عدم احضار الكتاب أو الملزمة</option>
+                            <option value="عدم متابعة الشرح والانشغال عن الدرس">عدم متابعة الشرح والانشغال</option>
+                            <option value="الاحاديث الجانبية وتعطيل الحصة">الاحاديث الجانبية وتعطيل الحصة</option>
+                            <option value="الحركة في الصف بدون استئذان">الحركة في الصف بدون استئذان</option>
+                            <option value="سب زميله او رمي اشياء عليه">سب زميله او رمي اشياء عليه</option>
+                            <option value="النوم على الطاولة">النوم على الطاولة</option>
+                            <option value="كثرة الخروج للحمام">كثرة الخروج للحمام</option>
+                            <option value="الهروب من الحصة">الهروب من الحصة</option>
+                            <option value="اصدار اصوات">اصدار اصوات</option>
+                            <option value="other">أخرى (كتابة يدوية)</option>
+                        </select>
+                        <textarea id="v2_type" class="action-input v-input" rows="2" style="display:none;" placeholder="اكتب المخالفة..."></textarea>
+                    </td>
+                    <td>
+                        <select id="v2_action_sel" class="action-select" onchange="syncInput(this, 'v2_action')">
+                            <option value="">-- اختر الإجراء --</option>
+                            <option value="النصح والتوجيه والارشاد">النصح والتوجيه والارشاد</option>
+                            <option value="لفت نظر شفهي">لفت نظر شفهي</option>
+                            <option value="تعهد الطالب بعدم تكرار المخالفة">تعهد الطالب بعدم تكرار المخالفة</option>
+                            <option value="تغيير مكان جلوس الطالب">تغيير مكان جلوس الطالب</option>
+                            <option value="التواصل مع ولي امر الطالب وابلاغه">التواصل مع ولي امر الطالب وابلاغه</option>
+                            <option value="other">أخرى (كتابة يدوية)</option>
+                        </select>
+                        <textarea id="v2_action" class="action-input v-input" rows="2" style="display:none;" placeholder="اكتب الإجراء..."></textarea>
+                    </td>
                     <td><input type="text" id="v2_date" class="text-center v-date"></td>
                     <td></td>
                 </tr>
+                <!-- المخالفة الثالثة -->
                 <tr data-index="3">
                     <td>الثالثة</td>
-                    <td><textarea id="v3_type" class="action-input v-input" rows="2" placeholder="اكتب هنا..."></textarea></td>
-                    <td><textarea id="v3_action" class="action-input v-input" rows="2" placeholder="اكتب هنا..."></textarea></td>
+                    <td>
+                        <select id="v3_type_sel" class="action-select" onchange="syncInput(this, 'v3_type')">
+                            <option value="">-- اختر المخالفة --</option>
+                            <option value="عدم احضار كراسة الانشطة(الملزمة) أو الكتاب المدرسي">عدم احضار الكتاب أو الملزمة</option>
+                            <option value="عدم متابعة الشرح والانشغال عن الدرس">عدم متابعة الشرح والانشغال</option>
+                            <option value="الاحاديث الجانبية وتعطيل الحصة">الاحاديث الجانبية وتعطيل الحصة</option>
+                            <option value="الحركة في الصف بدون استئذان">الحركة في الصف بدون استئذان</option>
+                            <option value="سب زميله او رمي اشياء عليه">سب زميله او رمي اشياء عليه</option>
+                            <option value="النوم على الطاولة">النوم على الطاولة</option>
+                            <option value="كثرة الخروج للحمام">كثرة الخروج للحمام</option>
+                            <option value="الهروب من الحصة">الهروب من الحصة</option>
+                            <option value="اصدار اصوات">اصدار اصوات</option>
+                            <option value="other">أخرى (كتابة يدوية)</option>
+                        </select>
+                        <textarea id="v3_type" class="action-input v-input" rows="2" style="display:none;" placeholder="اكتب المخالفة..."></textarea>
+                    </td>
+                    <td>
+                        <select id="v3_action_sel" class="action-select" onchange="syncInput(this, 'v3_action')">
+                            <option value="">-- اختر الإجراء --</option>
+                            <option value="النصح والتوجيه والارشاد">النصح والتوجيه والارشاد</option>
+                            <option value="لفت نظر شفهي">لفت نظر شفهي</option>
+                            <option value="تعهد الطالب بعدم تكرار المخالفة">تعهد الطالب بعدم تكرار المخالفة</option>
+                            <option value="تغيير مكان جلوس الطالب">تغيير مكان جلوس الطالب</option>
+                            <option value="التواصل مع ولي امر الطالب وابلاغه">التواصل مع ولي امر الطالب وابلاغه</option>
+                            <option value="other">أخرى (كتابة يدوية)</option>
+                        </select>
+                        <textarea id="v3_action" class="action-input v-input" rows="2" style="display:none;" placeholder="اكتب الإجراء..."></textarea>
+                    </td>
                     <td><input type="text" id="v3_date" class="text-center v-date"></td>
                     <td></td>
                 </tr>
@@ -117,12 +218,9 @@
                 التاريخ: <input type="text" id="refDate" style="width: 100px;">
             </div>
             <div>
-                <!-- تم إزالة readonly لتتمكن من تعديل حصة التحويل يدوياً -->
                 الحصة: <input type="text" id="refPeriod" style="width: 70px;">
             </div>
         </div>
-
-        <!-- تم حذف الملاحظات من هنا -->
 
         <p class="mt-20" style="line-height: 1.6;">
             ونحن عندما نبلغكم ذلك فأملنا كبير في أن نتعاون معاً لتلافي جوانب التقصير عند الطالب في المستقبل، حرصاً على مستقبله الدراسي و الأخلاقي .
@@ -200,6 +298,45 @@
             return map[periodString] || periodString;
         }
 
+        function syncInput(selectElem, textAreaId) {
+            const textArea = document.getElementById(textAreaId);
+            if (selectElem.value === 'other') {
+                textArea.style.display = 'block';
+                textArea.value = '';
+                selectElem.style.display = 'none';
+                textArea.focus();
+            } else {
+                textArea.style.display = 'none';
+                textArea.value = selectElem.value;
+            }
+            textArea.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+
+        function setDropdownOrText(textAreaId, selectId, value) {
+            const textArea = document.getElementById(textAreaId);
+            const selectElem = document.getElementById(selectId);
+            textArea.value = value || '';
+
+            if (!value) {
+                selectElem.value = '';
+                selectElem.style.display = 'block';
+                textArea.style.display = 'none';
+                return;
+            }
+
+            let optionExists = Array.from(selectElem.options).some(opt => opt.value === value);
+
+            if (optionExists) {
+                selectElem.value = value;
+                selectElem.style.display = 'block';
+                textArea.style.display = 'none';
+            } else {
+                selectElem.value = 'other';
+                selectElem.style.display = 'none';
+                textArea.style.display = 'block';
+            }
+        }
+
         const vInputs = document.querySelectorAll('.v-input');
         vInputs.forEach(input => {
             input.addEventListener('input', function() {
@@ -210,8 +347,8 @@
                 
                 if(this.value.trim() !== '' && dateField.value === '') {
                     const today = new Date();
-                    const dd = today.getDate();
-                    const mm = today.getMonth() + 1;
+                    const dd = String(today.getDate()).padStart(2, '0');
+                    const mm = String(today.getMonth() + 1).padStart(2, '0');
                     const dayName = document.getElementById('sysDay').value;
                     const periodString = calculatePeriod(isPrimary ? 'primary' : 'prep');
                     let periodNum = getPeriodShortName(periodString);
@@ -257,16 +394,16 @@
                 const data = await response.json();
                 
                 if(data && Object.keys(data).length > 0) {
-                    document.getElementById('v1_type').value = data.v1_type || '';
-                    document.getElementById('v1_action').value = data.v1_action || '';
+                    setDropdownOrText('v1_type', 'v1_type_sel', data.v1_type);
+                    setDropdownOrText('v1_action', 'v1_action_sel', data.v1_action);
                     document.getElementById('v1_date').value = data.v1_date || '';
                     
-                    document.getElementById('v2_type').value = data.v2_type || '';
-                    document.getElementById('v2_action').value = data.v2_action || '';
+                    setDropdownOrText('v2_type', 'v2_type_sel', data.v2_type);
+                    setDropdownOrText('v2_action', 'v2_action_sel', data.v2_action);
                     document.getElementById('v2_date').value = data.v2_date || '';
                     
-                    document.getElementById('v3_type').value = data.v3_type || '';
-                    document.getElementById('v3_action').value = data.v3_action || '';
+                    setDropdownOrText('v3_type', 'v3_type_sel', data.v3_type);
+                    setDropdownOrText('v3_action', 'v3_action_sel', data.v3_action);
                     document.getElementById('v3_date').value = data.v3_date || '';
                     
                     document.getElementById('refDay').value = data.refDay || '';
@@ -295,7 +432,7 @@
                 v2_type: document.getElementById('v2_type').value, v2_action: document.getElementById('v2_action').value, v2_date: document.getElementById('v2_date').value,
                 v3_type: document.getElementById('v3_type').value, v3_action: document.getElementById('v3_action').value, v3_date: document.getElementById('v3_date').value,
                 refDay: document.getElementById('refDay').value, refDate: document.getElementById('refDate').value, refPeriod: document.getElementById('refPeriod').value,
-                notes: "" // تم إرسال نص فارغ بدلاً من الملاحظات حتى لا يتعطل حفظ Google Sheets
+                notes: "" 
             };
 
             statusMsg.textContent = "جاري الحفظ...";
@@ -315,8 +452,12 @@
         });
 
         function clearForm() {
+            const selects = document.querySelectorAll('.action-select');
+            selects.forEach(select => { select.value = ''; select.style.display = 'block'; });
+            
             const inputs = document.querySelectorAll('.action-input, #refDay, #refDate, #refPeriod');
-            inputs.forEach(input => input.value = '');
+            inputs.forEach(input => { input.value = ''; if(input.tagName === 'TEXTAREA') input.style.display = 'none'; });
+            
             const dates = document.querySelectorAll('.v-date');
             dates.forEach(input => input.value = '');
         }
