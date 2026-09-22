@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>نموذج تحويل طالب للمشرف الإداري</title>
     <style>
-        /* استيراد خط الرقعة اليدوي من جوجل */
-        @import url('https://fonts.googleapis.com/css2?family=Aref+Ruqaa&display=swap');
+        /* استيراد خط النسخ الواضح من جوجل */
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@700&display=swap');
 
         body { font-family: 'Sakkal Majalla', 'Arial', sans-serif; background-color: #e9ecef; margin: 0; padding: 20px; font-size: 18px; }
         .a4-page { background: white; width: 210mm; min-height: 297mm; margin: 0 auto; padding: 15mm 20mm; box-sizing: border-box; box-shadow: 0 4px 8px rgba(0,0,0,0.1); position: relative; }
@@ -22,10 +22,11 @@
         .mt-10 { margin-top: 10px; }
         .mt-20 { margin-top: 20px; }
         
-        /* تطبيق الخط اليدوي واللون الأزرق الغامق على جميع المدخلات */
+        /* تطبيق خط النسخ السميك واللون الأزرق الغامق على جميع المدخلات */
         input, select, textarea { 
-            font-family: 'Aref Ruqaa', serif !important; 
-            font-size: 22px !important; /* تكبير الخط قليلاً ليكون واضحاً */
+            font-family: 'Noto Naskh Arabic', serif !important; 
+            font-weight: bold !important;
+            font-size: 18px !important; 
             color: #00008b !important; /* أزرق غامق */
             border: none; 
             border-bottom: 1px dashed #000; 
@@ -37,14 +38,14 @@
         
         /* تنسيق القوائم المنسدلة ومربعات النص */
         .action-select { width: 100%; padding: 5px; border: 1px dashed #000; background-color: #fdfdfd; cursor: pointer; text-align: right; }
-        textarea.action-input { width: 100%; resize: none; border-bottom: 1px dashed #000; padding: 5px; box-sizing: border-box; text-align: right; overflow: hidden; }
+        textarea.action-input { width: 100%; resize: none; border-bottom: 1px dashed #000; padding: 5px; box-sizing: border-box; text-align: right; overflow: hidden; line-height: 1.5; }
         
         table { width: 100%; border-collapse: collapse; margin-top: 20px; margin-bottom: 20px; table-layout: fixed; }
         th, td { border: 1px solid #000; padding: 10px 5px; text-align: center; vertical-align: middle; }
         th { background-color: #f9f9f9; }
         
-        /* تصغير خط التاريخ اليدوي ليتناسب مع الجدول */
-        .v-date { font-size: 17px !important; width: 100% !important; border-bottom: none; cursor: text; }
+        /* ضبط حجم خط التاريخ ليتناسب مع عرض العمود في خط النسخ */
+        .v-date { font-size: 15px !important; width: 100% !important; border-bottom: none; cursor: text; }
 
         @media print {
             @page { margin: 0; size: A4; }
@@ -75,7 +76,7 @@
         <img src="https://i.postimg.cc/K88X7RLb/trwysyh-dhhbyt.png" alt="الترويسة" class="header-image">
 
         <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
-            <div>الأستاذ الفاضل: <input type="text" id="supervisorName" value="" style="width: 200px;" readonly> المحترم</div>
+            <div>الأستاذ الفاضل: <input type="text" id="supervisorName" value="" style="width: 290px;"> المحترم</div>
             <div>المشرف الإداري بالمدرسة</div>
         </div>
 
@@ -228,7 +229,7 @@
         <p>والسلام عليكم ورحمة الله وبركاته</p>
 
         <div style="display: flex; justify-content: space-between; margin-top: 20px;">
-            <div>اسم المعلم: <input type="text" value="أ. صبري محمد حمد" style="width: 180px; text-align: right;"></div>
+            <div>اسم المعلم: <input type="text" value="أ. صبري محمد حمد" style="width: 160px; text-align: center;"> - مادة: <input type="text" value="العلوم" style="width: 65px; text-align: center;"></div>
             <div>التوقيع: ............................</div>
         </div>
     </div>
@@ -379,8 +380,22 @@
             clearForm();
             
             if (selectedClass) {
-                document.getElementById('supervisorName').value = selectedClass.includes('سادس') ? 'السيد محمد ضياء' : 'علي سيف';
+                // ضبط اسم المشرف بناءً على المرحلة
+                let supervisor = "";
+                if (selectedClass.includes('سادس')) {
+                    supervisor = 'السيد محمد ضياء';
+                } else if (selectedClass.includes('أول')) {
+                    supervisor = 'أ. عباس الفردان / أ. درويش يحيى';
+                } else if (selectedClass.includes('ثاني')) {
+                    supervisor = 'علي سيف';
+                } else if (selectedClass.includes('ثالث')) {
+                    supervisor = 'جاسم الحداد';
+                }
+                document.getElementById('supervisorName').value = supervisor;
+
                 HARDCODED_ROSTERS[selectedClass].forEach(student => studentSelect.appendChild(new Option(student, student)));
+            } else {
+                document.getElementById('supervisorName').value = '';
             }
         });
 
