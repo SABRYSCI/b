@@ -667,16 +667,18 @@
             }, 300);
         }
 
-        function populateClassDropdown() {
-            const classSelect = document.getElementById('classSelect');
-            classSelect.innerHTML = '<option value="">-- كل الصفوف --</option>';
-            globalData.classesList.forEach(cls => {
-                let opt = document.createElement('option');
-                opt.value = cls;
-                opt.textContent = cls;
-                classSelect.appendChild(opt);
-            });
-        }
+        // دالة جديدة لفتح ملف الطالب عند الضغط على اسمه في نافذة الحالات الطبية
+        window.viewStudentFromModal = function(studentName) {
+            closeHealthModal(); // إغلاق النافذة الطبية
+            const student = searchableStudents.find(s => s.name === studentName);
+            if(student) {
+                // تحديث حقل البحث وفتح الملف
+                document.getElementById('searchInput').value = student.name;
+                loadStudentProfile(student);
+                // التمرير بسلاسة إلى بطاقة الطالب
+                document.getElementById('studentProfile').scrollIntoView({ behavior: 'smooth' });
+            }
+        };
 
         function openHealthModal() {
             const modal = document.getElementById('healthModal');
@@ -696,13 +698,18 @@
                         let studentNameRaw = details['اسم الطالب'] || normKey;
                         let studentClass = details['الفرقة (الصف)'] || details['الصف'] || "-";
                         let cpr = details['الرقم الشخصي'] || "-";
-                        let diseases = details['الامراض التي يعاني منها الطالب'] || "-";
+                        let diseases = details['الامراض التي يعاني منها الطالب'] || "";
                         
-                        let displayDisease = diseases !== "-" ? `${healthStatus} (${diseases})` : healthStatus;
+                        // عرض المرض مباشرة إذا كان متوفراً، وإلا نعرض الحالة الصحية العامة
+                        let displayDisease = (diseases && diseases.trim() !== "" && diseases !== "-") ? diseases : healthStatus;
 
                         tbody.innerHTML += `
                             <tr class="hover:bg-red-50 transition-colors">
-                                <td class="p-4 font-bold text-gray-800">${studentNameRaw}</td>
+                                <td class="p-4 font-bold text-gray-800">
+                                    <button onclick="viewStudentFromModal('${studentNameRaw}')" class="text-primary-600 hover:text-primary-800 hover:underline flex items-center gap-2 cursor-pointer transition-colors text-right">
+                                        <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i> ${studentNameRaw}
+                                    </button>
+                                </td>
                                 <td class="p-4"><span class="bg-gray-100 px-2 py-1 rounded border">${studentClass}</span></td>
                                 <td class="p-4 font-mono">${cpr}</td>
                                 <td class="p-4 text-red-600 font-bold">${displayDisease}</td>
@@ -883,8 +890,9 @@
                     cardSideColor.classList.replace('bg-primary-600', 'bg-red-600');
                     healthAlertBadge.classList.remove('hidden');
                     
-                    if (diseases && diseases.trim() !== '') {
-                        healthAlertText.textContent = `${healthStatus} - يعاني من: ${diseases}`;
+                    // عرض اسم المرض فقط بدلاً من العبارة العامة
+                    if (diseases && diseases.trim() !== '' && diseases !== '-') {
+                        healthAlertText.textContent = diseases;
                     } else {
                         healthAlertText.textContent = healthStatus;
                     }
