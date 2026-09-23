@@ -42,11 +42,13 @@
         .violation-card strong { color: #d35400; }
         .violation-teacher { display: block; font-size: 15px; color: #2c3e50; margin-top: 4px; border-top: 1px dashed #ccc; padding-top: 4px; }
         
+        #studentReportView { display: none; }
+        
+        /* تنسيقات الطباعة الديناميكية */
         @media print {
             @page { margin: 0; size: A4; }
             body { padding: 0; background: white; -webkit-print-color-adjust: exact; }
-            .controls, #dashboardView { display: none !important; }
-            #formView { display: block !important; }
+            .controls, .no-print, .dash-header { display: none !important; }
             .a4-page { box-shadow: none; margin: 0; width: 100%; height: 100%; page-break-after: avoid; page-break-inside: avoid; }
             input, select, textarea { border-bottom: none !important; border: none !important; appearance: none; -webkit-appearance: none; }
             .action-select { display: none !important; }
@@ -59,6 +61,7 @@
 </head>
 <body>
 
+    <!-- أدوات التحكم المركزية -->
     <div class="controls no-print">
         <div style="margin-bottom: 15px; font-size: 22px; font-weight: bold;">
             حدد المعلم: 
@@ -124,6 +127,7 @@
         <div style="margin-top:10px;"><span id="statusMsg" style="font-weight: bold; color: #27ae60; font-size: 20px;"></span></div>
     </div>
 
+    <!-- واجهة النموذج الأساسية (للمعلم) -->
     <div class="a4-page" id="formView">
         <img src="https://i.postimg.cc/K88X7RLb/trwysyh-dhhbyt.png" alt="الترويسة" class="header-image">
 
@@ -236,7 +240,7 @@
                             <option value="الحركة في الصف بدون استئذان">الحركة في الصف بدون استئذان</option>
                             <option value="سب زميله او رمي اشياء عليه">سب زميله او رمي اشياء عليه</option>
                             <option value="النوم على الطاولة">النوم على الطاولة</option>
-                            <option value="كثر الخروج للحمام">كثرة الخروج للحمام</option>
+                            <option value="كثرة الخروج للحمام">كثرة الخروج للحمام</option>
                             <option value="الهروب من الحصة">الهروب من الحصة</option>
                             <option value="اصدار اصوات">اصدار اصوات</option>
                             <option value="other">أخرى (كتابة يدوية)</option>
@@ -283,7 +287,7 @@
         </div>
     </div>
 
-    <!-- لوحة الإحصائيات -->
+    <!-- لوحة الإحصائيات الشاملة -->
     <div id="dashboardView">
         <div style="text-align: center; margin-bottom: 20px;">
             <h2>📊 الإحصائيات المركزية لمخالفات الطلاب</h2>
@@ -304,16 +308,52 @@
         <table class="dash-table">
             <thead>
                 <tr>
-                    <th style="width: 25%;">اسم الطالب</th>
+                    <th style="width: 20%;">اسم الطالب</th>
                     <th style="width: 15%;">الصف</th>
                     <th style="width: 15%;">الحالة</th>
-                    <th style="width: 45%;">تفاصيل المخالفات (النص والمعلم)</th>
+                    <th style="width: 50%;">تفاصيل المخالفات (النص والمعلم)</th>
                 </tr>
             </thead>
             <tbody id="dashBody">
                 <tr><td colspan="4" style="padding:20px; font-size:20px;">اضغط على "تحديث البيانات" لجلب التقرير...</td></tr>
             </tbody>
         </table>
+    </div>
+
+    <!-- واجهة تقرير الطالب الشامل للمشرف -->
+    <div class="a4-page" id="studentReportView">
+        <div class="controls no-print" style="background: none; box-shadow: none; border-bottom: 2px dashed #ccc;">
+            <button class="btn btn-back" onclick="closeStudentReport()">◀ العودة للإحصائيات</button>
+            <button class="btn btn-print" onclick="window.print()">🖨️ طباعة التقرير الشامل</button>
+        </div>
+        
+        <img src="https://i.postimg.cc/K88X7RLb/trwysyh-dhhbyt.png" alt="الترويسة" class="header-image">
+        
+        <h2 class="text-center text-bold" style="font-size: 24px; text-decoration: underline; margin-bottom: 25px;">تقرير المخالفات السلوكية الشامل للطالب</h2>
+        
+        <div style="display: flex; justify-content: space-between; font-size: 20px; font-weight: bold; margin-bottom: 20px;">
+            <div>اسم الطالب: <span id="reportStudentName" style="color: darkblue;"></span></div>
+            <div>الصف: <span id="reportStudentClass" style="color: darkblue;"></span></div>
+        </div>
+
+        <table style="width: 100%; border-collapse: collapse; text-align: center;">
+            <thead>
+                <tr>
+                    <th style="width: 5%; border: 1px solid #000; padding: 10px; background-color: #f9f9f9;">م</th>
+                    <th style="width: 25%; border: 1px solid #000; padding: 10px; background-color: #f9f9f9;">تاريخ ووقت المخالفة</th>
+                    <th style="width: 25%; border: 1px solid #000; padding: 10px; background-color: #f9f9f9;">المعلم / المادة</th>
+                    <th style="width: 25%; border: 1px solid #000; padding: 10px; background-color: #f9f9f9;">نوع المخالفة</th>
+                    <th style="width: 20%; border: 1px solid #000; padding: 10px; background-color: #f9f9f9;">إجراء المعلم</th>
+                </tr>
+            </thead>
+            <tbody id="reportTableBody">
+            </tbody>
+        </table>
+
+        <div style="display: flex; justify-content: space-between; margin-top: 40px; font-weight: bold; font-size: 20px;">
+            <div>يعتمد، المشرف الإداري: ........................</div>
+            <div>مدير المدرسة: ........................</div>
+        </div>
     </div>
 
     <input type="hidden" id="sysDate">
@@ -324,6 +364,7 @@
         
         let fetchedRecord = {v1_type:"", v2_type:"", v3_type:""}; 
         let globalDashboardData = []; 
+        let globalRawViolations = []; // تم الإضافة لتخزين كل المخالفات لعمل التقرير الشامل
 
         const HARDCODED_ROSTERS = {
           "سادس ابتدائي 1": ["ابراهيم على خليل الحايكي", "السيد حسن صالح الموسوي", "السيد علوي ابراهيم ناصر حسن", "السيد هاشم مجيد فيصل محمد", "إيليا سعيد حسن حسن", "حسن على ميرزا خليل", "حسین اسامه عبد الجليل الجشي", "حسين عمار جاسم الاسكافي", "حيدر على ابراهيم حسن", "سيد صادق جعفر على ناصر", "سيد حامد حسین محمد درویش", "صادق على عبدالله اسماعيل", "عبد العزيز جلال عبد العزيز حاجی عبدالله", "عبدالله حسین عبدالله مال الله", "عبدالله على عباس شاهين", "على حسين على عبد على", "على عيسى ابراهيم الستراوي", "على قاسم عباس حسن", "عمار محمد عبد الامير الحصار", "غسان مهند عقيل مرهون", "قاسم جابر جاسم منصور", "قاسم محمد احمد حسن", "ليث محمود مسعود الوطني", "محمد صالح شوقي البناء", "محمد عباس خميس السودان", "نوح زهير عبد الوهاب غزوان", "يوسف كاظم محمد الحايكي"],
@@ -344,7 +385,6 @@
           "ثالث إعدادي 5": ["احمد يعقوب اسحاق يونس", "آدم محمد يوسف المحاسنيه", "السيد محمد جواد درويش الشرخات", "السيد محمد على جعفر الغنى", "السيد هاشم جلال عيسى حسن", "إلياس محمد يوسف المحاسنيه", "حسن محمد داود مشيمع", "حسين على حسن حسن", "حيدر عبد الامير سعيد عبدالوهاب", "حيدر فلاح موسى خميس", "سید قاسم حسين على ناصر", "سید محمد حسين محمد درويش", "سيدهاشم السيد فيصل حيدر علوي", "عباس حسن يوسف شريف", "عباس على عبدالوهاب الشيخ على", "عباس فاضل عبد النبي العود", "عبد العزيز حسن علی احمد", "على حسن جمعه حسن", "على حسن كاظم العويناتي", "على حسين سلمان على احمد", "على حسين عبدالله عباس", "على حسین عبدالله عبدالله", "على حمد عبد الرضا خمدن", "على عادل احمد عبدالله", "على محمد علی عباس", "علي مهدي عبدالله مرهون", "على يوسف احمد امان", "على يوسف كاظم القلاف", "عمار على سعيد عباس", "قاسم فاضل جاسم عتيق", "مجتبى عادل احمد کاظم", "محمد حبيب عبد الرسول احمد", "محمد حسين مرزوق الجبل", "محمد مهدي رائد عبد الكريم عبد على", "مناف عبدالله ابراهيم ال عميري", "يوسف احمد هلال فردان"]
         };
 
-        // تحديث المادة واسم المعلم عند اختيار المعلم وإعادة تهيئة القوائم
         document.getElementById('globalTeacherSelect').addEventListener('change', function() {
             if(this.value) {
                 let parts = this.options[this.selectedIndex].text.split(' - ');
@@ -497,7 +537,6 @@
             document.querySelectorAll('.action-select').forEach(el => el.disabled = true);
 
             try {
-                // إرسال اسم المعلم الحالي لجلب مخالفاته هو فقط
                 const response = await fetch(`${WEB_APP_URL}?student=${encodeURIComponent(this.value)}&className=${encodeURIComponent(classSelect.value)}&teacher=${encodeURIComponent(currTeacher)}`);
                 fetchedRecord = await response.json();
                 
@@ -599,11 +638,16 @@
         }
 
         // ==========================================
-        // وظائف لوحة الإحصائيات 
+        // وظائف لوحة الإحصائيات وتقارير الطلاب الشاملة
         // ==========================================
         function toggleDashboard() {
             let formView = document.getElementById('formView');
             let dashView = document.getElementById('dashboardView');
+            let reportView = document.getElementById('studentReportView');
+            
+            // عند العودة من أي شاشة يتم إخفاء تقرير الطالب دائماً
+            reportView.style.display = 'none';
+
             if(dashView.style.display === 'none' || dashView.style.display === '') {
                 formView.style.display = 'none'; dashView.style.display = 'block';
                 if(globalDashboardData.length === 0) fetchDataFromServer();
@@ -611,7 +655,44 @@
                 dashView.style.display = 'none'; formView.style.display = 'block';
             }
         }
-        document.getElementById('btnToggleDash').addEventListener('click', toggleDashboard);
+        
+        function openStudentReport(studentName, className) {
+            document.getElementById('dashboardView').style.display = 'none';
+            document.getElementById('formView').style.display = 'none';
+            document.getElementById('studentReportView').style.display = 'block';
+            
+            document.getElementById('reportStudentName').innerText = studentName;
+            document.getElementById('reportStudentClass').innerText = className;
+            
+            const tbody = document.getElementById('reportTableBody');
+            tbody.innerHTML = '';
+            
+            // فلترة كل المخالفات الخاصة بهذا الطالب من السجل الشامل
+            let studentViolations = globalRawViolations.filter(r => r.student === studentName && r.className === className && r.v_type);
+            
+            if (studentViolations.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="padding: 20px; font-weight: bold; color: red;">لا توجد مخالفات مسجلة لهذا الطالب</td></tr>';
+                return;
+            }
+
+            studentViolations.forEach((v, idx) => {
+                let actionText = v.v_action || 'تم التحويل للمشرف';
+                tbody.innerHTML += `
+                    <tr>
+                        <td style="border: 1px solid #000; padding: 8px;">${idx + 1}</td>
+                        <td style="border: 1px solid #000; padding: 8px;">${v.v_date || '-'}</td>
+                        <td style="border: 1px solid #000; padding: 8px;">${v.teacher}<br><span style="font-size: 14px; color: gray;">(${v.subject})</span></td>
+                        <td style="border: 1px solid #000; padding: 8px;">${v.v_type}</td>
+                        <td style="border: 1px solid #000; padding: 8px;">${actionText}</td>
+                    </tr>
+                `;
+            });
+        }
+        
+        function closeStudentReport() {
+            document.getElementById('studentReportView').style.display = 'none';
+            document.getElementById('dashboardView').style.display = 'block';
+        }
 
         async function fetchDataFromServer() {
             const dashBody = document.getElementById('dashBody');
@@ -620,6 +701,7 @@
             try {
                 const response = await fetch(`${WEB_APP_URL}?action=getAll`);
                 const serverData = await response.json();
+                globalRawViolations = serverData; // تخزين البيانات الخام لاستخدامها في تقرير الطالب الشامل
                 
                 let allStudents = [];
                 for (let cls in HARDCODED_ROSTERS) {
@@ -679,6 +761,11 @@
                     let badgeClass = `badge-${stu.count >= 3 ? 3 : stu.count}`; 
                     let statusTxt = stu.count === 0 ? "طالب ملتزم (0)" : `${stu.count} مخالفات`;
                     let detailsTxt = stu.count === 0 ? "-" : stu.details.join("");
+                    
+                    // إضافة زر الطباعة الشامل إذا كان للطالب مخالفات
+                    if (stu.count > 0) {
+                        detailsTxt += `<div style="text-align: left; margin-top: 10px;"><button onclick="openStudentReport('${stu.name}', '${stu.className}')" class="btn btn-print" style="padding: 5px 15px; font-size: 14px; width: auto; background-color: #34495e;">📄 معاينة وطباعة التقرير الشامل</button></div>`;
+                    }
                     
                     dashBody.innerHTML += `
                         <tr>
