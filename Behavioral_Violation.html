@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>نموذج تحويل طالب للمشرف الإداري</title>
+    <title>النظام الموحد لمتابعة سلوك الطلاب</title>
     <style>
         /* استيراد خط النسخ الواضح من جوجل */
         @import url('https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@700&display=swap');
@@ -11,53 +11,56 @@
         body { font-family: 'Sakkal Majalla', 'Arial', sans-serif; background-color: #e9ecef; margin: 0; padding: 20px; font-size: 18px; }
         .a4-page { background: white; width: 210mm; min-height: 297mm; margin: 0 auto; padding: 15mm 20mm; box-sizing: border-box; box-shadow: 0 4px 8px rgba(0,0,0,0.1); position: relative; }
         .header-image { width: 100%; height: auto; margin-bottom: 20px; }
-        .controls { text-align: center; margin-bottom: 20px; display: flex; justify-content: center; gap: 15px; }
-        .btn { color: white; border: none; padding: 12px 25px; font-size: 18px; cursor: pointer; border-radius: 5px; font-family: inherit; }
-        .btn-print { background-color: #2c3e50; }
-        .btn-print:hover { background-color: #1a252f; }
-        .btn-save { background-color: #27ae60; }
-        .btn-save:hover { background-color: #219150; }
+        
+        .controls { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center; margin-bottom: 20px; }
+        .controls-row { display: flex; justify-content: center; gap: 15px; margin-top: 15px; flex-wrap: wrap; }
+        
+        .btn { color: white; border: none; padding: 12px 25px; font-size: 18px; cursor: pointer; border-radius: 5px; font-family: inherit; font-weight: bold; }
+        .btn-print { background-color: #2c3e50; } .btn-print:hover { background-color: #1a252f; }
+        .btn-save { background-color: #27ae60; } .btn-save:hover { background-color: #219150; }
+        .btn-dash { background-color: #8e44ad; } .btn-dash:hover { background-color: #732d91; }
+        .btn-back { background-color: #e74c3c; } .btn-back:hover { background-color: #c0392b; }
+        
         .text-bold { font-weight: bold; }
         .text-center { text-align: center; }
         .mt-10 { margin-top: 10px; }
         .mt-20 { margin-top: 20px; }
         
-        /* تطبيق خط النسخ السميك واللون الأزرق الغامق على جميع المدخلات */
+        /* تطبيق خط النسخ السميك واللون الأزرق الغامق */
         input, select, textarea { 
-            font-family: 'Noto Naskh Arabic', serif !important; 
-            font-weight: bold !important;
-            font-size: 18px !important; 
-            color: #00008b !important; /* أزرق غامق */
-            border: none; 
-            border-bottom: 1px dashed #000; 
-            background: transparent; 
-            outline: none; 
-            text-align: center; 
+            font-family: 'Noto Naskh Arabic', serif !important; font-weight: bold !important;
+            font-size: 18px !important; color: #00008b !important; border: none; 
+            border-bottom: 1px dashed #000; background: transparent; outline: none; text-align: center; 
         }
         select { cursor: pointer; }
         
-        /* تنسيق القوائم المنسدلة ومربعات النص */
         .action-select { width: 100%; padding: 5px; border: 1px dashed #000; background-color: #fdfdfd; cursor: pointer; text-align: right; }
         textarea.action-input { width: 100%; resize: none; border-bottom: 1px dashed #000; padding: 5px; box-sizing: border-box; text-align: right; overflow: hidden; line-height: 1.5; }
         
         table { width: 100%; border-collapse: collapse; margin-top: 20px; margin-bottom: 20px; table-layout: fixed; }
         th, td { border: 1px solid #000; padding: 10px 5px; text-align: center; vertical-align: middle; }
         th { background-color: #f9f9f9; }
-        
-        /* ضبط حجم خط التاريخ ليتناسب مع عرض العمود في خط النسخ */
         .v-date { font-size: 15px !important; width: 100% !important; border-bottom: none; cursor: text; }
+
+        /* تنسيقات لوحة الإحصائيات */
+        #dashboardView { display: none; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 210mm; margin: 0 auto; min-height: 297mm; }
+        .dash-table th { background-color: #2c3e50; color: white; padding: 12px; }
+        .badge { padding: 5px 12px; border-radius: 20px; font-weight: bold; color: white; font-size: 16px; font-family: 'Sakkal Majalla', sans-serif;}
+        .badge-0 { background-color: #27ae60; } 
+        .badge-1 { background-color: #f39c12; color: #fff; } 
+        .badge-2 { background-color: #e67e22; } 
+        .badge-3 { background-color: #c0392b; }
+        .details-col { font-size: 15px !important; text-align: right !important; color: #333 !important; font-family: 'Sakkal Majalla', sans-serif !important; font-weight: normal !important;}
 
         @media print {
             @page { margin: 0; size: A4; }
             body { padding: 0; background: white; -webkit-print-color-adjust: exact; }
-            .controls { display: none !important; }
+            .controls, #dashboardView { display: none !important; }
+            #formView { display: block !important; }
             .a4-page { box-shadow: none; margin: 0; width: 100%; height: 100%; page-break-after: avoid; page-break-inside: avoid; }
             input, select, textarea { border-bottom: none !important; border: none !important; appearance: none; -webkit-appearance: none; }
-            
-            /* إخفاء القوائم المنسدلة في الطباعة وإظهار النص فقط */
             .action-select { display: none !important; }
             .action-input { display: block !important; border: none !important; padding: 0 !important; }
-            
             textarea { padding: 0; }
             select { background-image: none; }
             input::placeholder, textarea::placeholder { color: transparent !important; }
@@ -66,13 +69,74 @@
 </head>
 <body>
 
+    <!-- أدوات التحكم المركزية -->
     <div class="controls no-print">
-        <button class="btn btn-print" onclick="window.print()">🖨️ طباعة النموذج</button>
-        <button class="btn btn-save" id="btnSave">💾 حفظ في السجل والسحب</button>
-        <span id="statusMsg" style="align-self: center; font-weight: bold; color: #27ae60;"></span>
+        <div style="margin-bottom: 15px; font-size: 22px; font-weight: bold;">
+            حدد المعلم: 
+            <select id="globalTeacherSelect" style="width: 300px; font-size: 20px !important;">
+                <option value="">-- اضغط لاختيار المعلم --</option>
+                <option value="سفيان محمد">التربية الإسلامية - سفيان محمد نورفل</option>
+                <option value="محمد عبدالعزيز">التربية الإسلامية - محمد عبدالعزيز</option>
+                <option value="موسى مدن">التربية الإسلامية - موسى مدن حسين</option>
+                <option value="حسن علي محمد">التربية الرياضية - حسن علي محمد خميس</option>
+                <option value="حسين راشد">التربية الرياضية - حسين راشد حبيب</option>
+                <option value="عباس حسين فردان">التربية الرياضية - عباس حسين فردان حسين</option>
+                <option value="أحمد الشهابي">التربية الرياضية - أحمد الشهابي</option>
+                <option value="حمزة ميرزا">الرياضيات - حمزة ميرزا جعفر محمد</option>
+                <option value="لطفي ابراهيم">الرياضيات - لطفي ابراهيم لطفي</option>
+                <option value="طه عاطف">الرياضيات - طه عاطف طه عبداللطيف</option>
+                <option value="عبدالباسط محمد">الرياضيات - عبدالباسط محمد السيد محمد</option>
+                <option value="محمد علي محسن">الرياضيات - محمد علي محسن العلي</option>
+                <option value="محمد عبدالنبي">الرياضيات - محمد عبدالنبي العويناتي</option>
+                <option value="جعفر حسن عبدالله">العلوم - جعفر حسن عبدالله الزاير</option>
+                <option value="صبري محمد">العلوم - صبري محمد حمد السيد</option>
+                <option value="عبدالرضا عبدالرسول">العلوم - عبدالرضا عبدالرسول عبدالله</option>
+                <option value="محمد محمود">العلوم - محمد محمود محمد سليمان</option>
+                <option value="ايمن محمد بكري">اللغة الإنجليزية - ايمن محمد بكري أحمد</option>
+                <option value="عباس كاظم">اللغة الإنجليزية - عباس كاظم أحمد</option>
+                <option value="حسين السواد">اللغة الإنجليزية - حسين السواد</option>
+                <option value="دانيال نادر">اللغة الإنجليزية - دانيال نادر</option>
+                <option value="منتصرعثمان">اللغة الإنجليزية - منتصرعثمان زيدان ابو زيد</option>
+                <option value="باسم ناصر">اللغة العربية - باسم ناصر سعد رحال</option>
+                <option value="أحمد علي أحمد">اللغة العربية - أحمد علي أحمد</option>
+                <option value="عبدالرزاق محمد">اللغة العربية - عبدالرزاق محمد</option>
+                <option value="عدنان عبدالجليل">اللغة العربية - عدنان عبدالجليل الحلواجي</option>
+                <option value="محمد إبراهيم علي">اللغة العربية - محمد إبراهيم علي آل طوق</option>
+                <option value="ماهر مهدي">اللغة العربية - ماهر مهدي</option>
+                <option value="ياسر عبدالهادي">اللغة العربية - ياسر عبدالهادي الجمري</option>
+                <option value="احمد فراج">المجالات - احمد فراج احمد مصطفى</option>
+                <option value="ايمن خضر">المجالات - ايمن خضر السيد عيسى</option>
+                <option value="جاسم محمد جعفر">المجالات - جاسم محمد جعفر الحداد</option>
+                <option value="حسن حميد">المجالات - حسن حميد محسن علي</option>
+                <option value="درويش يحيى">المجالات - درويش يحي درويش زين الدين</option>
+                <option value="عاطف التهامي">المجالات - عاطف التهامي</option>
+                <option value="عبدالله سند">المجالات - عبدالله سند</option>
+                <option value="علي محسن سيف">المجالات - علي محسن سيف</option>
+                <option value="يوسف علي عبدالحق">المجالات - يوسف علي عبدالحق</option>
+                <option value="السيد البيلي">المجالات - السيد البيلي السيد</option>
+                <option value="السيد محمد ضياء">المواد الاجتماعية - السيد محمد ضياء</option>
+                <option value="جلال إبراهيم">المواد الاجتماعية - جلال إبراهيم ياسين</option>
+                <option value="عبدالله هلال">المواد الاجتماعية - عبدالله هلال</option>
+                <option value="علي عبدالله">المواد الاجتماعية - علي عبدالله</option>
+                <option value="ناصر ماهر">المواد الاجتماعية - ناصر ماهر احمد محمد</option>
+                <option value="السيدحسين هاشم">برنامج معاً - السيدحسين هاشم العلوي</option>
+                <option value="صلاح فؤاد">صلاح فؤاد - سمع ونطق</option>
+                <option value="عبدالله موفق">عبدالله موفق - تربية خاصة</option>
+                <option value="أحمد عبدالمطلب">أحمد عبدالمطلب - تربية خاصة</option>
+                <option value="ابراهيم عبدالنبي">ابراهيم عبدالنبي - رياضة دمج</option>
+            </select>
+        </div>
+
+        <div class="controls-row">
+            <button class="btn btn-print" onclick="window.print()">🖨️ طباعة النموذج</button>
+            <button class="btn btn-save" id="btnSave">💾 حفظ المخالفة</button>
+            <button class="btn btn-dash" id="btnToggleDash">📊 لوحة الإحصائيات (المدرسة)</button>
+        </div>
+        <div style="margin-top:10px;"><span id="statusMsg" style="font-weight: bold; color: #27ae60;"></span></div>
     </div>
 
-    <div class="a4-page">
+    <!-- واجهة النموذج (الأساسية) -->
+    <div class="a4-page" id="formView">
         <img src="https://i.postimg.cc/K88X7RLb/trwysyh-dhhbyt.png" alt="الترويسة" class="header-image">
 
         <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
@@ -107,13 +171,12 @@
                 </tr>
             </thead>
             <tbody>
-                <!-- المخالفة الأولى -->
                 <tr data-index="1">
                     <td>الأولى</td>
                     <td>
                         <select id="v1_type_sel" class="action-select" onchange="syncInput(this, 'v1_type')">
                             <option value="">-- اختر المخالفة --</option>
-                            <option value="عدم احضار كراسة الانشطة(الملزمة) أو الكتاب المدرسي">عدم احضار الكتاب أو الملزمة</option>
+                            <option value="عدم احضار كراسة الانشطة أو الكتاب">عدم احضار الكتاب أو الملزمة</option>
                             <option value="عدم متابعة الشرح والانشغال عن الدرس">عدم متابعة الشرح والانشغال</option>
                             <option value="الاحاديث الجانبية وتعطيل الحصة">الاحاديث الجانبية وتعطيل الحصة</option>
                             <option value="الحركة في الصف بدون استئذان">الحركة في الصف بدون استئذان</option>
@@ -124,30 +187,29 @@
                             <option value="اصدار اصوات">اصدار اصوات</option>
                             <option value="other">أخرى (كتابة يدوية)</option>
                         </select>
-                        <textarea id="v1_type" class="action-input v-input" rows="2" style="display:none;" placeholder="اكتب المخالفة..."></textarea>
+                        <textarea id="v1_type" class="action-input v-input" rows="2" style="display:none;"></textarea>
                     </td>
                     <td>
                         <select id="v1_action_sel" class="action-select" onchange="syncInput(this, 'v1_action')">
                             <option value="">-- اختر الإجراء --</option>
                             <option value="النصح والتوجيه والارشاد">النصح والتوجيه والارشاد</option>
                             <option value="لفت نظر شفهي">لفت نظر شفهي</option>
-                            <option value="تعهد الطالب بعدم تكرار المخالفة">تعهد الطالب بعدم تكرار المخالفة</option>
+                            <option value="تعهد الطالب بعدم تكرار المخالفة">تعهد الطالب بعدم التكرار</option>
                             <option value="تغيير مكان جلوس الطالب">تغيير مكان جلوس الطالب</option>
-                            <option value="التواصل مع ولي امر الطالب وابلاغه">التواصل مع ولي امر الطالب وابلاغه</option>
+                            <option value="التواصل مع ولي امر الطالب وابلاغه">التواصل مع ولي الأمر</option>
                             <option value="other">أخرى (كتابة يدوية)</option>
                         </select>
-                        <textarea id="v1_action" class="action-input v-input" rows="2" style="display:none;" placeholder="اكتب الإجراء..."></textarea>
+                        <textarea id="v1_action" class="action-input v-input" rows="2" style="display:none;"></textarea>
                     </td>
                     <td><input type="text" id="v1_date" class="text-center v-date"></td>
                     <td></td>
                 </tr>
-                <!-- المخالفة الثانية -->
                 <tr data-index="2">
                     <td>الثانية</td>
                     <td>
                         <select id="v2_type_sel" class="action-select" onchange="syncInput(this, 'v2_type')">
                             <option value="">-- اختر المخالفة --</option>
-                            <option value="عدم احضار كراسة الانشطة(الملزمة) أو الكتاب المدرسي">عدم احضار الكتاب أو الملزمة</option>
+                            <option value="عدم احضار كراسة الانشطة أو الكتاب">عدم احضار الكتاب أو الملزمة</option>
                             <option value="عدم متابعة الشرح والانشغال عن الدرس">عدم متابعة الشرح والانشغال</option>
                             <option value="الاحاديث الجانبية وتعطيل الحصة">الاحاديث الجانبية وتعطيل الحصة</option>
                             <option value="الحركة في الصف بدون استئذان">الحركة في الصف بدون استئذان</option>
@@ -158,30 +220,29 @@
                             <option value="اصدار اصوات">اصدار اصوات</option>
                             <option value="other">أخرى (كتابة يدوية)</option>
                         </select>
-                        <textarea id="v2_type" class="action-input v-input" rows="2" style="display:none;" placeholder="اكتب المخالفة..."></textarea>
+                        <textarea id="v2_type" class="action-input v-input" rows="2" style="display:none;"></textarea>
                     </td>
                     <td>
                         <select id="v2_action_sel" class="action-select" onchange="syncInput(this, 'v2_action')">
                             <option value="">-- اختر الإجراء --</option>
                             <option value="النصح والتوجيه والارشاد">النصح والتوجيه والارشاد</option>
                             <option value="لفت نظر شفهي">لفت نظر شفهي</option>
-                            <option value="تعهد الطالب بعدم تكرار المخالفة">تعهد الطالب بعدم تكرار المخالفة</option>
+                            <option value="تعهد الطالب بعدم تكرار المخالفة">تعهد الطالب بعدم التكرار</option>
                             <option value="تغيير مكان جلوس الطالب">تغيير مكان جلوس الطالب</option>
-                            <option value="التواصل مع ولي امر الطالب وابلاغه">التواصل مع ولي امر الطالب وابلاغه</option>
+                            <option value="التواصل مع ولي امر الطالب وابلاغه">التواصل مع ولي الأمر</option>
                             <option value="other">أخرى (كتابة يدوية)</option>
                         </select>
-                        <textarea id="v2_action" class="action-input v-input" rows="2" style="display:none;" placeholder="اكتب الإجراء..."></textarea>
+                        <textarea id="v2_action" class="action-input v-input" rows="2" style="display:none;"></textarea>
                     </td>
                     <td><input type="text" id="v2_date" class="text-center v-date"></td>
                     <td></td>
                 </tr>
-                <!-- المخالفة الثالثة -->
                 <tr data-index="3">
                     <td>الثالثة</td>
                     <td>
                         <select id="v3_type_sel" class="action-select" onchange="syncInput(this, 'v3_type')">
                             <option value="">-- اختر المخالفة --</option>
-                            <option value="عدم احضار كراسة الانشطة(الملزمة) أو الكتاب المدرسي">عدم احضار الكتاب أو الملزمة</option>
+                            <option value="عدم احضار كراسة الانشطة أو الكتاب">عدم احضار الكتاب أو الملزمة</option>
                             <option value="عدم متابعة الشرح والانشغال عن الدرس">عدم متابعة الشرح والانشغال</option>
                             <option value="الاحاديث الجانبية وتعطيل الحصة">الاحاديث الجانبية وتعطيل الحصة</option>
                             <option value="الحركة في الصف بدون استئذان">الحركة في الصف بدون استئذان</option>
@@ -192,19 +253,19 @@
                             <option value="اصدار اصوات">اصدار اصوات</option>
                             <option value="other">أخرى (كتابة يدوية)</option>
                         </select>
-                        <textarea id="v3_type" class="action-input v-input" rows="2" style="display:none;" placeholder="اكتب المخالفة..."></textarea>
+                        <textarea id="v3_type" class="action-input v-input" rows="2" style="display:none;"></textarea>
                     </td>
                     <td>
                         <select id="v3_action_sel" class="action-select" onchange="syncInput(this, 'v3_action')">
                             <option value="">-- اختر الإجراء --</option>
                             <option value="النصح والتوجيه والارشاد">النصح والتوجيه والارشاد</option>
                             <option value="لفت نظر شفهي">لفت نظر شفهي</option>
-                            <option value="تعهد الطالب بعدم تكرار المخالفة">تعهد الطالب بعدم تكرار المخالفة</option>
+                            <option value="تعهد الطالب بعدم تكرار المخالفة">تعهد الطالب بعدم التكرار</option>
                             <option value="تغيير مكان جلوس الطالب">تغيير مكان جلوس الطالب</option>
-                            <option value="التواصل مع ولي امر الطالب وابلاغه">التواصل مع ولي امر الطالب وابلاغه</option>
+                            <option value="التواصل مع ولي امر الطالب وابلاغه">التواصل مع ولي الأمر</option>
                             <option value="other">أخرى (كتابة يدوية)</option>
                         </select>
-                        <textarea id="v3_action" class="action-input v-input" rows="2" style="display:none;" placeholder="اكتب الإجراء..."></textarea>
+                        <textarea id="v3_action" class="action-input v-input" rows="2" style="display:none;"></textarea>
                     </td>
                     <td><input type="text" id="v3_date" class="text-center v-date"></td>
                     <td></td>
@@ -229,18 +290,44 @@
         <p>والسلام عليكم ورحمة الله وبركاته</p>
 
         <div style="display: flex; justify-content: space-between; margin-top: 20px;">
-            <div>اسم المعلم: <input type="text" value="أ. صبري محمد حمد" style="width: 160px; text-align: center;"> - مادة: <input type="text" value="العلوم" style="width: 65px; text-align: center;"></div>
+            <div>اسم المعلم: <input type="text" id="teacherNameBottom" value="" style="width: 180px; text-align: center;"> - مادة: <input type="text" id="teacherSubjectBottom" value="" style="width: 100px; text-align: center;"></div>
             <div>التوقيع: ............................</div>
         </div>
     </div>
 
-    <!-- حقول مخفية لتخزين تاريخ اليوم -->
+    <!-- واجهة لوحة الإحصائيات (تظهر عند الضغط على الزر) -->
+    <div id="dashboardView">
+        <div style="text-align: center; margin-bottom: 20px;">
+            <h2>📊 الإحصائيات المركزية لمخالفات الطلاب</h2>
+            <p>ترتيب تنازلي للطلاب حسب عدد المخالفات مقسمة لكل مرحلة دراسية</p>
+            <button class="btn btn-back" onclick="toggleDashboard()">📝 العودة لنموذج التحويل</button>
+            <button class="btn btn-save" onclick="loadDashboardData()">🔄 تحديث البيانات الآن</button>
+        </div>
+
+        <table class="dash-table">
+            <thead>
+                <tr>
+                    <th style="width: 25%;">اسم الطالب</th>
+                    <th style="width: 15%;">الصف</th>
+                    <th style="width: 15%;">الحالة</th>
+                    <th style="width: 45%;">تفاصيل المخالفات (المعلم والمخالفة)</th>
+                </tr>
+            </thead>
+            <tbody id="dashBody">
+                <tr><td colspan="4">اضغط على "تحديث البيانات الآن" لجلب التقرير...</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- حقول مخفية لتخزين تاريخ اليوم وبيانات السحب -->
     <input type="hidden" id="sysDate">
     <input type="hidden" id="sysDay">
 
     <script>
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycby-haqBhDdXsfP6TuegxjzP7e4YHwFiHRb9g9DItu5tIskMfnJlP0ZKiDS1BLaMBTe1fg/exec";
         
+        let fetchedRecord = {}; // لتخزين بيانات الطالب المسحوبة
+
         const HARDCODED_ROSTERS = {
           "سادس ابتدائي 1": ["ابراهيم على خليل الحايكي", "السيد حسن صالح الموسوي", "السيد علوي ابراهيم ناصر حسن", "السيد هاشم مجيد فيصل محمد", "إيليا سعيد حسن حسن", "حسن على ميرزا خليل", "حسین اسامه عبد الجليل الجشي", "حسين عمار جاسم الاسكافي", "حيدر على ابراهيم حسن", "سيد صادق جعفر على ناصر", "سيد حامد حسین محمد درویش", "صادق على عبدالله اسماعيل", "عبد العزيز جلال عبد العزيز حاجی عبدالله", "عبدالله حسین عبدالله مال الله", "عبدالله على عباس شاهين", "على حسين على عبد على", "على عيسى ابراهيم الستراوي", "على قاسم عباس حسن", "عمار محمد عبد الامير الحصار", "غسان مهند عقيل مرهون", "قاسم جابر جاسم منصور", "قاسم محمد احمد حسن", "ليث محمود مسعود الوطني", "محمد صالح شوقي البناء", "محمد عباس خميس السودان", "نوح زهير عبد الوهاب غزوان", "يوسف كاظم محمد الحايكي"],
           "سادس ابتدائي 2": ["احمد مهدي احمد احمد", "آدم على عبدالله عبد النبي", "السيد على حسين جعفر على شرف", "السيد يوسف احمد على الموسوي", "أمير مالك حبيب التوبلي", "جاسم محمد حميد السباع", "جواد جاسم جواد عبدالله", "حامد يوسف احمد يحيى", "حبيب حسین میرزا اسماعیل", "حسین عباس عبدالله مرهون", "حسين على احمد عيسى", "حسين علي حسن طاهر", "حيدر عبد الحسين احمد على", "رضا على مهدي على", "رضا میرزا خلف شعبان", "عباس احمد محسن العلواني", "عبدالله حميد عبد الرسول احمد", "على حسن جاسم حسن", "على عبد العزيز عبد الكريم الشيخ حسن", "على عبد الكريم على محمد", "کرار حسین احمد حسين", "ماجد يوسف احمد يحيى", "محمد احمد حسن احمد", "محمد عبد علي سعيد الغنامي", "مهدي جواد احمد مليح"],
@@ -259,6 +346,18 @@
           "ثالث إعدادي 4": ["إبراهيم عبدالله ابراهيم الجبل", "أحمد محسن عبد النبي محمد", "السيد حيدر علی فردان شرف", "السيد قاسم مؤنس ابراهیم هاشم", "جعفر عادل عبد على الشعله", "حسین محمد عبد الجليل كاظم", "حيدر زهير حميد السباع", "حيدر عقيل حسن الشيخ على", "رضا حبيب سلمان على", "سلمان علاء عيسى السهلاوي", "سيد مهدي علوي السيد ابراهيم شرف", "صادق احمد عبدالله صالح", "صادق اسماعيل على حسن", "طارق على خليل الحايكي", "عباس نزار هاشم شبر", "عبدالله محمود عبدالله الشهابي", "عبدالله محمود عبدالنبي حسين", "عبدالله میرزا صالح الحواج", "على ابراهيم جعفر العرادي", "على أكبر محمد ابراهيم المبشر", "على جلال على احمد", "على حسين جعفر مال الله", "على حسين على خميس", "على عبد الرضا عبدالحسین املیح", "على عبدالله على على", "محمد صلاح میرزا احمد", "منتظر جعفر جواد حسن", "مهدي جعفر مهدي فردان", "يوسف احمد عبدالله السابوري", "يوسف باسل عبد الجبار عبد النبي"],
           "ثالث إعدادي 5": ["احمد يعقوب اسحاق يونس", "آدم محمد يوسف المحاسنيه", "السيد محمد جواد درويش الشرخات", "السيد محمد على جعفر الغنى", "السيد هاشم جلال عيسى حسن", "إلياس محمد يوسف المحاسنيه", "حسن محمد داود مشيمع", "حسين على حسن حسن", "حيدر عبد الامير سعيد عبدالوهاب", "حيدر فلاح موسى خميس", "سید قاسم حسين على ناصر", "سید محمد حسين محمد درويش", "سيدهاشم السيد فيصل حيدر علوي", "عباس حسن يوسف شريف", "عباس على عبدالوهاب الشيخ على", "عباس فاضل عبد النبي العود", "عبد العزيز حسن علی احمد", "على حسن جمعه حسن", "على حسن كاظم العويناتي", "على حسين سلمان على احمد", "على حسين عبدالله عباس", "على حسین عبدالله عبدالله", "على حمد عبد الرضا خمدن", "على عادل احمد عبدالله", "على محمد علی عباس", "علي مهدي عبدالله مرهون", "على يوسف احمد امان", "على يوسف كاظم القلاف", "عمار على سعيد عباس", "قاسم فاضل جاسم عتيق", "مجتبى عادل احمد کاظم", "محمد حبيب عبد الرسول احمد", "محمد حسين مرزوق الجبل", "محمد مهدي رائد عبد الكريم عبد على", "مناف عبدالله ابراهيم ال عميري", "يوسف احمد هلال فردان"]
         };
+
+        // ضبط المعلم الحالي أسفل الورقة
+        document.getElementById('globalTeacherSelect').addEventListener('change', function() {
+            if(this.value) {
+                let parts = this.options[this.selectedIndex].text.split(' - ');
+                document.getElementById('teacherSubjectBottom').value = parts[0];
+                document.getElementById('teacherNameBottom').value = parts[1];
+            } else {
+                document.getElementById('teacherSubjectBottom').value = "";
+                document.getElementById('teacherNameBottom').value = "";
+            }
+        });
 
         function initializeDates() {
             const daysArabic = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
@@ -292,23 +391,17 @@
         }
 
         function getPeriodShortName(periodString) {
-            const map = {
-                "الأولى": "1", "الثانية": "2", "الثالثة": "3", "الرابعة": "4",
-                "الخامسة": "5", "السادسة": "6", "السابعة": "7"
-            };
+            const map = { "الأولى": "1", "الثانية": "2", "الثالثة": "3", "الرابعة": "4", "الخامسة": "5", "السادسة": "6", "السابعة": "7" };
             return map[periodString] || periodString;
         }
 
         function syncInput(selectElem, textAreaId) {
             const textArea = document.getElementById(textAreaId);
             if (selectElem.value === 'other') {
-                textArea.style.display = 'block';
-                textArea.value = '';
-                selectElem.style.display = 'none';
-                textArea.focus();
+                textArea.style.display = 'block'; textArea.value = '';
+                selectElem.style.display = 'none'; textArea.focus();
             } else {
-                textArea.style.display = 'none';
-                textArea.value = selectElem.value;
+                textArea.style.display = 'none'; textArea.value = selectElem.value;
             }
             textArea.dispatchEvent(new Event('input', { bubbles: true }));
         }
@@ -319,22 +412,13 @@
             textArea.value = value || '';
 
             if (!value) {
-                selectElem.value = '';
-                selectElem.style.display = 'block';
-                textArea.style.display = 'none';
-                return;
+                selectElem.value = ''; selectElem.style.display = 'block'; textArea.style.display = 'none'; return;
             }
-
             let optionExists = Array.from(selectElem.options).some(opt => opt.value === value);
-
             if (optionExists) {
-                selectElem.value = value;
-                selectElem.style.display = 'block';
-                textArea.style.display = 'none';
+                selectElem.value = value; selectElem.style.display = 'block'; textArea.style.display = 'none';
             } else {
-                selectElem.value = 'other';
-                selectElem.style.display = 'none';
-                textArea.style.display = 'block';
+                selectElem.value = 'other'; selectElem.style.display = 'none'; textArea.style.display = 'block';
             }
         }
 
@@ -354,7 +438,6 @@
                     const periodString = calculatePeriod(isPrimary ? 'primary' : 'prep');
                     let periodNum = getPeriodShortName(periodString);
                     let periodText = (periodNum === "الفسحة" || periodNum === "خارج الدوام") ? periodNum : "حصة" + periodNum;
-                    
                     dateField.value = `${dayName} ${periodText} -${dd}-${mm}`;
                 }
 
@@ -380,19 +463,13 @@
             clearForm();
             
             if (selectedClass) {
-                // ضبط اسم المشرف بناءً على المرحلة
                 let supervisor = "";
-                if (selectedClass.includes('سادس')) {
-                    supervisor = 'السيد محمد ضياء';
-                } else if (selectedClass.includes('أول')) {
-                    supervisor = 'أ. عباس الفردان / أ. درويش يحيى';
-                } else if (selectedClass.includes('ثاني')) {
-                    supervisor = 'علي سيف';
-                } else if (selectedClass.includes('ثالث')) {
-                    supervisor = 'جاسم الحداد';
-                }
+                if (selectedClass.includes('سادس')) supervisor = 'السيد محمد ضياء';
+                else if (selectedClass.includes('أول')) supervisor = 'أ. عباس الفردان / أ. درويش يحيى';
+                else if (selectedClass.includes('ثاني')) supervisor = 'علي سيف';
+                else if (selectedClass.includes('ثالث')) supervisor = 'جاسم الحداد';
+                
                 document.getElementById('supervisorName').value = supervisor;
-
                 HARDCODED_ROSTERS[selectedClass].forEach(student => studentSelect.appendChild(new Option(student, student)));
             } else {
                 document.getElementById('supervisorName').value = '';
@@ -406,27 +483,28 @@
             statusMsg.textContent = "جاري جلب السجل...";
             try {
                 const response = await fetch(`${WEB_APP_URL}?student=${encodeURIComponent(this.value)}&className=${encodeURIComponent(classSelect.value)}`);
-                const data = await response.json();
+                fetchedRecord = await response.json();
                 
-                if(data && Object.keys(data).length > 0) {
-                    setDropdownOrText('v1_type', 'v1_type_sel', data.v1_type);
-                    setDropdownOrText('v1_action', 'v1_action_sel', data.v1_action);
-                    document.getElementById('v1_date').value = data.v1_date || '';
+                if(fetchedRecord && Object.keys(fetchedRecord).length > 0) {
+                    setDropdownOrText('v1_type', 'v1_type_sel', fetchedRecord.v1_type);
+                    setDropdownOrText('v1_action', 'v1_action_sel', fetchedRecord.v1_action);
+                    document.getElementById('v1_date').value = fetchedRecord.v1_date || '';
                     
-                    setDropdownOrText('v2_type', 'v2_type_sel', data.v2_type);
-                    setDropdownOrText('v2_action', 'v2_action_sel', data.v2_action);
-                    document.getElementById('v2_date').value = data.v2_date || '';
+                    setDropdownOrText('v2_type', 'v2_type_sel', fetchedRecord.v2_type);
+                    setDropdownOrText('v2_action', 'v2_action_sel', fetchedRecord.v2_action);
+                    document.getElementById('v2_date').value = fetchedRecord.v2_date || '';
                     
-                    setDropdownOrText('v3_type', 'v3_type_sel', data.v3_type);
-                    setDropdownOrText('v3_action', 'v3_action_sel', data.v3_action);
-                    document.getElementById('v3_date').value = data.v3_date || '';
+                    setDropdownOrText('v3_type', 'v3_type_sel', fetchedRecord.v3_type);
+                    setDropdownOrText('v3_action', 'v3_action_sel', fetchedRecord.v3_action);
+                    document.getElementById('v3_date').value = fetchedRecord.v3_date || '';
                     
-                    document.getElementById('refDay').value = data.refDay || '';
-                    document.getElementById('refDate').value = data.refDate || '';
-                    document.getElementById('refPeriod').value = data.refPeriod || '';
+                    document.getElementById('refDay').value = fetchedRecord.refDay || '';
+                    document.getElementById('refDate').value = fetchedRecord.refDate || '';
+                    document.getElementById('refPeriod').value = fetchedRecord.refPeriod || '';
                     
-                    statusMsg.textContent = "تم استرجاع السجل";
+                    statusMsg.textContent = "تم استرجاع السجل بنجاح";
                 } else {
+                    fetchedRecord = {};
                     statusMsg.textContent = "سجل جديد";
                 }
             } catch (error) {
@@ -436,16 +514,26 @@
         });
 
         document.getElementById('btnSave').addEventListener('click', async function() {
-            if(!studentSelect.value || !classSelect.value) {
-                alert("يرجى اختيار الصف والطالب أولاً"); return;
-            }
+            if(!document.getElementById('globalTeacherSelect').value) { alert("رجاءً حدد اسمك كمعلم من القائمة بالأعلى أولاً!"); return; }
+            if(!studentSelect.value || !classSelect.value) { alert("يرجى اختيار الصف والطالب أولاً"); return; }
+
+            // تحديد المعلم لكل مخالفة (لو كانت قديمة نحافظ على معلمها القديم، وإذا أضفنا جديدة نضع المعلم الحالي)
+            let currTeacher = document.getElementById('globalTeacherSelect').options[document.getElementById('globalTeacherSelect').selectedIndex].text.split(' - ')[1];
+            
+            let v1_txt = document.getElementById('v1_type').value;
+            let v2_txt = document.getElementById('v2_type').value;
+            let v3_txt = document.getElementById('v3_type').value;
+
+            let v1_t = (v1_txt && v1_txt === fetchedRecord.v1_type) ? (fetchedRecord.v1_teacher || currTeacher) : (v1_txt ? currTeacher : "");
+            let v2_t = (v2_txt && v2_txt === fetchedRecord.v2_type) ? (fetchedRecord.v2_teacher || currTeacher) : (v2_txt ? currTeacher : "");
+            let v3_t = (v3_txt && v3_txt === fetchedRecord.v3_type) ? (fetchedRecord.v3_teacher || currTeacher) : (v3_txt ? currTeacher : "");
 
             const payload = {
                 className: classSelect.value,
                 student: studentSelect.value,
-                v1_type: document.getElementById('v1_type').value, v1_action: document.getElementById('v1_action').value, v1_date: document.getElementById('v1_date').value,
-                v2_type: document.getElementById('v2_type').value, v2_action: document.getElementById('v2_action').value, v2_date: document.getElementById('v2_date').value,
-                v3_type: document.getElementById('v3_type').value, v3_action: document.getElementById('v3_action').value, v3_date: document.getElementById('v3_date').value,
+                v1_type: v1_txt, v1_action: document.getElementById('v1_action').value, v1_date: document.getElementById('v1_date').value, v1_teacher: v1_t,
+                v2_type: v2_txt, v2_action: document.getElementById('v2_action').value, v2_date: document.getElementById('v2_date').value, v2_teacher: v2_t,
+                v3_type: v3_txt, v3_action: document.getElementById('v3_action').value, v3_date: document.getElementById('v3_date').value, v3_teacher: v3_t,
                 refDay: document.getElementById('refDay').value, refDate: document.getElementById('refDate').value, refPeriod: document.getElementById('refPeriod').value,
                 notes: "" 
             };
@@ -454,11 +542,12 @@
             this.disabled = true;
 
             try {
-                await fetch(WEB_APP_URL, {
-                    method: 'POST',
-                    body: JSON.stringify(payload)
-                });
+                await fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify(payload) });
                 statusMsg.textContent = "تم الحفظ بنجاح!";
+                // تحديث الـ fetchedRecord ليعكس التعديلات الحالية حتى لا يظن أنها تعدلت عند الحفظ مرة أخرى
+                fetchedRecord.v1_type = v1_txt; fetchedRecord.v1_teacher = v1_t;
+                fetchedRecord.v2_type = v2_txt; fetchedRecord.v2_teacher = v2_t;
+                fetchedRecord.v3_type = v3_txt; fetchedRecord.v3_teacher = v3_t;
             } catch (error) {
                 statusMsg.textContent = "فشل الحفظ!";
             }
@@ -469,12 +558,92 @@
         function clearForm() {
             const selects = document.querySelectorAll('.action-select');
             selects.forEach(select => { select.value = ''; select.style.display = 'block'; });
-            
             const inputs = document.querySelectorAll('.action-input, #refDay, #refDate, #refPeriod');
             inputs.forEach(input => { input.value = ''; if(input.tagName === 'TEXTAREA') input.style.display = 'none'; });
-            
             const dates = document.querySelectorAll('.v-date');
             dates.forEach(input => input.value = '');
+            fetchedRecord = {};
+        }
+
+        // ==========================================
+        // وظائف لوحة الإحصائيات (Dashboard)
+        // ==========================================
+        function toggleDashboard() {
+            let formView = document.getElementById('formView');
+            let dashView = document.getElementById('dashboardView');
+            if(dashView.style.display === 'none' || dashView.style.display === '') {
+                formView.style.display = 'none'; dashView.style.display = 'block';
+                loadDashboardData();
+            } else {
+                dashView.style.display = 'none'; formView.style.display = 'block';
+            }
+        }
+        document.getElementById('btnToggleDash').addEventListener('click', toggleDashboard);
+
+        async function loadDashboardData() {
+            const dashBody = document.getElementById('dashBody');
+            dashBody.innerHTML = '<tr><td colspan="4" style="padding:20px; font-size:20px;">⏳ جاري تحليل بيانات المدرسة... الرجاء الانتظار</td></tr>';
+            
+            try {
+                const response = await fetch(`${WEB_APP_URL}?action=getAll`);
+                const serverData = await response.json();
+                
+                // 1. إنشاء مصفوفة لكل طلاب المدرسة
+                let allStudents = [];
+                for (let cls in HARDCODED_ROSTERS) {
+                    let stg = "أخرى";
+                    if(cls.includes("سادس")) stg = "السادس الابتدائي";
+                    if(cls.includes("أول")) stg = "الأول الإعدادي";
+                    if(cls.includes("ثاني")) stg = "الثاني الإعدادي";
+                    if(cls.includes("ثالث")) stg = "الثالث الإعدادي";
+                    
+                    HARDCODED_ROSTERS[cls].forEach(stu => {
+                        allStudents.push({ name: stu, className: cls, stage: stg, count: 0, details: [] });
+                    });
+                }
+                
+                // 2. دمج السجلات المحفوظة مع الطلاب
+                serverData.forEach(row => {
+                    let target = allStudents.find(s => s.name === row.student && s.className === row.className);
+                    if (target) {
+                        if(row.v1_type) { target.count++; target.details.push(`م1: ${row.v1_type} (${row.v1_teacher})`); }
+                        if(row.v2_type) { target.count++; target.details.push(`م2: ${row.v2_type} (${row.v2_teacher})`); }
+                        if(row.v3_type) { target.count++; target.details.push(`م3: التحويل للمشرف (${row.v3_teacher})`); }
+                    }
+                });
+                
+                // 3. فرز ورسم الجدول مقسم بالمراحل
+                let stagesOrder = ["الأول الإعدادي", "الثاني الإعدادي", "الثالث الإعدادي", "السادس الابتدائي"];
+                dashBody.innerHTML = "";
+                
+                stagesOrder.forEach(stg => {
+                    let studentsInStage = allStudents.filter(s => s.stage === stg);
+                    if(studentsInStage.length === 0) return;
+                    
+                    // الترتيب: الأكثر مخالفات أولاً
+                    studentsInStage.sort((a, b) => b.count - a.count);
+                    
+                    // رسم ترويسة المرحلة
+                    dashBody.innerHTML += `<tr style="background-color: #d6eaf8;"><td colspan="4" style="font-weight:bold; font-size:22px; color:#2980b9;">📌 مرحلة: ${stg}</td></tr>`;
+                    
+                    studentsInStage.forEach(stu => {
+                        let badgeClass = `badge-${stu.count}`;
+                        let statusTxt = stu.count === 0 ? "طالب ملتزم (0)" : `${stu.count} مخالفات`;
+                        let detailsTxt = stu.count === 0 ? "-" : stu.details.join("<br>");
+                        
+                        dashBody.innerHTML += `
+                            <tr>
+                                <td><b>${stu.name}</b></td>
+                                <td>${stu.className}</td>
+                                <td><span class="badge ${badgeClass}">${statusTxt}</span></td>
+                                <td class="details-col">${detailsTxt}</td>
+                            </tr>
+                        `;
+                    });
+                });
+            } catch (err) {
+                dashBody.innerHTML = '<tr><td colspan="4" style="color:red;">حدث خطأ أثناء جلب البيانات. يرجى التأكد من تحديث كود Google Apps Script وعمل إصدار جديد (New Deployment).</td></tr>';
+            }
         }
     </script>
 </body>
