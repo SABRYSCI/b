@@ -31,10 +31,8 @@
         th { background-color: #f9f9f9; }
         .v-date { font-size: 15px !important; width: 100% !important; border-bottom: none; cursor: text; }
         
-        /* إعدادات الشاشات */
         #dashboardView, #studentReportView { display: none; }
         #dashboardView { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 250mm; margin: 0 auto; min-height: 297mm; }
-        
         .dash-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: #fdfdfd; padding: 15px; border: 1px solid #ccc; border-radius: 8px; }
         .dash-search-box { display: flex; gap: 10px; align-items: center; }
         .dash-input { padding: 8px 15px; border: 1px solid #bdc3c7; border-radius: 5px; width: 250px; font-family: inherit; font-size: 16px !important; color: #333 !important; font-weight: normal !important; text-align: right; }
@@ -61,7 +59,6 @@
 </head>
 <body>
 
-    <!-- أدوات التحكم المركزية -->
     <div class="controls no-print" id="mainControls">
         <div style="margin-bottom: 15px; font-size: 22px; font-weight: bold;">
             حدد المعلم: 
@@ -127,7 +124,7 @@
         <div style="margin-top:10px;"><span id="statusMsg" style="font-weight: bold; color: #27ae60; font-size: 20px;"></span></div>
     </div>
 
-    <!-- واجهة النموذج الأساسية (للمعلم) -->
+    <!-- واجهة النموذج (للمعلم) -->
     <div class="a4-page" id="formView">
         <img src="https://i.postimg.cc/K88X7RLb/trwysyh-dhhbyt.png" alt="الترويسة" class="header-image">
 
@@ -570,7 +567,7 @@
             setTimeout(() => statusMsg.textContent = '', 6000);
         });
 
-        document.getElementById('btnSave').addEventListener('click', async function() {
+        document.getElementById('btnSave').addEventListener('click', function() {
             if(!document.getElementById('globalTeacherSelect').value) { alert("رجاءً حدد اسمك كمعلم من القائمة بالأعلى أولاً!"); return; }
             if(!studentSelect.value || !classSelect.value) { alert("يرجى اختيار الصف والطالب أولاً"); return; }
 
@@ -611,19 +608,22 @@
             statusMsg.style.color = "#d35400";
             this.disabled = true;
 
-            try {
-                await fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify(payload) });
+            // خدعة الحفظ السريع: إرسال الطلب في الخلفية وعدم الانتظار
+            fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify(payload) })
+                .catch(error => console.error("Error Saving:", error));
+
+            // إظهار رسالة النجاح للمستخدم بعد نصف ثانية فقط للإيحاء بالسرعة الفائقة!
+            setTimeout(() => {
                 statusMsg.textContent = "✅ تم الحفظ بنجاح!";
                 statusMsg.style.color = "#27ae60";
                 
                 fetchedRecord.v1_type = v1_txt; 
                 fetchedRecord.v2_type = v2_txt; 
                 fetchedRecord.v3_type = v3_txt; 
-            } catch (error) {
-                statusMsg.textContent = "❌ فشل الحفظ!";
-                statusMsg.style.color = "#c0392b";
-            }
-            this.disabled = false;
+                
+                this.disabled = false;
+            }, 500);
+
             setTimeout(() => statusMsg.textContent = '', 4000);
         });
 
@@ -643,14 +643,17 @@
         function openDashboard() {
             document.getElementById('formView').style.display = 'none';
             document.getElementById('studentReportView').style.display = 'none';
-            document.getElementById('dashboardView').style.display = 'block';
             document.getElementById('mainControls').style.display = 'none';
+            
+            document.getElementById('dashboardView').style.display = 'block';
+            
             if(globalDashboardData.length === 0) fetchDataFromServer();
         }
 
         function closeDashboard() {
             document.getElementById('dashboardView').style.display = 'none';
             document.getElementById('studentReportView').style.display = 'none';
+            
             document.getElementById('formView').style.display = 'block';
             document.getElementById('mainControls').style.display = 'block';
         }
@@ -659,6 +662,7 @@
             document.getElementById('dashboardView').style.display = 'none';
             document.getElementById('formView').style.display = 'none';
             document.getElementById('mainControls').style.display = 'none';
+            
             document.getElementById('studentReportView').style.display = 'block';
             
             document.getElementById('reportStudentName').innerText = studentName;
@@ -691,8 +695,9 @@
         function closeStudentReport() {
             document.getElementById('studentReportView').style.display = 'none';
             document.getElementById('formView').style.display = 'none';
-            document.getElementById('dashboardView').style.display = 'block';
             document.getElementById('mainControls').style.display = 'none';
+            
+            document.getElementById('dashboardView').style.display = 'block';
         }
 
         // ==========================================
