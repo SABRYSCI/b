@@ -86,6 +86,13 @@
             </div>
             <button onclick="loadTeacherData()" class="w-full bg-green-700 text-white font-bold py-2.5 px-4 rounded hover:bg-green-800 transition shadow">عرض سجل الغياب</button>
             <p id="errorMsg" class="text-red-500 text-xs mt-3 text-center hidden font-bold"></p>
+            
+            <!-- زر النظام الموحد لمتابعة السلوك -->
+            <div class="mt-5 pt-5 border-t border-gray-200">
+                <a href="https://sabrysci.github.io/b/Behavioral_Violation.html" target="_blank" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2.5 px-4 rounded flex items-center justify-center gap-2 shadow transition">
+                    ⚠️ النظام الموحد لمتابعة السلوك
+                </a>
+            </div>
         </div>
     </div>
 
@@ -109,6 +116,10 @@
                         </select>
                     </div>
                     <div><label class="text-xs font-bold text-gray-600 ml-1">المادة:</label><input type="text" id="subjectInput" value="العلوم" class="p-2 border rounded text-xs font-bold w-24" oninput="updateSheetMeta()"></div>
+                    
+                    <!-- زر تسجيل المخالفة داخل لوحة المعلم -->
+                    <a href="https://sabrysci.github.io/b/Behavioral_Violation.html" target="_blank" class="bg-red-600 text-white font-bold py-2 px-3 rounded text-xs hover:bg-red-700 shadow transition">⚠️ تسجيل مخالفة</a>
+
                     <button onclick="window.print()" class="bg-blue-700 text-white font-bold py-2 px-3 rounded text-xs">🖨️ طباعة الكشف</button>
                     <button onclick="location.reload()" class="bg-gray-200 px-3 py-2 rounded text-xs font-bold">خروج</button>
                 </div>
