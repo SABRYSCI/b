@@ -5,62 +5,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>النظام الموحد لمتابعة سلوك الطلاب</title>
     <style>
-        /* استيراد خط النسخ الواضح من جوجل */
         @import url('https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@700&display=swap');
-
         body { font-family: 'Sakkal Majalla', 'Arial', sans-serif; background-color: #e9ecef; margin: 0; padding: 20px; font-size: 18px; }
         .a4-page { background: white; width: 210mm; min-height: 297mm; margin: 0 auto; padding: 15mm 20mm; box-sizing: border-box; box-shadow: 0 4px 8px rgba(0,0,0,0.1); position: relative; }
         .header-image { width: 100%; height: auto; margin-bottom: 20px; }
-        
         .controls { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center; margin-bottom: 20px; }
         .controls-row { display: flex; justify-content: center; gap: 15px; margin-top: 15px; flex-wrap: wrap; }
-        
         .btn { color: white; border: none; padding: 12px 25px; font-size: 18px; cursor: pointer; border-radius: 5px; font-family: inherit; font-weight: bold; }
         .btn-print { background-color: #2c3e50; } .btn-print:hover { background-color: #1a252f; }
         .btn-save { background-color: #27ae60; } .btn-save:hover { background-color: #219150; }
         .btn-dash { background-color: #8e44ad; } .btn-dash:hover { background-color: #732d91; }
         .btn-back { background-color: #e74c3c; } .btn-back:hover { background-color: #c0392b; }
         .btn-refresh { background-color: #2980b9; padding: 8px 15px; } .btn-refresh:hover { background-color: #1f618d; }
-        
-        .text-bold { font-weight: bold; }
-        .text-center { text-align: center; }
-        .mt-10 { margin-top: 10px; }
-        .mt-20 { margin-top: 20px; }
-        
-        /* تطبيق خط النسخ السميك واللون الأزرق الغامق */
-        input, select, textarea { 
-            font-family: 'Noto Naskh Arabic', serif !important; font-weight: bold !important;
-            font-size: 18px !important; color: #00008b !important; border: none; 
-            border-bottom: 1px dashed #000; background: transparent; outline: none; text-align: center; 
-        }
+        .text-bold { font-weight: bold; } .text-center { text-align: center; } .mt-10 { margin-top: 10px; } .mt-20 { margin-top: 20px; }
+        input, select, textarea { font-family: 'Noto Naskh Arabic', serif !important; font-weight: bold !important; font-size: 18px !important; color: #00008b !important; border: none; border-bottom: 1px dashed #000; background: transparent; outline: none; text-align: center; }
         select { cursor: pointer; }
-        
         .action-select { width: 100%; padding: 5px; border: 1px dashed #000; background-color: #fdfdfd; cursor: pointer; text-align: right; }
         textarea.action-input { width: 100%; resize: none; border-bottom: 1px dashed #000; padding: 5px; box-sizing: border-box; text-align: right; overflow: hidden; line-height: 1.5; }
-        
         table { width: 100%; border-collapse: collapse; margin-top: 20px; margin-bottom: 20px; table-layout: fixed; }
         th, td { border: 1px solid #000; padding: 10px 5px; text-align: center; vertical-align: middle; }
         th { background-color: #f9f9f9; }
         .v-date { font-size: 15px !important; width: 100% !important; border-bottom: none; cursor: text; }
-
-        /* تنسيقات لوحة الإحصائيات الجديدة */
         #dashboardView { display: none; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 250mm; margin: 0 auto; min-height: 297mm; }
         .dash-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: #fdfdfd; padding: 15px; border: 1px solid #ccc; border-radius: 8px; }
         .dash-search-box { display: flex; gap: 10px; align-items: center; }
         .dash-input { padding: 8px 15px; border: 1px solid #bdc3c7; border-radius: 5px; width: 250px; font-family: inherit; font-size: 16px !important; color: #333 !important; font-weight: normal !important; text-align: right; }
-        
         .dash-table th { background-color: #2c3e50; color: white; padding: 12px; }
         .badge { padding: 5px 12px; border-radius: 20px; font-weight: bold; color: white; font-size: 16px; font-family: 'Sakkal Majalla', sans-serif;}
-        .badge-0 { background-color: #27ae60; } 
-        .badge-1 { background-color: #f39c12; color: #fff; } 
-        .badge-2 { background-color: #e67e22; } 
-        .badge-3 { background-color: #c0392b; }
-        
-        /* تصميم تفاصيل المخالفة لتكون مقروءة وواضحة */
+        .badge-0 { background-color: #27ae60; } .badge-1 { background-color: #f39c12; color: #fff; } .badge-2 { background-color: #e67e22; } .badge-3 { background-color: #c0392b; }
         .violation-card { background-color: #fff3cd; border: 1px solid #ffe69c; color: #664d03; padding: 8px; margin-bottom: 5px; border-radius: 5px; text-align: right; font-family: 'Sakkal Majalla', sans-serif; font-size: 18px; line-height: 1.4; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
         .violation-card strong { color: #d35400; }
         .violation-teacher { display: block; font-size: 15px; color: #2c3e50; margin-top: 4px; border-top: 1px dashed #ccc; padding-top: 4px; }
-
         @media print {
             @page { margin: 0; size: A4; }
             body { padding: 0; background: white; -webkit-print-color-adjust: exact; }
@@ -78,7 +53,6 @@
 </head>
 <body>
 
-    <!-- أدوات التحكم المركزية -->
     <div class="controls no-print">
         <div style="margin-bottom: 15px; font-size: 22px; font-weight: bold;">
             حدد المعلم: 
@@ -144,7 +118,6 @@
         <div style="margin-top:10px;"><span id="statusMsg" style="font-weight: bold; color: #27ae60;"></span></div>
     </div>
 
-    <!-- واجهة النموذج (الأساسية) -->
     <div class="a4-page" id="formView">
         <img src="https://i.postimg.cc/K88X7RLb/trwysyh-dhhbyt.png" alt="الترويسة" class="header-image">
 
@@ -304,7 +277,7 @@
         </div>
     </div>
 
-    <!-- واجهة لوحة الإحصائيات (تظهر عند الضغط على الزر) -->
+    <!-- لوحة الإحصائيات -->
     <div id="dashboardView">
         <div style="text-align: center; margin-bottom: 20px;">
             <h2>📊 الإحصائيات المركزية لمخالفات الطلاب</h2>
@@ -337,7 +310,6 @@
         </table>
     </div>
 
-    <!-- حقول مخفية -->
     <input type="hidden" id="sysDate">
     <input type="hidden" id="sysDay">
 
@@ -345,7 +317,7 @@
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycby-haqBhDdXsfP6TuegxjzP7e4YHwFiHRb9g9DItu5tIskMfnJlP0ZKiDS1BLaMBTe1fg/exec";
         
         let fetchedRecord = {}; 
-        let globalDashboardData = []; // تخزين بيانات الإحصائيات للفلترة السريعة
+        let globalDashboardData = []; 
 
         const HARDCODED_ROSTERS = {
           "سادس ابتدائي 1": ["ابراهيم على خليل الحايكي", "السيد حسن صالح الموسوي", "السيد علوي ابراهيم ناصر حسن", "السيد هاشم مجيد فيصل محمد", "إيليا سعيد حسن حسن", "حسن على ميرزا خليل", "حسین اسامه عبد الجليل الجشي", "حسين عمار جاسم الاسكافي", "حيدر على ابراهيم حسن", "سيد صادق جعفر على ناصر", "سيد حامد حسین محمد درویش", "صادق على عبدالله اسماعيل", "عبد العزيز جلال عبد العزيز حاجی عبدالله", "عبدالله حسین عبدالله مال الله", "عبدالله على عباس شاهين", "على حسين على عبد على", "على عيسى ابراهيم الستراوي", "على قاسم عباس حسن", "عمار محمد عبد الامير الحصار", "غسان مهند عقيل مرهون", "قاسم جابر جاسم منصور", "قاسم محمد احمد حسن", "ليث محمود مسعود الوطني", "محمد صالح شوقي البناء", "محمد عباس خميس السودان", "نوح زهير عبد الوهاب غزوان", "يوسف كاظم محمد الحايكي"],
@@ -366,7 +338,6 @@
           "ثالث إعدادي 5": ["احمد يعقوب اسحاق يونس", "آدم محمد يوسف المحاسنيه", "السيد محمد جواد درويش الشرخات", "السيد محمد على جعفر الغنى", "السيد هاشم جلال عيسى حسن", "إلياس محمد يوسف المحاسنيه", "حسن محمد داود مشيمع", "حسين على حسن حسن", "حيدر عبد الامير سعيد عبدالوهاب", "حيدر فلاح موسى خميس", "سید قاسم حسين على ناصر", "سید محمد حسين محمد درويش", "سيدهاشم السيد فيصل حيدر علوي", "عباس حسن يوسف شريف", "عباس على عبدالوهاب الشيخ على", "عباس فاضل عبد النبي العود", "عبد العزيز حسن علی احمد", "على حسن جمعه حسن", "على حسن كاظم العويناتي", "على حسين سلمان على احمد", "على حسين عبدالله عباس", "على حسین عبدالله عبدالله", "على حمد عبد الرضا خمدن", "على عادل احمد عبدالله", "على محمد علی عباس", "علي مهدي عبدالله مرهون", "على يوسف احمد امان", "على يوسف كاظم القلاف", "عمار على سعيد عباس", "قاسم فاضل جاسم عتيق", "مجتبى عادل احمد کاظم", "محمد حبيب عبد الرسول احمد", "محمد حسين مرزوق الجبل", "محمد مهدي رائد عبد الكريم عبد على", "مناف عبدالله ابراهيم ال عميري", "يوسف احمد هلال فردان"]
         };
 
-        // ضبط المعلم الحالي أسفل الورقة
         document.getElementById('globalTeacherSelect').addEventListener('change', function() {
             if(this.value) {
                 let parts = this.options[this.selectedIndex].text.split(' - ');
@@ -468,7 +439,6 @@
             });
         });
 
-        // تهيئة قوائم الفصول (للنموذج والداشبورد)
         const classSelect = document.getElementById('classSelect');
         const dashClassFilter = document.getElementById('dashClassFilter');
         const studentSelect = document.getElementById('studentSelect');
@@ -476,7 +446,7 @@
 
         for (const className in HARDCODED_ROSTERS) {
             classSelect.appendChild(new Option(className, className));
-            dashClassFilter.appendChild(new Option(className, className)); // تعبئة فلتر الإحصائيات
+            dashClassFilter.appendChild(new Option(className, className));
         }
 
         classSelect.addEventListener('change', function() {
@@ -507,7 +477,7 @@
                 const response = await fetch(`${WEB_APP_URL}?student=${encodeURIComponent(this.value)}&className=${encodeURIComponent(classSelect.value)}`);
                 fetchedRecord = await response.json();
                 
-                if(fetchedRecord && Object.keys(fetchedRecord).length > 0) {
+                if(fetchedRecord && (fetchedRecord.v1_type || fetchedRecord.v2_type || fetchedRecord.v3_type)) {
                     setDropdownOrText('v1_type', 'v1_type_sel', fetchedRecord.v1_type);
                     setDropdownOrText('v1_action', 'v1_action_sel', fetchedRecord.v1_action);
                     document.getElementById('v1_date').value = fetchedRecord.v1_date || '';
@@ -520,14 +490,10 @@
                     setDropdownOrText('v3_action', 'v3_action_sel', fetchedRecord.v3_action);
                     document.getElementById('v3_date').value = fetchedRecord.v3_date || '';
                     
-                    document.getElementById('refDay').value = fetchedRecord.refDay || '';
-                    document.getElementById('refDate').value = fetchedRecord.refDate || '';
-                    document.getElementById('refPeriod').value = fetchedRecord.refPeriod || '';
-                    
                     statusMsg.textContent = "تم استرجاع السجل بنجاح";
                 } else {
                     fetchedRecord = {};
-                    statusMsg.textContent = "سجل جديد";
+                    statusMsg.textContent = "طالب جديد - لا يوجد مخالفات";
                 }
             } catch (error) {
                 statusMsg.textContent = "خطأ في الاتصال بالسجل";
@@ -539,35 +505,51 @@
             if(!document.getElementById('globalTeacherSelect').value) { alert("رجاءً حدد اسمك كمعلم من القائمة بالأعلى أولاً!"); return; }
             if(!studentSelect.value || !classSelect.value) { alert("يرجى اختيار الصف والطالب أولاً"); return; }
 
-            let currTeacher = document.getElementById('globalTeacherSelect').options[document.getElementById('globalTeacherSelect').selectedIndex].text.split(' - ')[1];
+            let parts = document.getElementById('globalTeacherSelect').options[document.getElementById('globalTeacherSelect').selectedIndex].text.split(' - ');
+            let currTeacher = parts[1];
+            let currSubject = parts[0];
             
             let v1_txt = document.getElementById('v1_type').value;
             let v2_txt = document.getElementById('v2_type').value;
             let v3_txt = document.getElementById('v3_type').value;
 
-            let v1_t = (v1_txt && v1_txt === fetchedRecord.v1_type) ? (fetchedRecord.v1_teacher || currTeacher) : (v1_txt ? currTeacher : "");
-            let v2_t = (v2_txt && v2_txt === fetchedRecord.v2_type) ? (fetchedRecord.v2_teacher || currTeacher) : (v2_txt ? currTeacher : "");
-            let v3_t = (v3_txt && v3_txt === fetchedRecord.v3_type) ? (fetchedRecord.v3_teacher || currTeacher) : (v3_txt ? currTeacher : "");
-
             const payload = {
                 className: classSelect.value,
                 student: studentSelect.value,
-                v1_type: v1_txt, v1_action: document.getElementById('v1_action').value, v1_date: document.getElementById('v1_date').value, v1_teacher: v1_t,
-                v2_type: v2_txt, v2_action: document.getElementById('v2_action').value, v2_date: document.getElementById('v2_date').value, v2_teacher: v2_t,
-                v3_type: v3_txt, v3_action: document.getElementById('v3_action').value, v3_date: document.getElementById('v3_date').value, v3_teacher: v3_t,
-                refDay: document.getElementById('refDay').value, refDate: document.getElementById('refDate').value, refPeriod: document.getElementById('refPeriod').value,
-                notes: "" 
+                teacherName: currTeacher,
+                teacherSubject: currSubject,
+                // نرسل المخالفة الجديدة فقط (التي تختلف عن الموجودة مسبقاً في السجل)
+                v1_type: (v1_txt !== fetchedRecord.v1_type) ? v1_txt : "", 
+                v1_action: (v1_txt !== fetchedRecord.v1_type) ? document.getElementById('v1_action').value : "", 
+                v1_date: (v1_txt !== fetchedRecord.v1_type) ? document.getElementById('v1_date').value : "", 
+                
+                v2_type: (v2_txt !== fetchedRecord.v2_type) ? v2_txt : "", 
+                v2_action: (v2_txt !== fetchedRecord.v2_type) ? document.getElementById('v2_action').value : "", 
+                v2_date: (v2_txt !== fetchedRecord.v2_type) ? document.getElementById('v2_date').value : "", 
+                
+                v3_type: (v3_txt !== fetchedRecord.v3_type) ? v3_txt : "", 
+                v3_action: (v3_txt !== fetchedRecord.v3_type) ? document.getElementById('v3_action').value : "", 
+                v3_date: (v3_txt !== fetchedRecord.v3_type) ? document.getElementById('v3_date').value : "", 
+                
+                refDay: document.getElementById('refDay').value, refDate: document.getElementById('refDate').value, refPeriod: document.getElementById('refPeriod').value
             };
 
-            statusMsg.textContent = "جاري الحفظ...";
+            // التحقق من وجود مخالفة جديدة للحفظ
+            if (!payload.v1_type && !payload.v2_type && !payload.v3_type) {
+                alert("لم تقم بإضافة أي مخالفة جديدة للحفظ!");
+                return;
+            }
+
+            statusMsg.textContent = "جاري حفظ المخالفة...";
             this.disabled = true;
 
             try {
                 await fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify(payload) });
                 statusMsg.textContent = "تم الحفظ بنجاح!";
-                fetchedRecord.v1_type = v1_txt; fetchedRecord.v1_teacher = v1_t;
-                fetchedRecord.v2_type = v2_txt; fetchedRecord.v2_teacher = v2_t;
-                fetchedRecord.v3_type = v3_txt; fetchedRecord.v3_teacher = v3_t;
+                // تحديث السجل المحلي لتجنب الحفظ المزدوج
+                fetchedRecord.v1_type = v1_txt; 
+                fetchedRecord.v2_type = v2_txt; 
+                fetchedRecord.v3_type = v3_txt; 
             } catch (error) {
                 statusMsg.textContent = "فشل الحفظ!";
             }
@@ -586,14 +568,13 @@
         }
 
         // ==========================================
-        // وظائف لوحة الإحصائيات الشاملة والبحث
+        // وظائف لوحة الإحصائيات (السجل التراكمي)
         // ==========================================
         function toggleDashboard() {
             let formView = document.getElementById('formView');
             let dashView = document.getElementById('dashboardView');
             if(dashView.style.display === 'none' || dashView.style.display === '') {
                 formView.style.display = 'none'; dashView.style.display = 'block';
-                // جلب البيانات فقط إذا كانت فارغة لتوفير الوقت
                 if(globalDashboardData.length === 0) fetchDataFromServer();
             } else {
                 dashView.style.display = 'none'; formView.style.display = 'block';
@@ -622,33 +603,24 @@
                     });
                 }
                 
-                // دمج السجلات
+                // دمج السجلات التراكمية
                 serverData.forEach(row => {
+                    if(!row.student) return;
                     let target = allStudents.find(s => s.name === row.student && s.className === row.className);
-                    if (target) {
-                        if(row.v1_type) { 
-                            target.count++; 
-                            target.details.push(`<div class="violation-card"><strong>مخالفة 1:</strong> ${row.v1_type} <span class="violation-teacher">👨‍🏫 المعلم: ${row.v1_teacher}</span></div>`); 
-                        }
-                        if(row.v2_type) { 
-                            target.count++; 
-                            target.details.push(`<div class="violation-card"><strong>مخالفة 2:</strong> ${row.v2_type} <span class="violation-teacher">👨‍🏫 المعلم: ${row.v2_teacher}</span></div>`); 
-                        }
-                        if(row.v3_type) { 
-                            target.count++; 
-                            target.details.push(`<div class="violation-card"><strong>مخالفة 3:</strong> ${row.v3_type} <span class="violation-teacher">🚨 تحويل للمشرف: ${row.v3_teacher}</span></div>`); 
-                        }
+                    if (target && row.v_type) {
+                        target.count++; 
+                        let vNumTxt = row.v_num.replace("المخالفة", "م");
+                        target.details.push(`<div class="violation-card"><strong>${vNumTxt}:</strong> ${row.v_type} <span class="violation-teacher">👨‍🏫 ${row.teacher} (${row.subject}) - ${row.v_date}</span></div>`); 
                     }
                 });
                 
-                globalDashboardData = allStudents; // تخزين البيانات محلياً للبحث السريع
-                renderDashboardTable(globalDashboardData); // عرض البيانات
+                globalDashboardData = allStudents; 
+                renderDashboardTable(globalDashboardData); 
             } catch (err) {
-                dashBody.innerHTML = '<tr><td colspan="4" style="color:red;">حدث خطأ في جلب البيانات! تأكد من اتصال الإنترنت أو إعدادات السكريبت.</td></tr>';
+                dashBody.innerHTML = '<tr><td colspan="4" style="color:red;">حدث خطأ في جلب البيانات! تأكد من تحديث السكريبت وعمل "إصدار جديد".</td></tr>';
             }
         }
 
-        // دالة رسم الجدول بناءً على الفلتر والبحث
         function renderDashboardTable(dataToRender) {
             const dashBody = document.getElementById('dashBody');
             dashBody.innerHTML = "";
@@ -665,16 +637,15 @@
                 let studentsInStage = dataToRender.filter(s => s.stage === stg);
                 if(studentsInStage.length === 0) return;
                 
-                // ترتيب تنازلي
+                // الترتيب: الأكثر مخالفة أولاً
                 studentsInStage.sort((a, b) => b.count - a.count);
                 
-                // رسم ترويسة المرحلة (إلا إذا كان المعلم اختار صفاً واحداً فقط فلا حاجة لها)
                 if (!isFilteredByClass) {
                     dashBody.innerHTML += `<tr style="background-color: #d6eaf8;"><td colspan="4" style="font-weight:bold; font-size:22px; color:#2980b9;">📌 مرحلة: ${stg}</td></tr>`;
                 }
                 
                 studentsInStage.forEach(stu => {
-                    let badgeClass = `badge-${stu.count}`;
+                    let badgeClass = `badge-${stu.count >= 3 ? 3 : stu.count}`; // لون احمر لـ 3 فما فوق
                     let statusTxt = stu.count === 0 ? "طالب ملتزم (0)" : `${stu.count} مخالفات`;
                     let detailsTxt = stu.count === 0 ? "-" : stu.details.join("");
                     
@@ -690,7 +661,6 @@
             });
         }
 
-        // مستمعات الأحداث للبحث والفلترة الفورية
         document.getElementById('dashSearchInput').addEventListener('input', applyFilters);
         document.getElementById('dashClassFilter').addEventListener('change', applyFilters);
 
@@ -703,7 +673,6 @@
                 let matchClass = (classFilter === 'all') || (stu.className === classFilter);
                 return matchName && matchClass;
             });
-
             renderDashboardTable(filtered);
         }
     </script>
