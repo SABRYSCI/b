@@ -31,7 +31,10 @@
         th { background-color: #f9f9f9; }
         .v-date { font-size: 15px !important; width: 100% !important; border-bottom: none; cursor: text; }
         
-        #dashboardView { display: none; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 250mm; margin: 0 auto; min-height: 297mm; }
+        /* إعدادات الشاشات */
+        #dashboardView, #studentReportView { display: none; }
+        #dashboardView { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); width: 250mm; margin: 0 auto; min-height: 297mm; }
+        
         .dash-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: #fdfdfd; padding: 15px; border: 1px solid #ccc; border-radius: 8px; }
         .dash-search-box { display: flex; gap: 10px; align-items: center; }
         .dash-input { padding: 8px 15px; border: 1px solid #bdc3c7; border-radius: 5px; width: 250px; font-family: inherit; font-size: 16px !important; color: #333 !important; font-weight: normal !important; text-align: right; }
@@ -42,9 +45,6 @@
         .violation-card strong { color: #d35400; }
         .violation-teacher { display: block; font-size: 15px; color: #2c3e50; margin-top: 4px; border-top: 1px dashed #ccc; padding-top: 4px; }
         
-        #studentReportView { display: none; }
-        
-        /* تنسيقات الطباعة الديناميكية */
         @media print {
             @page { margin: 0; size: A4; }
             body { padding: 0; background: white; -webkit-print-color-adjust: exact; }
@@ -62,7 +62,7 @@
 <body>
 
     <!-- أدوات التحكم المركزية -->
-    <div class="controls no-print">
+    <div class="controls no-print" id="mainControls">
         <div style="margin-bottom: 15px; font-size: 22px; font-weight: bold;">
             حدد المعلم: 
             <select id="globalTeacherSelect" style="width: 300px; font-size: 20px !important;">
@@ -122,7 +122,7 @@
         <div class="controls-row">
             <button class="btn btn-print" onclick="window.print()">🖨️ طباعة النموذج</button>
             <button class="btn btn-save" id="btnSave">💾 حفظ المخالفة</button>
-            <button class="btn btn-dash" id="btnToggleDash">📊 لوحة الإحصائيات والبحث</button>
+            <button class="btn btn-dash" onclick="openDashboard()">📊 لوحة الإحصائيات والبحث</button>
         </div>
         <div style="margin-top:10px;"><span id="statusMsg" style="font-weight: bold; color: #27ae60; font-size: 20px;"></span></div>
     </div>
@@ -295,7 +295,7 @@
         </div>
 
         <div class="dash-header">
-            <button class="btn btn-back" onclick="toggleDashboard()">◀ العودة للنموذج</button>
+            <button class="btn btn-back" onclick="closeDashboard()">◀ العودة للنموذج</button>
             <div class="dash-search-box">
                 <select id="dashClassFilter" class="dash-input" style="width:180px;">
                     <option value="all">🏫 جميع الصفوف</option>
@@ -364,7 +364,7 @@
         
         let fetchedRecord = {v1_type:"", v2_type:"", v3_type:""}; 
         let globalDashboardData = []; 
-        let globalRawViolations = []; // تم الإضافة لتخزين كل المخالفات لعمل التقرير الشامل
+        let globalRawViolations = []; 
 
         const HARDCODED_ROSTERS = {
           "سادس ابتدائي 1": ["ابراهيم على خليل الحايكي", "السيد حسن صالح الموسوي", "السيد علوي ابراهيم ناصر حسن", "السيد هاشم مجيد فيصل محمد", "إيليا سعيد حسن حسن", "حسن على ميرزا خليل", "حسین اسامه عبد الجليل الجشي", "حسين عمار جاسم الاسكافي", "حيدر على ابراهيم حسن", "سيد صادق جعفر على ناصر", "سيد حامد حسین محمد درویش", "صادق على عبدالله اسماعيل", "عبد العزيز جلال عبد العزيز حاجی عبدالله", "عبدالله حسین عبدالله مال الله", "عبدالله على عباس شاهين", "على حسين على عبد على", "على عيسى ابراهيم الستراوي", "على قاسم عباس حسن", "عمار محمد عبد الامير الحصار", "غسان مهند عقيل مرهون", "قاسم جابر جاسم منصور", "قاسم محمد احمد حسن", "ليث محمود مسعود الوطني", "محمد صالح شوقي البناء", "محمد عباس خميس السودان", "نوح زهير عبد الوهاب غزوان", "يوسف كاظم محمد الحايكي"],
@@ -638,27 +638,27 @@
         }
 
         // ==========================================
-        // وظائف لوحة الإحصائيات وتقارير الطلاب الشاملة
+        // وظائف التنقل بين الشاشات
         // ==========================================
-        function toggleDashboard() {
-            let formView = document.getElementById('formView');
-            let dashView = document.getElementById('dashboardView');
-            let reportView = document.getElementById('studentReportView');
-            
-            // عند العودة من أي شاشة يتم إخفاء تقرير الطالب دائماً
-            reportView.style.display = 'none';
-
-            if(dashView.style.display === 'none' || dashView.style.display === '') {
-                formView.style.display = 'none'; dashView.style.display = 'block';
-                if(globalDashboardData.length === 0) fetchDataFromServer();
-            } else {
-                dashView.style.display = 'none'; formView.style.display = 'block';
-            }
+        function openDashboard() {
+            document.getElementById('formView').style.display = 'none';
+            document.getElementById('studentReportView').style.display = 'none';
+            document.getElementById('dashboardView').style.display = 'block';
+            document.getElementById('mainControls').style.display = 'none';
+            if(globalDashboardData.length === 0) fetchDataFromServer();
         }
-        
+
+        function closeDashboard() {
+            document.getElementById('dashboardView').style.display = 'none';
+            document.getElementById('studentReportView').style.display = 'none';
+            document.getElementById('formView').style.display = 'block';
+            document.getElementById('mainControls').style.display = 'block';
+        }
+
         function openStudentReport(studentName, className) {
             document.getElementById('dashboardView').style.display = 'none';
             document.getElementById('formView').style.display = 'none';
+            document.getElementById('mainControls').style.display = 'none';
             document.getElementById('studentReportView').style.display = 'block';
             
             document.getElementById('reportStudentName').innerText = studentName;
@@ -667,7 +667,6 @@
             const tbody = document.getElementById('reportTableBody');
             tbody.innerHTML = '';
             
-            // فلترة كل المخالفات الخاصة بهذا الطالب من السجل الشامل
             let studentViolations = globalRawViolations.filter(r => r.student === studentName && r.className === className && r.v_type);
             
             if (studentViolations.length === 0) {
@@ -691,9 +690,14 @@
         
         function closeStudentReport() {
             document.getElementById('studentReportView').style.display = 'none';
+            document.getElementById('formView').style.display = 'none';
             document.getElementById('dashboardView').style.display = 'block';
+            document.getElementById('mainControls').style.display = 'none';
         }
 
+        // ==========================================
+        // وظائف جلب الإحصائيات
+        // ==========================================
         async function fetchDataFromServer() {
             const dashBody = document.getElementById('dashBody');
             dashBody.innerHTML = '<tr><td colspan="4" style="padding:20px; font-size:20px;">⏳ جاري جلب وتحليل بيانات المدرسة... الرجاء الانتظار</td></tr>';
@@ -701,7 +705,7 @@
             try {
                 const response = await fetch(`${WEB_APP_URL}?action=getAll`);
                 const serverData = await response.json();
-                globalRawViolations = serverData; // تخزين البيانات الخام لاستخدامها في تقرير الطالب الشامل
+                globalRawViolations = serverData; 
                 
                 let allStudents = [];
                 for (let cls in HARDCODED_ROSTERS) {
@@ -716,7 +720,6 @@
                     });
                 }
                 
-                // دمج السجلات التراكمية
                 serverData.forEach(row => {
                     if(!row.student) return;
                     let target = allStudents.find(s => s.name === row.student && s.className === row.className);
@@ -750,7 +753,6 @@
                 let studentsInStage = dataToRender.filter(s => s.stage === stg);
                 if(studentsInStage.length === 0) return;
                 
-                // الترتيب: الأكثر مخالفة أولاً
                 studentsInStage.sort((a, b) => b.count - a.count);
                 
                 if (!isFilteredByClass) {
@@ -762,7 +764,6 @@
                     let statusTxt = stu.count === 0 ? "طالب ملتزم (0)" : `${stu.count} مخالفات`;
                     let detailsTxt = stu.count === 0 ? "-" : stu.details.join("");
                     
-                    // إضافة زر الطباعة الشامل إذا كان للطالب مخالفات
                     if (stu.count > 0) {
                         detailsTxt += `<div style="text-align: left; margin-top: 10px;"><button onclick="openStudentReport('${stu.name}', '${stu.className}')" class="btn btn-print" style="padding: 5px 15px; font-size: 14px; width: auto; background-color: #34495e;">📄 معاينة وطباعة التقرير الشامل</button></div>`;
                     }
