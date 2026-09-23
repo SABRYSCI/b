@@ -236,7 +236,7 @@
                             <option value="الحركة في الصف بدون استئذان">الحركة في الصف بدون استئذان</option>
                             <option value="سب زميله او رمي اشياء عليه">سب زميله او رمي اشياء عليه</option>
                             <option value="النوم على الطاولة">النوم على الطاولة</option>
-                            <option value="كثرة الخروج للحمام">كثرة الخروج للحمام</option>
+                            <option value="كثر الخروج للحمام">كثرة الخروج للحمام</option>
                             <option value="الهروب من الحصة">الهروب من الحصة</option>
                             <option value="اصدار اصوات">اصدار اصوات</option>
                             <option value="other">أخرى (كتابة يدوية)</option>
@@ -344,6 +344,7 @@
           "ثالث إعدادي 5": ["احمد يعقوب اسحاق يونس", "آدم محمد يوسف المحاسنيه", "السيد محمد جواد درويش الشرخات", "السيد محمد على جعفر الغنى", "السيد هاشم جلال عيسى حسن", "إلياس محمد يوسف المحاسنيه", "حسن محمد داود مشيمع", "حسين على حسن حسن", "حيدر عبد الامير سعيد عبدالوهاب", "حيدر فلاح موسى خميس", "سید قاسم حسين على ناصر", "سید محمد حسين محمد درويش", "سيدهاشم السيد فيصل حيدر علوي", "عباس حسن يوسف شريف", "عباس على عبدالوهاب الشيخ على", "عباس فاضل عبد النبي العود", "عبد العزيز حسن علی احمد", "على حسن جمعه حسن", "على حسن كاظم العويناتي", "على حسين سلمان على احمد", "على حسين عبدالله عباس", "على حسین عبدالله عبدالله", "على حمد عبد الرضا خمدن", "على عادل احمد عبدالله", "على محمد علی عباس", "علي مهدي عبدالله مرهون", "على يوسف احمد امان", "على يوسف كاظم القلاف", "عمار على سعيد عباس", "قاسم فاضل جاسم عتيق", "مجتبى عادل احمد کاظم", "محمد حبيب عبد الرسول احمد", "محمد حسين مرزوق الجبل", "محمد مهدي رائد عبد الكريم عبد على", "مناف عبدالله ابراهيم ال عميري", "يوسف احمد هلال فردان"]
         };
 
+        // تحديث المادة واسم المعلم عند اختيار المعلم وإعادة تهيئة القوائم
         document.getElementById('globalTeacherSelect').addEventListener('change', function() {
             if(this.value) {
                 let parts = this.options[this.selectedIndex].text.split(' - ');
@@ -353,6 +354,8 @@
                 document.getElementById('teacherSubjectBottom').value = "";
                 document.getElementById('teacherNameBottom').value = "";
             }
+            document.getElementById('studentSelect').value = "";
+            clearForm();
         });
 
         function initializeDates() {
@@ -474,10 +477,18 @@
             }
         });
 
-        // تم إضافة إقفال الأزرار والقوائم لمنع حفظ السجل فارغ أو الكتابة أثناء الاسترجاع
         studentSelect.addEventListener('change', async function() {
             clearForm();
             if(!this.value || !classSelect.value) return;
+
+            let teacherDropdown = document.getElementById('globalTeacherSelect');
+            if(!teacherDropdown.value) {
+                alert("عفواً، يجب تحديد اسم المعلم من القائمة بالأعلى أولاً قبل اختيار الطالب!");
+                this.value = "";
+                return;
+            }
+
+            let currTeacher = teacherDropdown.options[teacherDropdown.selectedIndex].text.split(' - ')[1];
 
             statusMsg.textContent = "⏳ جاري فحص السجل... (رجاءً انتظر)";
             statusMsg.style.color = "#d35400";
@@ -486,7 +497,8 @@
             document.querySelectorAll('.action-select').forEach(el => el.disabled = true);
 
             try {
-                const response = await fetch(`${WEB_APP_URL}?student=${encodeURIComponent(this.value)}&className=${encodeURIComponent(classSelect.value)}`);
+                // إرسال اسم المعلم الحالي لجلب مخالفاته هو فقط
+                const response = await fetch(`${WEB_APP_URL}?student=${encodeURIComponent(this.value)}&className=${encodeURIComponent(classSelect.value)}&teacher=${encodeURIComponent(currTeacher)}`);
                 fetchedRecord = await response.json();
                 
                 if(fetchedRecord && (fetchedRecord.v1_type || fetchedRecord.v2_type || fetchedRecord.v3_type)) {
@@ -502,11 +514,11 @@
                     setDropdownOrText('v3_action', 'v3_action_sel', fetchedRecord.v3_action);
                     document.getElementById('v3_date').value = fetchedRecord.v3_date || '';
                     
-                    statusMsg.textContent = "✅ تم استرجاع سجله القديم. يمكنك إضافة مخالفة جديدة الآن.";
+                    statusMsg.textContent = "✅ تم استرجاع سجله القديم الخاص بك. يمكنك إضافة مخالفة جديدة.";
                     statusMsg.style.color = "#27ae60";
                 } else {
                     fetchedRecord = {v1_type:"", v2_type:"", v3_type:""};
-                    statusMsg.textContent = "✅ طالب جديد (سجله نظيف). قم باختيار المخالفة الآن لحفظها.";
+                    statusMsg.textContent = "✅ طالب جديد لك (سجله نظيف معك). قم باختيار المخالفة الآن.";
                     statusMsg.style.color = "#2980b9";
                 }
             } catch (error) {
@@ -536,7 +548,6 @@
                 student: studentSelect.value,
                 teacherName: currTeacher,
                 teacherSubject: currSubject,
-                // نرسل المخالفة الجديدة فقط (التي تختلف عن الموجودة مسبقاً في السجل)
                 v1_type: (v1_txt !== fetchedRecord.v1_type) ? v1_txt : "", 
                 v1_action: (v1_txt !== fetchedRecord.v1_type) ? document.getElementById('v1_action').value : "", 
                 v1_date: (v1_txt !== fetchedRecord.v1_type) ? document.getElementById('v1_date').value : "", 
@@ -552,7 +563,6 @@
                 refDay: document.getElementById('refDay').value, refDate: document.getElementById('refDate').value, refPeriod: document.getElementById('refPeriod').value
             };
 
-            // التحقق من وجود مخالفة جديدة للحفظ
             if (!payload.v1_type && !payload.v2_type && !payload.v3_type) {
                 alert("لم تقم بإضافة أي مخالفة جديدة للحفظ!\n\nاختر نوع المخالفة من القائمة المنسدلة أولاً.");
                 return;
