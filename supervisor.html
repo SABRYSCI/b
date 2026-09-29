@@ -76,7 +76,7 @@
         .btn-amber { background-color: #d97706; }
         .btn-purple { background-color: #7c3aed; }
         .btn-gray { background-color: #64748b; }
-        .btn-red { background-color: #dc2626; } /* زر المخالفات */
+        .btn-red { background-color: #dc2626; }
 
         .date-picker-box {
             display: flex; align-items: center; gap: 6px; background: #fff; padding: 4px 8px;
@@ -150,7 +150,6 @@
                 <button class="btn btn-purple" onclick="openExcusesModal()">🛡️ مطابقة الأعذار والتأخير</button>
                 <button class="btn btn-amber" onclick="openManualRegisterModal()">➕ تسجيل عذر ورقي</button>
                 
-                <!-- 🔴 الزر الجديد للانتقال إلى المخالفات السلوكية 🔴 -->
                 <a href="https://sabrysci.github.io/b/violations.html" class="btn btn-red">🛑 سجل المخالفات السلوكية</a>
 
                 <div class="date-picker-box">
@@ -179,11 +178,11 @@
             </div>
         </div>
 
-        <!-- البطاقات الإحصائية -->
+        <!-- البطاقات الإحصائية (تم تعديل عنوان مربع الغياب ليعكس الغياب الصافي) -->
         <div class="stats-cards-grid">
             <div class="stat-badge-card card-c1"><div class="stat-label">إجمالي الطلاب</div><div class="stat-val" id="valTotalStudents">0</div></div>
             <div class="stat-badge-card card-c2"><div class="stat-label">الحاضرون (في الحصة المحددة)</div><div class="stat-val" id="valPresentStudents">0</div></div>
-            <div class="stat-badge-card card-c3"><div class="stat-label">الغياب (في الحصة المحددة)</div><div class="stat-val" id="valAbsentStudents">0</div></div>
+            <div class="stat-badge-card card-c3"><div class="stat-label">الغياب الصافي (بدون تأخير/عذر)</div><div class="stat-val" id="valAbsentStudents">0</div></div>
             <div class="stat-badge-card card-c4"><div class="stat-label">نسبة الحضور</div><div class="stat-val" id="valPresentPercent">0.0%</div></div>
         </div>
 
@@ -228,7 +227,7 @@
     </div>
 </div>
 
-<!-- 🔴 نافذة عرض تفاصيل العذر 🔴 -->
+<!-- نافذة عرض تفاصيل العذر -->
 <div id="viewSingleExcuseModal" class="modal">
     <div class="modal-body" style="max-width:500px;">
         <span class="modal-close" onclick="closeModal('viewSingleExcuseModal')">&times;</span>
@@ -333,7 +332,7 @@
 
         Object.keys(studentAbsenceMap).forEach(sClean => {
             let st = studentAbsenceMap[sClean];
-            if (cachedLatesMap[sClean]) return; // مستثنى لأنه متأخر/مستأذان
+            if (cachedLatesMap[sClean]) return; // مستثنى لأنه متأخر
 
             if(totalRecordedCount === 0 || st.periods.length >= totalRecordedCount) {
                 trueDailyAbsentees[sClean] = st;
@@ -369,7 +368,9 @@
         }
 
         let stageTotal = 0;
-        let periodAbsentCount = 0;
+        let rawAbsentCountTotal = 0; // الغياب الفعلي عن الحصة (لحساب نسبة الحضور البدني)
+        let netAbsentCountTotal = 0; // الغياب الصافي للمشرف (بعد خصم التأخير والأعذار)
+        
         const tbody = document.getElementById('classesTableBody');
         tbody.innerHTML = '';
 
@@ -377,21 +378,29 @@
             const classCapacity = apiData.classTotals[cName] || 30;
             stageTotal += classCapacity;
 
-            // غياب الحصة المحددة لحظياً مع أسمائهم
             let absInPeriod = apiData.data.filter(r => r.date === targetDate && r.className === cName && String(r.period) === String(selectedPeriodNum) && !r.studentName.includes('لا يوجد'));
             let periodRecord = apiData.data.find(r => r.date === targetDate && r.className === cName && String(r.period) === String(selectedPeriodNum));
             let teacher = periodRecord ? periodRecord.teacher : "—";
             let isRecorded = !!periodRecord;
 
-            let absentThisPeriod = absInPeriod.length;
-            periodAbsentCount += absentThisPeriod;
-            let presentThisPeriod = classCapacity - absentThisPeriod;
+            let absentThisPeriodRaw = absInPeriod.length;
+            rawAbsentCountTotal += absentThisPeriodRaw;
 
             let periodAbsenteesHtml = '';
+            
+            // فلتر لحساب "الغياب الصافي" في هذه الحصة
             absInPeriod.forEach(ab => {
+                let sClean = ab.studentName.replace(/^[\d\s._-]+/, '').trim();
+                let isExcusedOrLate = cachedLatesMap[sClean] || cachedExcusesMap[sClean];
+                
+                if (!isExcusedOrLate) {
+                    netAbsentCountTotal++; // زيادة العداد للغياب الصافي فقط
+                }
+                
                 periodAbsenteesHtml += `<span class="tag-period-absent">❌ ${ab.studentName}</span> `;
             });
-            if(absentThisPeriod === 0) {
+            
+            if(absentThisPeriodRaw === 0) {
                 periodAbsenteesHtml = isRecorded ? '<span style="color:var(--success); font-weight:700;">لا غياب بالحصة</span>' : '<span style="color:var(--text-muted);">—</span>';
             }
 
@@ -431,12 +440,16 @@
             `;
         });
 
-        let presentTotal = stageTotal - periodAbsentCount;
+        // الحاضرون = إجمالي الطلاب ناقص الطلاب الغائبين فيزيائياً عن الحصة
+        let presentTotal = stageTotal - rawAbsentCountTotal; 
         let percent = stageTotal > 0 ? ((presentTotal / stageTotal) * 100).toFixed(1) : 0;
 
         document.getElementById('valTotalStudents').innerText = stageTotal;
         document.getElementById('valPresentStudents').innerText = presentTotal;
-        document.getElementById('valAbsentStudents').innerText = periodAbsentCount;
+        
+        // 🔴 التعديل هنا: المربع الآن يعرض (الغياب الصافي) بعد خصم التأخير والأعذار 🔴
+        document.getElementById('valAbsentStudents').innerText = netAbsentCountTotal;
+        
         document.getElementById('valPresentPercent').innerText = percent + "%";
     }
 
