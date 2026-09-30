@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بوابة المشرفين - سجل المخالفات السلوكية</title>
+    <title>بوابة المشرفين - التحليل الإحصائي وسجل المخالفات</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap');
 
@@ -15,55 +15,68 @@
             --text-dark: #1e293b;
             --border: #cbd5e1;
             --accent: #059669;
+            --blue: #2563eb;
+            --amber: #d97706;
         }
 
         body { font-family: 'Tajawal', sans-serif; background-color: var(--bg-main); color: var(--text-dark); margin: 0; padding: 20px 10px; }
         
-        .container { max-width: 1100px; margin: 0 auto; background: var(--card-bg); border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); overflow: hidden; border: 1px solid var(--border); margin-bottom: 30px; }
+        .container { max-width: 1200px; margin: 0 auto; background: var(--card-bg); border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); overflow: hidden; border: 1px solid var(--border); margin-bottom: 30px; }
         .header { background-color: #fff; text-align: center; padding: 15px; border-bottom: 3px solid var(--primary); }
         .header img { max-width: 100%; height: auto; max-height: 85px; }
-        .page-title { text-align: center; color: var(--primary); font-weight: 800; margin: 20px 0 10px 0; font-size: 1.4rem; }
+        .page-title { text-align: center; color: var(--primary); font-weight: 800; margin: 15px 0 10px 0; font-size: 1.4rem; }
 
         .top-nav { padding: 10px 20px; background: #f1f5f9; border-bottom: 1px solid var(--border); display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; align-items: center; }
         .btn-nav { background: #1e40af; color: white; border: none; padding: 10px 20px; border-radius: 6px; font-family: inherit; font-weight: 700; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s; font-size: 1rem; }
         .btn-nav:hover { opacity: 0.9; }
         .btn-social { background: #059669; }
         .btn-dash { background: #8e44ad; font-size: 1.1rem; }
-        
-        .form-content { padding: 25px; max-width: 750px; margin: 0 auto; }
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; font-weight: 700; margin-bottom: 8px; color: #334155; }
-        .form-control { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 1rem; box-sizing: border-box; background-color: #f8fafc; transition: 0.3s; }
-        .form-control:focus { outline: none; border-color: var(--primary); background-color: #fff; }
-        
-        .checkbox-group { display: flex; flex-direction: column; gap: 10px; background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid var(--border); }
-        .checkbox-label { display: flex; align-items: center; gap: 8px; font-weight: 500; cursor: pointer; }
-        .checkbox-label input { width: 18px; height: 18px; accent-color: var(--primary); }
 
-        .btn-submit { width: 100%; background: var(--primary); color: white; border: none; padding: 15px; border-radius: 8px; font-size: 1.2rem; font-weight: bold; cursor: pointer; font-family: inherit; margin-top: 10px; transition: 0.2s; }
-        .btn-submit:hover { background: var(--primary-hover); }
+        /* البطاقات الإحصائية */
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        .stat-card { background: #fff; padding: 15px; border-radius: 8px; border: 1px solid var(--border); text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.04); position: relative; overflow: hidden; }
+        .stat-card::before { content: ""; position: absolute; top: 0; right: 0; left: 0; height: 4px; }
+        .stat-c1::before { background: var(--blue); }
+        .stat-c2::before { background: var(--amber); }
+        .stat-c3::before { background: var(--primary); }
+        .stat-c4::before { background: var(--accent); }
+        .stat-val { font-size: 2rem; font-weight: 800; line-height: 1.2; margin-top: 5px; }
+        .stat-label { font-size: 0.9rem; font-weight: 700; color: #64748b; }
 
-        /* 🔴 لوحة الإحصائيات الشاملة 🔴 */
-        #dashboardView { display: none; padding: 20px; }
-        .dash-controls { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 20px; background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid var(--border); }
-        .dash-search { display: flex; gap: 10px; flex-grow: 1; max-width: 500px; }
+        /* أدوات الفلترة */
+        .filters-panel { background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 15px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; }
+        .filter-item { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 140px; }
+        .filter-item label { font-size: 0.85rem; font-weight: 800; color: #475569; }
+        .filter-input { padding: 9px; border: 1px solid var(--border); border-radius: 6px; font-family: inherit; font-size: 0.95rem; background: #fff; }
+
         .dash-table { width: 100%; border-collapse: collapse; text-align: right; background: #fff; }
-        .dash-table th, .dash-table td { border: 1px solid var(--border); padding: 15px; vertical-align: top; }
-        .dash-table th { background-color: #1e293b; color: white; font-weight: 800; font-size: 1.1rem; }
+        .dash-table th, .dash-table td { border: 1px solid var(--border); padding: 12px; vertical-align: top; }
+        .dash-table th { background-color: #1e293b; color: white; font-weight: 800; font-size: 1rem; }
         
-        .v-card { background: #fef2f2; border: 1px solid #fecaca; padding: 10px; margin-bottom: 8px; border-radius: 6px; font-family: 'Sakkal Majalla', sans-serif; font-size: 1.2rem; line-height: 1.4; }
+        .badge { padding: 4px 10px; border-radius: 12px; font-weight: bold; color: white; font-size: 0.9rem; display: inline-block; }
+        .badge-low { background-color: #10b981; }
+        .badge-med { background-color: #f59e0b; }
+        .badge-high { background-color: #dc2626; }
+
+        .v-card { background: #fef2f2; border: 1px solid #fecaca; padding: 8px; margin-bottom: 6px; border-radius: 6px; font-size: 1rem; line-height: 1.4; }
         .v-card strong { color: #b91c1c; }
-        .v-sup-card { background: #f0fdf4; border: 1px solid #bbf7d0; padding: 10px; margin-bottom: 8px; border-radius: 6px; font-family: 'Sakkal Majalla', sans-serif; font-size: 1.2rem; line-height: 1.4; }
+        .v-sup-card { background: #f0fdf4; border: 1px solid #bbf7d0; padding: 8px; margin-bottom: 6px; border-radius: 6px; font-size: 1rem; line-height: 1.4; }
         .v-sup-card strong { color: #15803d; }
         
-        .action-btns-col { display: flex; flex-direction: column; gap: 8px; }
-        .btn-sm { padding: 8px 12px; font-size: 0.9rem; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; color: white; font-family: inherit; }
+        .action-btns-col { display: flex; flex-direction: column; gap: 6px; min-width: 120px; }
+        .btn-sm { padding: 6px 10px; font-size: 0.85rem; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; color: white; font-family: inherit; text-align: center; }
         .btn-action { background: #059669; } .btn-action:hover { background: #047857; }
         .btn-print { background: #1e40af; } .btn-print:hover { background: #1e3a8a; }
 
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(3px); }
         .modal-body { background: #fff; max-width: 500px; margin: 50px auto; border-radius: 12px; padding: 25px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
         .modal-close { float: left; font-size: 28px; cursor: pointer; color: var(--primary); font-weight: 800; line-height: 1; }
+
+        .form-content { padding: 25px; max-width: 750px; margin: 0 auto; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-weight: 700; margin-bottom: 6px; color: #334155; }
+        .form-control { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 6px; font-family: inherit; font-size: 1rem; box-sizing: border-box; background-color: #f8fafc; }
+        .btn-submit { width: 100%; background: var(--primary); color: white; border: none; padding: 12px; border-radius: 6px; font-size: 1.1rem; font-weight: bold; cursor: pointer; font-family: inherit; }
 
         #printReportArea { display: none; }
 
@@ -74,12 +87,12 @@
             #printReportArea { display: block !important; }
             .print-header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
             .print-header img { max-height: 100px; }
-            .print-title { font-size: 22px; font-weight: 800; margin: 10px 0; text-decoration: underline; }
-            .print-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 16px; text-align: right; }
-            .print-table th, .print-table td { padding: 12px; border: 1px solid #000; vertical-align: middle; }
+            .print-title { font-size: 20px; font-weight: 800; margin: 10px 0; text-decoration: underline; }
+            .print-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px; text-align: right; }
+            .print-table th, .print-table td { padding: 10px; border: 1px solid #000; vertical-align: middle; }
             .print-table th { background-color: #f1f5f9 !important; -webkit-print-color-adjust: exact; text-align: center; }
-            .pledge-box { margin-top: 20px; border: 2px dashed #000; padding: 20px; border-radius: 8px; font-size: 17px; text-align: right; background-color: #fafafa !important; -webkit-print-color-adjust: exact; }
-            .signatures { display: flex; justify-content: space-between; margin-top: 40px; text-align: center; font-size: 16px; }
+            .pledge-box { margin-top: 20px; border: 2px dashed #000; padding: 15px; border-radius: 8px; font-size: 15px; text-align: right; background-color: #fafafa !important; -webkit-print-color-adjust: exact; }
+            .signatures { display: flex; justify-content: space-between; margin-top: 35px; text-align: center; font-size: 14px; }
             .sig-box { width: 45%; }
         }
     </style>
@@ -92,15 +105,14 @@
     </div>
 
     <div class="top-nav">
-        <button class="btn-nav btn-dash" onclick="openDashboard()">📊 لوحة الإدارة الشاملة (جميع المخالفات)</button>
+        <button class="btn-nav btn-dash" onclick="openDashboard()">📊 لوحة الإحصائيات والمخالفات</button>
         <button class="btn-nav" onclick="openForm()">➕ تسجيل مخالفة مباشرة</button>
         <a href="https://sabrysci.github.io/b/social.html" class="btn-nav btn-social">⬅️ الإشراف الاجتماعي</a>
     </div>
 
-    <!-- 1️⃣ نافذة تسجيل المخالفات المباشرة (للمشرف) -->
+    <!-- 1️⃣ نموذج التسجيل المباشر للمشرف -->
     <div id="formView" class="form-content" style="display: none;">
-        <h2 class="page-title">تسجيل مخالفة سلوكية (مباشرة)</h2>
-        
+        <h2 class="page-title">تسجيل مخالفة سلوكية مباشرة</h2>
         <div class="form-group">
             <label>المشرف:</label>
             <select id="supervisorName" class="form-control">
@@ -113,30 +125,9 @@
                 <option value="السيد محمد ضياء">السيد محمد ضياء</option>
             </select>
         </div>
-
-        <div class="form-group">
-            <label>التاريخ:</label>
-            <input type="date" id="violationDate" class="form-control">
-        </div>
-
-        <div class="form-group">
-            <label>الصف:</label>
-            <select id="classSelect" class="form-control" onchange="populateStudents()">
-                <option value="">-- اختر الصف --</option>
-                <option value="سادس ابتدائي 1">سادس ابتدائي 1</option><option value="سادس ابتدائي 2">سادس ابتدائي 2</option><option value="سادس ابتدائي 3">سادس ابتدائي 3</option>
-                <option value="أول إعدادي 1">أول إعدادي 1</option><option value="أول إعدادي 2">أول إعدادي 2</option><option value="أول إعدادي 3">أول إعدادي 3</option><option value="أول إعدادي 4">أول إعدادي 4</option>
-                <option value="ثاني إعدادي 1">ثاني إعدادي 1</option><option value="ثاني إعدادي 2">ثاني إعدادي 2</option><option value="ثاني إعدادي 3">ثاني إعدادي 3</option><option value="ثاني إعدادي 4">ثاني إعدادي 4</option>
-                <option value="ثالث إعدادي 1">ثالث إعدادي 1</option><option value="ثالث إعدادي 2">ثالث إعدادي 2</option><option value="ثالث إعدادي 3">ثالث إعدادي 3</option><option value="ثالث إعدادي 4">ثالث إعدادي 4</option><option value="ثالث إعدادي 5">ثالث إعدادي 5</option>
-            </select>
-        </div>
-
-        <div class="form-group">
-            <label>اسم الطالب:</label>
-            <select id="studentSelect" class="form-control">
-                <option value="">-- اختر الصف أولاً --</option>
-            </select>
-        </div>
-
+        <div class="form-group"><label>التاريخ:</label><input type="date" id="violationDate" class="form-control"></div>
+        <div class="form-group"><label>الصف:</label><select id="classSelect" class="form-control" onchange="populateStudents()"><option value="">-- اختر الصف --</option></select></div>
+        <div class="form-group"><label>اسم الطالب:</label><select id="studentSelect" class="form-control"><option value="">-- اختر الصف أولاً --</option></select></div>
         <div class="form-group">
             <label>المخالفة السلوكية:</label>
             <select id="violationType" class="form-control">
@@ -145,77 +136,89 @@
                 <option value="اضطرابات السلوك والشغب">اضطرابات السلوك والشغب</option>
                 <option value="السلوك العدواني (التهجم)">السلوك العدواني والمشاجرة</option>
                 <option value="تخريب ممتلكات">تخريب الممتلكات</option>
-                <option value="أخرى">أخرى (اذكرها في التفاصيل)</option>
+                <option value="أخرى">أخرى</option>
             </select>
         </div>
-
-        <div class="form-group">
-            <label>تفاصيل (اختياري):</label>
-            <textarea id="violationDetails" class="form-control" rows="2" placeholder="اكتب تفاصيل إضافية..."></textarea>
-        </div>
-
-        <div class="form-group">
-            <label>الإجراءات المتخذة:</label>
-            <div class="checkbox-group">
-                <label class="checkbox-label"><input type="checkbox" name="actionTaken" value="النصح والإرشاد والتوجيه"> النصح والإرشاد والتوجيه</label>
-                <label class="checkbox-label"><input type="checkbox" name="actionTaken" value="تعهد طالب"> تعهد طالب</label>
-                <label class="checkbox-label"><input type="checkbox" name="actionTaken" value="استدعاء ولي أمر وتعهد"> استدعاء ولي أمر وتعهد</label>
-            </div>
-        </div>
-
+        <div class="form-group"><label>تفاصيل:</label><textarea id="violationDetails" class="form-control" rows="2"></textarea></div>
+        <div class="form-group"><label>الإجراء المتخذ:</label><input type="text" id="actionTakenDirect" class="form-control" placeholder="مثال: استدعاء ولي الأمر وتعهد"></div>
         <button class="btn-submit" id="submitBtn" onclick="submitDirectForm()">💾 حفظ المخالفة المباشرة</button>
     </div>
 
-    <!-- 2️⃣ لوحة القيادة الشاملة (للمشرفين) -->
-    <div id="dashboardView">
-        <h2 class="page-title" style="margin-top:0;">📊 لوحة الإدارة الشاملة للطلاب المخالفين</h2>
+    <!-- 2️⃣ لوحة الإحصائيات والمخالفات الشاملة -->
+    <div id="dashboardView" style="padding: 20px;">
+        <h2 class="page-title" style="margin-top:0;">📊 التحليل الإحصائي وسجل المخالفات الشامل</h2>
         
-        <div class="dash-controls">
-            <div class="dash-search">
-                <select id="dashClassFilter" class="form-control" style="width:150px;">
-                    <option value="all">كل الصفوف</option>
+        <!-- البطاقات الإحصائية المتفاعلة مع الفلاتر -->
+        <div class="stats-grid">
+            <div class="stat-card stat-c1"><div class="stat-label">إجمالي المخالفات</div><div class="stat-val" id="statTotalViolations">0</div></div>
+            <div class="stat-card stat-c2"><div class="stat-label">الطلاب المخالفون</div><div class="stat-val" id="statTotalStudents">0</div></div>
+            <div class="stat-card stat-c3"><div class="stat-label">حالات حرجة (3 فأكثر)</div><div class="stat-val" id="statHighRisk">0</div></div>
+            <div class="stat-card stat-c4"><div class="stat-label">تدخلات الإدارة المنفذة</div><div class="stat-val" id="statResolved">0</div></div>
+        </div>
+
+        <!-- فلاتر العرض: المرحلة / الصف / المدة الزمنية -->
+        <div class="filters-panel">
+            <div class="filter-item">
+                <label>🏫 المرحلة الدراسية:</label>
+                <select id="filterStage" class="filter-input" onchange="onStageChange()">
+                    <option value="all">جميع المراحل</option>
+                    <option value="السادس الابتدائي">السادس الابتدائي</option>
+                    <option value="الأول الإعدادي">الأول الإعدادي</option>
+                    <option value="الثاني الإعدادي">الثاني الإعدادي</option>
+                    <option value="الثالث الإعدادي">الثالث الإعدادي</option>
                 </select>
-                <input type="text" id="dashSearchInput" class="form-control" placeholder="ابحث باسم الطالب...">
+            </div>
+            <div class="filter-item">
+                <label>📌 الصف:</label>
+                <select id="filterClass" class="filter-input" onchange="renderDashboardUI()">
+                    <option value="all">جميع الصفوف</option>
+                </select>
+            </div>
+            <div class="filter-item">
+                <label>📅 من تاريخ:</label>
+                <input type="date" id="filterDateFrom" class="filter-input" onchange="renderDashboardUI()">
+            </div>
+            <div class="filter-item">
+                <label>📅 إلى تاريخ:</label>
+                <input type="date" id="filterDateTo" class="filter-input" onchange="renderDashboardUI()">
+            </div>
+            <div class="filter-item" style="flex: 1.5;">
+                <label>🔍 بحث بالاسم:</label>
+                <input type="text" id="filterSearch" class="filter-input" placeholder="اسم الطالب..." oninput="renderDashboardUI()">
             </div>
             <div>
-                <button class="btn-nav" style="background:#2563eb;" onclick="loadDashboardData()">🔄 تحديث البيانات الآن</button>
+                <button class="btn-nav" style="background:#2563eb; padding:9px 15px;" onclick="loadDashboardData()">🔄 تحديث</button>
             </div>
         </div>
 
-        <div style="overflow-x: auto; background: #fff; border-radius: 8px;">
+        <div style="overflow-x: auto; background: #fff; border-radius: 8px; border: 1px solid var(--border);">
             <table class="dash-table">
                 <thead>
                     <tr>
                         <th style="width: 20%;">الطالب والصف</th>
-                        <th style="width: 10%;">العدد</th>
-                        <th style="width: 50%;">سجل المخالفات التفصيلي والإجراءات</th>
-                        <th style="width: 20%;">خيارات المشرف</th>
+                        <th style="width: 10%; text-align:center;">العدد</th>
+                        <th style="width: 50%;">سجل المخالفات وتدخلات الإدارة</th>
+                        <th style="width: 20%; text-align:center;">خيارات المشرف</th>
                     </tr>
                 </thead>
                 <tbody id="dashBody">
-                    <tr><td colspan="4" style="text-align:center; padding:30px; font-size:1.2rem;">اضغط على "تحديث البيانات" لجلب السجلات...</td></tr>
+                    <tr><td colspan="4" style="text-align:center; padding:30px;">جاري تجهيز السجلات...</td></tr>
                 </tbody>
             </table>
         </div>
     </div>
 </div>
 
-<!-- 🛡️ نافذة اتخاذ القرار الإداري للمشرف -->
+<!-- نافذة اتخاذ القرار الإداري -->
 <div id="actionModal" class="modal">
     <div class="modal-body">
         <span class="modal-close" onclick="closeModal('actionModal')">&times;</span>
         <h3 style="margin-top:0; color:var(--accent);">🛡️ تسجيل قرار إداري</h3>
-        
         <input type="hidden" id="actionStudentName">
         <input type="hidden" id="actionClassName">
-        
+        <div class="form-group"><label>الطالب:</label><input type="text" id="actionStudentDisp" class="form-control" disabled></div>
         <div class="form-group">
-            <label>الطالب المستهدف:</label>
-            <input type="text" id="actionStudentDisp" class="form-control" disabled>
-        </div>
-        
-        <div class="form-group">
-            <label>المشرف الذي اتخذ القرار:</label>
+            <label>المشرف:</label>
             <select id="actionSupervisor" class="form-control">
                 <option value="">-- اختر اسمك --</option>
                 <option value="السيد عبد الله الكامل">السيد عبد الله الكامل</option>
@@ -226,29 +229,26 @@
                 <option value="السيد محمد ضياء">السيد محمد ضياء</option>
             </select>
         </div>
-        
         <div class="form-group">
-            <label>القرار المتخذ (سيظهر للمعلمين):</label>
+            <label>القرار المتخذ (يصل للمعلمين):</label>
             <select id="actionDecision" class="form-control">
-                <option value="">-- حدد الإجراء --</option>
                 <option value="تم استدعاء ولي الأمر وتوقيع تعهد">استدعاء ولي الأمر وتوقيع تعهد</option>
                 <option value="تم توقيع تعهد على الطالب">توقيع تعهد على الطالب</option>
                 <option value="تم التحويل للباحث الاجتماعي">التحويل للباحث الاجتماعي للمتابعة</option>
                 <option value="تم تطبيق لائحة الانضباط (إيقاف)">تطبيق لائحة الانضباط (إيقاف/حرمان)</option>
             </select>
         </div>
-        
-        <button id="btnSubmitDecision" class="btn-submit" style="background:var(--accent);" onclick="submitSupervisorDecision()">✅ حفظ القرار وإرساله للمعلمين</button>
+        <button id="btnSubmitDecision" class="btn-submit" style="background:var(--accent);" onclick="submitSupervisorDecision()">✅ حفظ القرار وإرسال الإشعار</button>
     </div>
 </div>
 
-<!-- منطقة التقرير للطباعة -->
+<!-- منطقة الطباعة الرسمية -->
 <div id="printReportArea">
     <div class="print-header">
         <img src="https://i.postimg.cc/K88X7RLb/trwysyh-dhhbyt.png" alt="ترويسة المدرسة">
-        <div class="print-title">سجل المتابعة الانضباطية للطالب</div>
+        <div class="print-title">سجل المتابعة الانضباطية الشامل للطالب</div>
     </div>
-    <div style="margin-bottom: 20px; font-size: 18px; line-height: 1.8; border: 2px solid #000; padding: 15px; border-radius: 8px;">
+    <div style="margin-bottom: 20px; font-size: 16px; line-height: 1.8; border: 2px solid #000; padding: 12px; border-radius: 8px;">
         <div style="display:flex; justify-content:space-between;">
             <div><strong>اسم الطالب:</strong> <span id="pRepName" style="font-weight:bold;"></span></div>
             <div><strong>الرقم الشخصي:</strong> <span id="pRepCPR"></span></div>
@@ -258,25 +258,25 @@
             <div><strong>رقم التواصل:</strong> <span id="pRepPhone" style="direction:ltr; display:inline-block;"></span></div>
         </div>
     </div>
-    <table class="print-table" style="font-size: 15px; text-align: center;">
+    <table class="print-table">
         <thead>
             <tr>
-                <th style="width: 15%; background-color:#f1f5f9;">التاريخ</th>
-                <th style="width: 25%; background-color:#f1f5f9;">الراصد</th>
-                <th style="width: 30%; background-color:#f1f5f9;">نوع المخالفة</th>
-                <th style="width: 30%; background-color:#f1f5f9;">الإجراء المتخذ</th>
+                <th style="width: 15%;">التاريخ</th>
+                <th style="width: 25%;">الراصد</th>
+                <th style="width: 30%;">نوع المخالفة</th>
+                <th style="width: 30%;">الإجراء المتخذ</th>
             </tr>
         </thead>
         <tbody id="printRepTableBody"></tbody>
     </table>
-    <div class="pledge-box" style="margin-top: 25px; padding: 15px;">
+    <div class="pledge-box">
         <p style="text-decoration: underline; font-weight: bold; margin-top:0;">تعهد انضباطي إلزامي:</p>
-        <p>أتعهد أنا الطالب: <span id="pRepPledgeName" style="font-weight:bold; color:#1e40af; border-bottom: 1px dotted #000; padding: 0 10px;"></span> بعدم تكرار المخالفات المذكورة أعلاه، وأتحمل المسؤولية الإدارية كاملة في حال التكرار.</p>
-        <p style="margin-top: 25px; text-align: left; padding-left: 50px;"><strong>توقيع الطالب:</strong> ..........................</p>
+        <p>أتعهد أنا الطالب: <span id="pRepPledgeName" style="font-weight:bold; color:#1e40af; border-bottom: 1px dotted #000; padding: 0 10px;"></span> بالالتزام التام بالنظام المدرسي وعدم تكرار المخالفات المذكورة أعلاه، وأتحمل المسؤولية الإدارية في حال التكرار.</p>
+        <p style="margin-top: 20px; text-align: left; padding-left: 40px;"><strong>توقيع الطالب:</strong> ..........................</p>
     </div>
-    <div class="signatures" style="margin-top: 40px;">
-        <div class="sig-box"><div class="sig-title">توقيع المشرف الإداري</div><p>.............................</p></div>
-        <div class="sig-box"><div class="sig-title">توقيع ولي الأمر (للعلم)</div><p>.............................</p></div>
+    <div class="signatures">
+        <div class="sig-box"><div style="font-weight:bold; margin-bottom:20px;">توقيع المشرف الإداري</div><p>.............................</p></div>
+        <div class="sig-box"><div style="font-weight:bold; margin-bottom:20px;">توقيع ولي الأمر (للعلم)</div><p>.............................</p></div>
     </div>
 </div>
 
@@ -286,7 +286,7 @@
     let allViolationsData = []; 
     let allTeacherViolations = []; 
     let cprMapData = {};
-    let globalStudentsMap = {}; // خريطة لتجميع بيانات الطلاب لعرضها في الجدول
+    let globalStudentsMap = {};
 
     const HARDCODED_ROSTERS = {
       "سادس ابتدائي 1": ["ابراهيم على خليل الحايكي", "السيد حسن صالح الموسوي", "السيد علوي ابراهيم ناصر حسن", "السيد هاشم مجيد فيصل محمد", "إيليا سعيد حسن حسن", "حسن على ميرزا خليل", "حسین اسامه عبد الجليل الجشي", "حسين عمار جاسم الاسكافي", "حيدر على ابراهيم حسن", "سيد صادق جعفر على ناصر", "سيد حامد حسین محمد درویش", "صادق على عبدالله اسماعيل", "عبد العزيز جلال عبد العزيز حاجی عبدالله", "عبدالله حسین عبدالله مال الله", "عبدالله على عباس شاهين", "على حسين على عبد على", "على عيسى ابراهيم الستراوي", "على قاسم عباس حسن", "عمار محمد عبد الامير الحصار", "غسان مهند عقيل مرهون", "قاسم جابر جاسم منصور", "قاسم محمد احمد حسن", "ليث محمود مسعود الوطني", "محمد صالح شوقي البناء", "محمد عباس خميس السودان", "نوح زهير عبد الوهاب غزوان", "يوسف كاظم محمد الحايكي"],
@@ -295,27 +295,46 @@
       "أول إعدادي 1": ["احمد مازن احمد ابوطاهر", "السيد حسن جعفر علوي العلوي", "السيد عدنان ضياء عدنان عبد الصمد", "السيد هاشم طاهر محمد الموسوي", "جاسم عبد الجليل سعيد جاسم", "جواد جعفر زكريا رحمه", "جواد عيسى جواد حسن", "حبيب جاسم على حسن", "حسن صلاح عبد على عبد الاثنا عشر", "حسن على احمد عبدالله", "حسن محمد محمد صالح الربيعي", "حسين على احمد فضل", "حسين فاضل عيسى خميس", "حيدر محمد فتيل عبدالله", "رضا حسين عبدالله قادر", "رضا نادر ميرزا العرادي", "عباس احمد عاشور حسن", "عبدالله عادل احمد الاسكافي", "عدنان عادل عبدالله عبدالله", "على حسن محمود طراده", "على حسين جاسم البقالي", "على سعيد منصور عبدالحي", "على صلاح عبد على عبد الاثنا عشر", "على عادل جاسم عتيق", "على عبد الامير محسن عبدالله", "على محمود احمد سلمان", "على مهدي على خلف", "عمران صادق احمد کاظم", "فاضل عباس عبدالله احمد", "محمد حسن على على", "محمد عبد الرضا عبد الحسين حسن", "هانی عبدالله عبد الجبار محسن", "يوسف احمد عبد اللطيف محمد", "يوسف احمد عبد الوهاب شعبان", "يوسف ناصر سالم عبدالنبی"],
       "أول إعدادي 2": ["احمد جاسم محمد داود", "أحمد حسن شعبان فرحان", "احمد حسن كاظم العويناتي", "السيد إبراهيم محمد عدنان البلادي", "السيد على هادي ابراهيم علوي", "السيد هاشم عبدالهادي هاشم ناصر", "أمير حسن على محمد", "حسن سهيل حبيب سلمان", "حسن مصطفى على العلي", "حسين احمد زكريا يوسف رحمه", "حسین حسن منصور جاسم", "حسين حكيم عبد الرسول المختار", "حسين فاضل على عبدالله", "حسين يونس جاسم الاسكافي", "حيدر شاكر محمد محمد", "رضا حسن خليل فخر", "سجاد عبد الامير على الصفار", "سيد مجتبی قاسم سعيد يوسف", "صادق جعفر عبد النبي السطيح", "عباس محمود عباس موسی", "عبدالله على محسن سيف", "على عبد الغني عبد الحسین املیح", "على فاضل عبد على حسن", "على محمد ابراهيم ال طوق", "على محمود عبدالله المدحوب", "فراس عبدالله عيسى النكاس", "قاسم محمود ماشاء الله حاجی", "لؤي حسين محمد امین ابراهیم", "مجتبی حسین میرزا احمد", "محمود محمد سلمان التل", "مهدي هاني حبيب عبدالله", "ناصر حسین ناصر عبدالله", "يعقوب يوسف طاهر مهدي", "يوسف احمد زكريا يوسف رحمه", "يوسف محمود خليل مرهون"],
       "أول إعدادي 3": ["احمد حسن عبد العزيز آل قنبر", "أحمد عبدالله احمد على", "السيد احمد على شرف محفوظ", "السيد حيدر از هر جعفر الغنی", "السيد عمار هادی ابراهیم هاشم", "السيد محمد حسين يوسف احمد", "السيد حسن جابر عدنان عبد الصمد", "السيد صادق احمد صادق العبار", "الياس على عباس قنديل", "حاتم حسين على احمد", "حسین امین حبيب جمعه", "حسین صادق عبدالله متروك", "حسين على حسن الشجار", "حسین هاني على درويش", "حيدر قاسم احمد الخياط", "رضا محمد حسن حسن", "سجاد بدر جاسم جاسم", "سجاد محمد جعفر الدبه", "سلمان علی سلمان سلمان", "سلمان ناجی سلمان سلمان", "علاء عبدالله على على", "على حبيب عبد الرسول احمد", "على حسين عباس نويصر", "على حسين عبد الجبار ناصر", "على حسين ناصر دبي", "على محمود على حسن", "كرار حسین عباس موسى", "كرار عبد الحسين حمزه الاسكافي", "محمد حسين سلمان حبيب", "محمد حسين على السلاطنه", "محمد صادق محمد عبد الرسول", "محمود عباس على مهدي", "منتظر عمار عبدالله يوسف", "مهدي اياد عيسى صالح", "يوسف حسين ابراهيم حسن"],
-      "أول إعدادي 4": ["أحمد حسین احمد مشيمع", "السيد محمد جعفر عباس علوي", "السيد حسين فاضل على الموسوي", "السيد حيدر محمد عباس عبدالنبي", "حسن على حسن عبد الرسول", "حسن محمد علی حسن", "حسین جعفر حسن حسن", "حسين على عاشور ضبعان", "حيدر حسين على الاسود", "داود محمد داود مشيمع", "رضا حسن احمد حمیده", "رضا على موسى كاظم", "سلمان محمد سلمان طريف", "سید عباس امجد فاضل العلوي", "صالح عبد الغني صالح الحداد", "عباس على ابراهيم الونه", "عبد العزيز ایمن میرزا احمد", "عبدالله احمد عبد الجليل احمد", "على حمد اسماعيل بدر", "على خليل ابراهيم ابراهيم", "على صادق اسماعيل حبيب", "على محمد جمعه عاشوري", "على ناصر ملا حسن زين الدين", "على هاني احمد العصار", "عيسى حسن احمد شمطوط", "كرار على ابراهيم الونه", "محمد عمران ميرزا السطيح", "محمد فاضل عبد الحسين الأدرج", "محمد هانی جمعه طريف", "محمد باقر شاكر عبدالله خميس", "محمد هادي حسين على محمد", "مهدي احمد ابراهیم نوار", "يوسف على احمد العصار"],
+      "أول إعدادي 4": ["أحمد حسین احمد مشيمع", "السيد محمد جعفر عباس علوي", "السيد حسين فاضل على الموسوي", "السيد حيدر محمد عباس عبدالنبي", "حسن على حسن عبد الرسول", "حسن محمد علی حسن", "حسین جعفر حسن حسن", "حسين على عاشور ضبعان", "حيدر حسين على الاسود", "داود محمد داود مشيمع", "رضا حسن احمد حمیده", "رضا على موسى كاظم", "سلمان محمد سلمان طريف", "سيد عباس امجد فاضل العلوي", "صالح عبد الغني صالح الحداد", "عباس على ابراهيم الونه", "عبد العزيز ایمن میرزا احمد", "عبدالله احمد عبد الجليل احمد", "على حمد اسماعيل بدر", "على خليل ابراهيم ابراهيم", "على صادق اسماعيل حبيب", "على محمد جمعه عاشوري", "على ناصر ملا حسن زين الدين", "على هاني احمد العصار", "عيسى حسن احمد شمطوط", "كرار على ابراهيم الونه", "محمد عمران ميرزا السطيح", "محمد فاضل عبد الحسين الأدرج", "محمد هانی جمعه طريف", "محمد باقر شاكر عبدالله خميس", "محمد هادي حسين على محمد", "مهدي احمد ابراهیم نوار", "يوسف على احمد العصار"],
       "ثاني إعدادي 1": ["أحمد على حبيب كاظم", "أحمد محمد ميرزا التيتون", "إدريس عبد العزيز احمد عبد النبي", "آدم فاضل عباس حسين", "آدم نوح محمد المشخص", "السيد جعفر ضياء عدنان عبد الصمد", "السيد حسين ميثم سعيد ماجد", "السيد صادق جعفر علوي العلوي", "السيد محمد حسين حمزه على", "جاسم محمد جواد مكي", "حسن جعفر حسن حسن", "حسن على محسن التيتون", "حسين شريف اسماعيل اسماعيل", "حسين عبد النبي ناصر دبی", "حسين عقيل عباس زبيل", "حسين على عبد الحسين حسن", "حسین محمد حبيب غريب", "حیدر سعيد رضى النجاس", "رضا موسی جعفر مرهون", "صادق جعفر عبد الوهاب البصري", "عادل محمد عادل الترنج", "عباس عبدالله ابراهيم ال عميري", "على فيصل مختار محمد", "على محمود على الصفار", "على هلال على هلال", "على يوسف سلمان الصفار", "محمد باقر حسن محمد باقر نعمه", "محمد حسن عيسى أحمد على", "محمد حسين جعفر مال الله", "منتظر حسن صالح الصيرفي"],
-      "ثاني إعدادي 2": ["احمد باسم ابراهيم الخنيزي", "السيد حيدر فيصل علوي ناصر", "إلياس بن شاكر بن على البراهيم", "امیر محمد عبد الامیر رضی", "بدر طاهر عبد الرسول جديد", "حسن محمد حسن عيسى", "حسن محمود منصور عبد على", "حسين حسن على محمد", "حسین محمد جعفر حسن", "حيدر احمد عبد الرسول بن الشيخ", "حيدر رائد معتوق حمود", "حيدر على ميرزا الصفار", "راشد يوسف احمد يحيى", "سجاد حسین محسن عاشور", "سجاد زهير حسن عبد الرسول", "عبد الكريم محمود عبد الكريم ابراهيم", "عبدالله محمد جعفر سهوان", "عبدالله محمد عبدالله الغيص", "على حسین احمد عزیز", "على حسين ميرزا ال عبدالحي", "على حمد احمد على", "على مصطفى على العلى", "فيصل احمد عباس زبيل", "محسن ابراهیم محسن عبد الرسول", "محمد جلال عيسى نعمه", "محمد صادق احمد مشيمع", "محمد نادر ميرزا العرادي", "مصطفى احمد محمد الاسكافي", "هيثم فاضل ابراهيم اسماعيل", "يوسف ابراهيم على الصفار"],
-      "ثاني إعدادي 3": ["السيد حسن ابراهيم محمد علوي", "السيد عباس حسین ناصر شرف", "السيد عباس فاضل على الموسوي", "السيد على حسین نزار علوی", "السيد حيدر على مهدي يوسف", "أيمن جاسم احمد نصيف", "حسن على حسن عبد الوهاب", "حسین رضى على الصفار", "حسين على عبد الحسين الصفار", "حيدر محمد موسى طاهر", "سلمان ابراهيم عبدالله عبدالله", "سيدرضا السيد حسين عيسى", "صلاح عقیل عباس موسى", "طه جعفر حسن عيسى", "عبدالله منصور عبدالله شعبان", "على حسن على مهدي", "على حسین عباس موسى", "على محمد احمد المغلق", "علی محمد علی امان", "عماد ايمن احمد المديفع", "عيسى عبد الهادي عبد الجليل على", "عيسى على عيسى النكاس", "كريم فائق عبد الكريم على", "مجتبى مرتضى ميرزا السطيح", "محمد حسن عبدالله امان", "محمد خالد احمد علي", "محمد عباس عبدالله مرهون", "محمد على ابراهيم محمد على ال مرهون", "مهدي حسين اكبر محسن", "يوسف زهير عبد الوهاب غزوان"],
-      "ثاني إعدادي 4": ["السيد حسين ماجد اسماعیل ناصر", "السيد على احمد عدنان البلادي", "السيد محسن ياسر عبدالله ناصر", "السيد محمد على حمزه عبدالله", "السيد هاشم رائد حمید علی", "جعفر صادق حسن الصفار", "جواد عبد المجيد حسن راشد", "حسن هانی ابراهیم حسن", "حسین محمد يعقوب الكليب", "خليل ابراهيم خليل الحايكي", "سلمان حبيب سلمان الحواج", "سلمان حسین سلمان العالي", "عباس محمد حسن الشيخ على", "عباس هانی عباس شاوش", "على حسن احمد الشيوخ", "على حسن على حبيب", "على حسين عيسى الزامل", "على حسين عيسى خميس", "على عقيل جمعه جمعه", "على محمود جليل طاهر", "علي هادي حسين سلمان علي", "عمار یاسر ابراهيم ناصر", "فاضل عباس جعفر المحسن", "قاسم حسن منصور القيدوم", "محمد عبدالله احمد البقالي", "محمد على شاكر عبدالله خميس", "محمد هشام ايوب سوار", "محمد يونس خليل محمد", "محمود ياسر محمد على", "مصطفى محمود عبدالله السابوري", "مهدي احمد عبد الرسول احمد على", "مهدي عبد الحسين ميرزا على", "مهدي محمد مهدي عبدالله"],
-      "ثالث إعدادي 1": ["أحمد عبد الامير مهدي حسن", "أحمد محمد عبد الامير الحصار", "ادم احمد عبد النبي ال رضى", "السيد حسين شبر ابراهیم هاشم", "السيد حيدر محمد سعید هاشم", "السيد عباس نور محمود شرف", "السيد على جلال حيدر علوي", "السيد مجتبي السيد جواد مهدي يوسف", "السيد محمد عدنان ابراهیم هاشم", "السيد محمد ماجد حسن احمد", "السيد هاشم السيد عدنان ابراهيم محمد", "باسم احمد عبد الرسول الصالح", "باسم على مكى طريف", "جعفر مهدي عبدالله ناصر", "حسن على يعقوب محمد الكليب", "حسن محمد عبدالحسین رضی", "حسن محمود عباس نويصر", "حسين عصام عبد الكريم ابراهيم", "رضا حسن على عنان", "عبدالله قاسم فاضل عبد النبي", "على ابراهيم جعفر العرادي", "على يوسف كاظم القلاف", "عمار محمد حسن على يوسف", "قاسم حسن على على", "قاسم على سلمان حسن", "ليث على خليل الحايكي", "محمد حسن يوسف مهدي", "محمد حسين عبد الحسين هلال", "محمد حسين على الطراح", "محمد حسین ناصر حسن", "محمد عبد النبي سلمان جدید", "محمد عبد علی محمد سلمان", "محمد كريم صالح الحواج", "محمدرضا اسامه عبد الجليل الجشي", "يوسف صالح شوقي البناء"],
-      "ثالث إعدادي 2": ["إبراهيم خليل ابراهيم حسن", "السيد فاضل عباس علوي العلوي", "السيد فراس السيد حسين مهدي شرف", "السيد مهدي حسن مصطفى علوي", "بدر فيصل على مدن", "جاسم محمد حبيب غريب", "جاسم محمد عبد الحسين على", "جواد ثابت جواد شاهین", "حبيب حمزه احمد المقابي", "حبيب فيصل احمد درويش", "حسن حسين خميس خميس", "حسن عبدالستار غلوم حسين", "حسن على عبدالله عباس", "حسين السيد على شرف محفوظ", "حسين سمير عبد الحسين هلال", "حسین صادق حبيب ال ربيع", "حسین صادق حسن حسن", "حسين عبد الرضا عبدالله السابوري", "رضا على عبدالله اسماعيل", "عبدالله على حسن الرمل", "على حسين محمد الحداد", "على سعيد محمد المشخص", "على فهد على السميع", "قاسم عبد الوهاب محمد على ابراهيم", "مجتبي عقيل خميس صالح", "محمد حسن على خميس", "محمد مهدي على خلف", "محمود عبدالله ابراهيم مهدي", "مقتدى عبد الجبار ميرزا اسماعيل", "مهدی مكى ملا حسن زين الدين", "هادي على عبد الكريم ابراهيم", "يوسف احمد عبد الكريم السقاي"],
-      "ثالث إعدادي 3": ["أحمد ابراهيم على زويد", "آدم حسين عبدالله مال الله", "جعفر منير ميرزا مشيمع", "حسن صادق حبيب ال ربيع", "حسن عبد على سعيد الغنامي", "حسن على حسن منصور حسن", "حسين حبيب خميس خميس", "حسین صادق اسماعيل حبيب", "حسين محمود عبد الكريم القلاف", "سجاد عون فؤاد المذوب", "سجاد فاضل عباس السابودي", "عباس يونس عبدالله محمد", "عبد الرحمن محمد فكري ابراهيم", "عبد الرضا عبد المحسن احمد احمد", "على احمد محمد العلواني", "على جواد ملا عبد العزيز مشيمع", "على حسن احمد الجني", "على حسين سلمان راشد علی", "على محمد سلمان حسن", "قاسم سعيد جاسم الاسكافي", "مؤتمن فاضل عباس کاظم", "محمد ناصر عبدالله محمد", "مصطفى جعفر موسى خميس", "منتظر عادل عبد الشهيد الاسكافي", "مهدي هيثم مهدي شمطوط", "هادي ميرزا عبد الامير الحصار", "ياسر احمد عبدالنبي قاسم", "يوسف احمد معتوق مطر", "يوسف عباس حسین عبدالله", "يوسف عبد المجيد احمد عبد الحسين", "يوسف على احمد على"],
-      "ثالث إعدادي 4": ["إبراهيم عبدالله ابراهيم الجبل", "أحمد محسن عبد النبي محمد", "السيد حيدر علی فردان شرف", "السيد قاسم مؤنس ابراهیم هاشم", "جعفر عادل عبد على الشعله", "حسین محمد عبد الجليل كاظم", "حيدر زهير حميد السباع", "حيدر عقيل حسن الشيخ على", "رضا حبيب سلمان على", "سلمان علاء عيسى السهلاوي", "سيد مهدي علوي السيد ابراهيم شرف", "صادق احمد عبدالله صالح", "صادق اسماعيل على حسن", "طارق على خليل الحايكي", "عباس نزار هاشم شبر", "عبدالله محمود عبدالله الشهابي", "عبدالله محمود عبدالنبي حسين", "عبدالله میرزا صالح الحواج", "على أكبر محمد ابراهيم المبشر", "على جلال على احمد", "على حسين جعفر مال الله", "على حسين على خميس", "على عبد الرضا عبدالحسین املیح", "على عبدالله على على", "مجتبى على حسن يوسف", "محمد صلاح میرزا احمد", "منتظر جعفر جواد حسن", "مهدي جعفر مهدي فردان", "يوسف احمد عبدالله السابوري", "يوسف باسل عبد الجبار عبد النبي"],
-      "ثالث إعدادي 5": ["احمد يعقوب اسحاق يونس", "آدم محمد يوسف المحاسنيه", "السيد محمد جواد درويش الشرخات", "السيد محمد على جعفر الغنى", "السيد هاشم جلال عيسى حسن", "إلياس محمد يوسف المحاسنيه", "حسن محمد داود مشيمع", "حسين على حسن حسن", "حيدر عبد الامير سعيد عبدالوهاب", "حيدر فلاح موسى خميس", "سید قاسم حسين على ناصر", "سید محمد حسين محمد درويش", "سيدهاشم السيد فيصل حيدر علوي", "عباس حسن يوسف شريف", "عباس على عبدالوهاب الشيخ على", "عباس فاضل عبد النبي العود", "عبد العزيز حسن علی احمد", "على حسن جمعه حسن", "على حسن كاظم العويناتي", "على حسين سلمان على احمد", "على حسين عبدالله عباس", "على حسین عبدالله عبدالله", "على حمد عبد الرضا خمدن", "على عادل احمد عبدالله", "على محمد علی عباس", "علي مهدي عبدالله مرهون", "على يوسف احمد امان", "على يوسف كاظم القلاف", "عمار على سعيد عباس", "قاسم فاضل جاسم عتيق", "مجتبى عادل احمد کاظم", "محمد حبيب عبد الرسول احمد", "محمد حسين مرزوق الجبل", "محمد مهدي رائد عبد الكريم عبد على", "مناف عبدالله ابراهيم ال عميري", "يوسف احمد هلال فردان"]
+      "ثاني إعدادي 2": ["احمد باسم ابراهيم الخنيزي", "السيد حيدر فيصل علوي ناصر", "إلياس بن شاكر بن على البراهيم", "امیر محمد عبد الامیر رضی", "بدر طاهر عبد الرسول جديد", "حسن محمد حسن عيسى", "حسن محمود منصور عبد على", "حسين حسن على محمد", "حسین محمد جعفر حسن", "حيدر احمد عبد الرسول بن الشيخ", "حيدر رائد معتوق حمود", "حيدر على ميرزا الصفار", "راشد يوسف احمد يحيى", "سجاد حسین محسن عاشور", "سجاد زهير حسن عبد الرسول", "عبد الكريم محمود عبد الكريم ابراهيم", "عبدالله محمد جعفر سهوان", "عبدالله محمد عبدالله الغيص", "على حسين احمد عزيز", "على حسين ميرزا ال عبدالحي", "على حمد احمد على", "على مصطفى على العلى", "فيصل احمد عباس زبيل", "محسن ابراهیم محسن عبد الرسول", "محمد جلال عيسى نعمه", "محمد صادق احمد مشيمع", "محمد نادر ميرزا العرادي", "مصطفى احمد محمد الاسكافي", "هيثم فاضل ابراهيم اسماعيل", "يوسف ابراهيم على الصفار"],
+      "ثاني إعدادي 3": ["السيد حسن ابراهيم محمد علوي", "السيد عباس حسین ناصر شرف", "السيد عباس فاضل على الموسوي", "السيد على حسین نزار علوی", "السيد حيدر على مهدي يوسف", "أيمن جاسم احمد نصيف", "حسن على حسن عبد الوهاب", "حسین رضى على الصفار", "حسين على عبد الحسين الصفار", "حيدر محمد موسى طاهر", "سلمان ابراهيم عبدالله عبدالله", "سيدرضا السيد حسين عيسى", "صلاح عقیل عباس موسى", "طه جعفر حسن عيسى", "عبدالله منصور عبدالله شعبان", "على حسن على مهدي", "على حسین عباس موسى", "على محمد احمد المغلق", "علي محمد علي امان", "عماد ايمن احمد المديفع", "عيسى عبد الهادي عبد الجليل على", "عيسى على عيسى النكاس", "كريم فائق عبد الكريم على", "مجتبى مرتضى ميرزا السطيح", "محمد حسن عبدالله امان", "محمد خالد احمد علي", "محمد عباس عبدالله مرهون", "محمد على ابراهيم محمد على ال مرهون", "مهدي حسين اكبر محسن", "يوسف زهير عبد الوهاب غزوان"],
+      "ثاني إعدادي 4": ["السيد حسين ماجد اسماعيل ناصر", "السيد على احمد عدنان البلادي", "السيد محسن ياسر عبدالله ناصر", "السيد محمد على حمزه عبدالله", "السيد هاشم رائد حميد علي", "جعفر صادق حسن الصفار", "جواد عبد المجيد حسن راشد", "حسن هاني ابراهيم حسن", "حسين محمد يعقوب الكليب", "خليل ابراهيم خليل الحايكي", "سلمان حبيب سلمان الحواج", "سلمان حسين سلمان العالي", "عباس محمد حسن الشيخ على", "عباس هاني عباس شاوش", "على حسن احمد الشيوخ", "على حسن على حبيب", "على حسين عيسى الزامل", "على حسين عيسى خميس", "على عقيل جمعه جمعه", "على محمود جليل طاهر", "علي هادي حسين سلمان علي", "عمار ياسر ابراهيم ناصر", "فاضل عباس جعفر المحسن", "قاسم حسن منصور القيدوم", "محمد عبدالله احمد البقالي", "محمد على شاكر عبدالله خميس", "محمد هشام ايوب سوار", "محمد يونس خليل محمد", "محمود ياسر محمد على", "مصطفى محمود عبدالله السابوري", "مهدي احمد عبد الرسول احمد على", "مهدي عبد الحسين ميرزا على", "مهدي محمد مهدي عبدالله"],
+      "ثالث إعدادي 1": ["أحمد عبد الامير مهدي حسن", "أحمد محمد عبد الامير الحصار", "ادم احمد عبد النبي ال رضى", "السيد حسين شبر ابراهيم هاشم", "السيد حيدر محمد سعيد هاشم", "السيد عباس نور محمود شرف", "السيد على جلال حيدر علوي", "السيد مجتبى السيد جواد مهدي يوسف", "السيد محمد عدنان ابراهيم هاشم", "السيد محمد ماجد حسن احمد", "السيد هاشم السيد عدنان ابراهيم محمد", "باسم احمد عبد الرسول الصالح", "باسم على مكى طريف", "جعفر مهدي عبدالله ناصر", "حسن على يعقوب محمد الكليب", "حسن محمد عبدالحسين رضى", "حسن محمود عباس نويصر", "حسين عصام عبد الكريم ابراهيم", "رضا حسن على عنان", "عبدالله قاسم فاضل عبد النبي", "على ابراهيم جعفر العرادي", "على يوسف كاظم القلاف", "عمار محمد حسن على يوسف", "قاسم حسن على على", "قاسم على سلمان حسن", "ليث على خليل الحايكي", "محمد حسن يوسف مهدي", "محمد حسين عبد الحسين هلال", "محمد حسين على الطراح", "محمد حسين ناصر حسن", "محمد عبد النبي سلمان جديد", "محمد عبد علي محمد سلمان", "محمد كريم صالح الحواج", "محمدرضا اسامه عبد الجليل الجشي", "يوسف صالح شوقي البناء"],
+      "ثالث إعدادي 2": ["إبراهيم خليل ابراهيم حسن", "السيد فاضل عباس علوي العلوي", "السيد فراس السيد حسين مهدي شرف", "السيد مهدي حسن مصطفى علوي", "بدر فيصل على مدن", "جاسم محمد حبيب غريب", "جاسم محمد عبد الحسين على", "جواد ثابت جواد شاهين", "حبيب حمزه احمد المقابي", "حبيب فيصل احمد درويش", "حسن حسين خميس خميس", "حسن عبدالستار غلوم حسين", "حسن على عبدالله عباس", "حسين السيد على شرف محفوظ", "حسين سمير عبد الحسين هلال", "حسين صادق حبيب ال ربيع", "حسين صادق حسن حسن", "حسين عبد الرضا عبدالله السابوري", "رضا على عبدالله اسماعيل", "عبدالله على حسن الرمل", "على حسين محمد الحداد", "على سعيد محمد المشخص", "على فهد على السميع", "قاسم عبد الوهاب محمد على ابراهيم", "مجتبى عقيل خميس صالح", "محمد حسن على خميس", "محمد مهدي على خلف", "محمود عبدالله ابراهيم مهدي", "مقتدى عبد الجبار ميرزا اسماعيل", "مهدي مكى ملا حسن زين الدين", "هادي على عبد الكريم ابراهيم", "يوسف احمد عبد الكريم السقاي"],
+      "ثالث إعدادي 3": ["أحمد ابراهيم على زويد", "آدم حسين عبدالله مال الله", "جعفر منير ميرزا مشيمع", "حسن صادق حبيب ال ربيع", "حسن عبد على سعيد الغنامي", "حسن على حسن منصور حسن", "حسين حبيب خميس خميس", "حسين صادق اسماعيل حبيب", "حسين محمود عبد الكريم القلاف", "سجاد عون فؤاد المذوب", "سجاد فاضل عباس السابودي", "عباس يونس عبدالله محمد", "عبد الرحمن محمد فكري ابراهيم", "عبد الرضا عبد المحسن احمد احمد", "على احمد محمد العلواني", "على جواد ملا عبد العزيز مشيمع", "على حسن احمد الجني", "على حسين سلمان راشد علي", "على محمد سلمان حسن", "قاسم سعيد جاسم الاسكافي", "مؤتمن فاضل عباس كاظم", "محمد ناصر عبدالله محمد", "مصطفى جعفر موسى خميس", "منتظر عادل عبد الشهيد الاسكافي", "مهدي هيثم مهدي شمطوط", "هادي ميرزا عبد الامير الحصار", "ياسر احمد عبدالنبي قاسم", "يوسف احمد معتوق مطر", "يوسف عباس حسين عبدالله", "يوسف عبد المجيد احمد عبد الحسين", "يوسف على احمد على"],
+      "ثالث إعدادي 4": ["إبراهيم عبدالله ابراهيم الجبل", "أحمد محسن عبد النبي محمد", "السيد حيدر علي فردان شرف", "السيد قاسم مؤنس ابراهيم هاشم", "جعفر عادل عبد على الشعله", "حسين محمد عبد الجليل كاظم", "حيدر زهير حميد السباع", "حيدر عقيل حسن الشيخ على", "رضا حبيب سلمان على", "سلمان علاء عيسى السهلاوي", "سيد مهدي علوي السيد ابراهيم شرف", "صادق احمد عبدالله صالح", "صادق اسماعيل على حسن", "طارق على خليل الحايكي", "عباس نزار هاشم شبر", "عبدالله محمود عبدالله الشهابي", "عبدالله محمود عبدالنبي حسين", "عبدالله ميرزا صالح الحواج", "على أكبر محمد ابراهيم المبشر", "على جلال على احمد", "على حسين جعفر مال الله", "على حسين على خميس", "على عبد الرضا عبدالحسين امليح", "على عبدالله على على", "مجتبى على حسن يوسف", "محمد صلاح ميرزا احمد", "منتظر جعفر جواد حسن", "مهدي جعفر مهدي فردان", "يوسف احمد عبدالله السابوري", "يوسف باسل عبد الجبار عبد النبي"],
+      "ثالث إعدادي 5": ["احمد يعقوب اسحاق يونس", "آدم محمد يوسف المحاسنيه", "السيد محمد جواد درويش الشرخات", "السيد محمد على جعفر الغنى", "السيد هاشم جلال عيسى حسن", "إلياس محمد يوسف المحاسنيه", "حسن محمد داود مشيمع", "حسين على حسن حسن", "حيدر عبد الامير سعيد عبدالوهاب", "حيدر فلاح موسى خميس", "سيد قاسم حسين على ناصر", "سيد محمد حسين محمد درويش", "سيدهاشم السيد فيصل حيدر علوي", "عباس حسن يوسف شريف", "عباس على عبدالوهاب الشيخ على", "عباس فاضل عبد النبي العود", "عبد العزيز حسن علي احمد", "على حسن جمعه حسن", "على حسن كاظم العويناتي", "على حسين سلمان على احمد", "على حسين عبدالله عباس", "على حسين عبدالله عبدالله", "على حمد عبد الرضا خمدن", "على عادل احمد عبدالله", "على محمد علي عباس", "علي مهدي عبدالله مرهون", "على يوسف احمد امان", "على يوسف كاظم القلاف", "عمار على سعيد عباس", "قاسم فاضل جاسم عتيق", "مجتبى عادل احمد كاظم", "محمد حبيب عبد الرسول احمد", "محمد حسين مرزوق الجبل", "محمد مهدي رائد عبد الكريم عبد على", "مناف عبدالله ابراهيم ال عميري", "يوسف احمد هلال فردان"]
     };
 
     document.addEventListener("DOMContentLoaded", () => {
         document.getElementById('violationDate').value = new Date().toLocaleDateString('en-CA');
-        let classFilter = document.getElementById('dashClassFilter');
-        for (let c in HARDCODED_ROSTERS) {
-            classFilter.appendChild(new Option(c, c));
-            document.getElementById('classSelect').appendChild(new Option(c, c));
-        }
-        openDashboard(); // فتح الإحصائيات مباشرة عند التحميل كشاشة رئيسية
+        populateClassDropdowns();
+        openDashboard();
     });
+
+    function populateClassDropdowns() {
+        let fClass = document.getElementById('filterClass');
+        let cSelect = document.getElementById('classSelect');
+        fClass.innerHTML = '<option value="all">جميع الصفوف</option>';
+        cSelect.innerHTML = '<option value="">-- اختر الصف --</option>';
+        for(let c in HARDCODED_ROSTERS) {
+            fClass.appendChild(new Option(c, c));
+            cSelect.appendChild(new Option(c, c));
+        }
+    }
+
+    function onStageChange() {
+        let stage = document.getElementById('filterStage').value;
+        let fClass = document.getElementById('filterClass');
+        fClass.innerHTML = '<option value="all">جميع الصفوف</option>';
+        for(let c in HARDCODED_ROSTERS) {
+            if(stage === 'all' || c.includes(stage.split(" ")[0])) {
+                fClass.appendChild(new Option(c, c));
+            }
+        }
+        renderDashboardUI();
+    }
 
     function openDashboard() {
         document.getElementById('formView').style.display = 'none';
@@ -337,52 +356,56 @@
         }
     }
 
-    // 🔴 جلب كل البيانات (معلمين + مشرفين) وتجميعها بذكاء 🔴
+    function cleanName(n) { return String(n || '').replace(/^[\d\s._-]+/, '').trim(); }
+    
+    // دالة استخراج التاريخ النقي بصيغة YYYY-MM-DD
+    function parseDate(dStr) {
+        if(!dStr) return "";
+        let s = String(dStr).trim();
+        let m1 = s.match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
+        if(m1) return m1[1] + "-" + ("0" + m1[2]).slice(-2) + "-" + ("0" + m1[3]).slice(-2);
+        let m2 = s.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+        if(m2) return m2[3] + "-" + ("0" + m2[2]).slice(-2) + "-" + ("0" + m2[1]).slice(-2);
+        return "";
+    }
+
     async function loadDashboardData() {
         const dashBody = document.getElementById('dashBody');
-        dashBody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:30px; font-size:1.3rem;">⏳ جاري جلب ومطابقة جميع بيانات المدرسة إدارياً...</td></tr>';
+        dashBody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:30px;">⏳ جاري جلب ومزامنة السجلات من المعلمين والمشرفين...</td></tr>';
         
         try {
-            let resCPR = await fetch(`${SCRIPT_URL}?action=social_init&pass=social123`);
-            let cprData = await resCPR.json();
-            if(cprData.cprMap) cprMapData = cprData.cprMap;
+            let [resCPR, resViol, resTea] = await Promise.all([
+                fetch(`${SCRIPT_URL}?action=social_init&pass=social123`).then(r => r.json()),
+                fetch(`${SCRIPT_URL}?action=getViolations`).then(r => r.json()),
+                fetch(`${SCRIPT_URL}?action=getTeacherViolations`).then(r => r.json())
+            ]);
 
-            let resViol = await fetch(`${SCRIPT_URL}?action=getViolations`);
-            let violData = await resViol.json();
-            if(violData.data) allViolationsData = violData.data;
+            if(resCPR.cprMap) cprMapData = resCPR.cprMap;
+            if(resViol.data) allViolationsData = resViol.data;
+            if(resTea.data) allTeacherViolations = resTea.data;
 
-            let resTea = await fetch(`${SCRIPT_URL}?action=getTeacherViolations`);
-            let teaData = await resTea.json();
-            if(teaData.data) allTeacherViolations = teaData.data;
-
-            buildUnifiedDashboard();
+            buildUnifiedData();
         } catch(e) {
-            dashBody.innerHTML = '<tr><td colspan="4" style="color:red; text-align:center;">حدث خطأ أثناء تحميل السجلات!</td></tr>';
+            dashBody.innerHTML = '<tr><td colspan="4" style="color:red; text-align:center;">حدث خطأ في تحميل السجلات.</td></tr>';
         }
     }
 
-    function cleanNameDisplay(name) { return String(name || '').replace(/^\s*\d+\s*[-_.]?\s*/, '').trim(); }
-    function getDayName(dateString) { const days = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت']; const d = new Date(dateString); if(isNaN(d.getTime())) return ""; return days[d.getDay()]; }
-    function getDayAndDate(dateStr) { let dayName = getDayName(dateStr); return dayName ? `${dayName}، ${dateStr}` : dateStr; }
-
-    function buildUnifiedDashboard() {
+    function buildUnifiedData() {
         globalStudentsMap = {};
 
-        // 1. تجميع مخالفات المعلمين
         allTeacherViolations.forEach(r => {
             if(!r.vType) return;
-            let sClean = cleanNameDisplay(r.studentName);
-            let key = r.className + "|" + sClean;
-            if(!globalStudentsMap[key]) globalStudentsMap[key] = { cls: r.className, name: sClean, teacherVols: [], supVols: [] };
-            globalStudentsMap[key].teacherVols.push(r);
+            let s = cleanName(r.studentName);
+            let k = r.className + "|" + s;
+            if(!globalStudentsMap[k]) globalStudentsMap[k] = { cls: r.className, name: s, teacherVols: [], supVols: [] };
+            globalStudentsMap[k].teacherVols.push(r);
         });
 
-        // 2. تجميع مخالفات وتدخلات المشرفين المباشرة
         allViolationsData.forEach(r => {
-            let sClean = cleanNameDisplay(r.studentName);
-            let key = r.className + "|" + sClean;
-            if(!globalStudentsMap[key]) globalStudentsMap[key] = { cls: r.className, name: sClean, teacherVols: [], supVols: [] };
-            globalStudentsMap[key].supVols.push(r);
+            let s = cleanName(r.studentName);
+            let k = r.className + "|" + s;
+            if(!globalStudentsMap[k]) globalStudentsMap[k] = { cls: r.className, name: s, teacherVols: [], supVols: [] };
+            globalStudentsMap[k].supVols.push(r);
         });
 
         renderDashboardUI();
@@ -390,99 +413,132 @@
 
     function renderDashboardUI() {
         const dashBody = document.getElementById('dashBody');
-        let filterCls = document.getElementById('dashClassFilter').value;
-        let filterSearch = document.getElementById('dashSearchInput').value.trim().toLowerCase();
         dashBody.innerHTML = '';
 
-        let stagesOrder = ["الأول الإعدادي", "الثاني الإعدادي", "الثالث الإعدادي", "السادس الابتدائي"];
-        let hasData = false;
+        let stageVal = document.getElementById('filterStage').value;
+        let classVal = document.getElementById('filterClass').value;
+        let dateFrom = document.getElementById('filterDateFrom').value;
+        let dateTo = document.getElementById('filterDateTo').value;
+        let searchVal = document.getElementById('filterSearch').value.trim().toLowerCase();
 
-        stagesOrder.forEach(stg => {
-            let studentsInStage = [];
-            for(let key in globalStudentsMap) {
-                let stu = globalStudentsMap[key];
-                if(stu.cls.includes(stg.split(" ")[0])) { // تجميع حسب المرحلة
-                    if(filterCls !== 'all' && stu.cls !== filterCls) continue;
-                    if(filterSearch && !stu.name.toLowerCase().includes(filterSearch)) continue;
-                    
-                    stu.totalCount = stu.teacherVols.length + stu.supVols.length;
-                    if(stu.totalCount > 0) studentsInStage.push(stu);
+        let totalViolationsCount = 0;
+        let totalUniqueStudents = 0;
+        let totalHighRisk = 0;
+        let totalResolved = 0;
+
+        let filteredList = [];
+
+        for(let key in globalStudentsMap) {
+            let stu = globalStudentsMap[key];
+
+            // فلترة المرحلة والصف
+            if(stageVal !== 'all' && !stu.cls.includes(stageVal.split(" ")[0])) continue;
+            if(classVal !== 'all' && stu.cls !== classVal) continue;
+            if(searchVal && !stu.name.toLowerCase().includes(searchVal)) continue;
+
+            // فلترة المدة الزمنية لكل مخالفة لدى الطالب
+            let matchingTeacherVols = stu.teacherVols.filter(v => {
+                if(!dateFrom && !dateTo) return true;
+                let vDate = parseDate(v.vDate) || parseDate(v.timestamp);
+                if(dateFrom && vDate < dateFrom) return false;
+                if(dateTo && vDate > dateTo) return false;
+                return true;
+            });
+
+            let matchingSupVols = stu.supVols.filter(v => {
+                if(!dateFrom && !dateTo) return true;
+                let vDate = parseDate(v.date);
+                if(dateFrom && vDate < dateFrom) return false;
+                if(dateTo && vDate > dateTo) return false;
+                return true;
+            });
+
+            let countInPeriod = matchingTeacherVols.length + matchingSupVols.length;
+            if(countInPeriod === 0) continue;
+
+            totalUniqueStudents++;
+            totalViolationsCount += countInPeriod;
+            if(countInPeriod >= 3) totalHighRisk++;
+
+            // التحقق من التدخلات
+            let hasIntervention = matchingTeacherVols.some(v => v.supervisorAction && v.supervisorAction.trim() !== "") || matchingSupVols.length > 0;
+            if(hasIntervention) totalResolved++;
+
+            filteredList.push({
+                cls: stu.cls,
+                name: stu.name,
+                count: countInPeriod,
+                teacherVols: matchingTeacherVols,
+                supVols: matchingSupVols
+            });
+        }
+
+        // تحديث البطاقات الإحصائية
+        document.getElementById('statTotalViolations').innerText = totalViolationsCount;
+        document.getElementById('statTotalStudents').innerText = totalUniqueStudents;
+        document.getElementById('statHighRisk').innerText = totalHighRisk;
+        document.getElementById('statResolved').innerText = totalResolved;
+
+        if(filteredList.length === 0) {
+            dashBody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:30px; font-weight:bold;">لا توجد مخالفات مسجلة تطابق محددات البحث والفترة الزمنية.</td></tr>';
+            return;
+        }
+
+        // ترتيب الطلاب تنازلياً حسب الأكثر مخالفات
+        filteredList.sort((a,b) => b.count - a.count);
+
+        filteredList.forEach(stu => {
+            let badgeClass = stu.count >= 3 ? 'badge-high' : (stu.count === 2 ? 'badge-med' : 'badge-low');
+            let detailsHTML = "";
+            let needsIntervention = false;
+
+            stu.teacherVols.forEach(tv => {
+                let statHtml = "";
+                if(tv.supervisorAction && tv.supervisorAction.trim() !== "") {
+                    statHtml = `<div class="v-sup-card">🛡️ <strong>تدخل الإدارة:</strong> ${tv.supervisorAction}</div>`;
+                } else {
+                    needsIntervention = true;
+                    statHtml = `<span style="color:#dc2626; font-size:0.85rem; font-weight:bold;">⏳ قيد المتابعة</span>`;
                 }
+                detailsHTML += `
+                    <div class="v-card">
+                        <strong>${tv.vNum}:</strong> ${tv.vType}
+                        <span style="display:block; font-size:0.85rem; color:#64748b; margin-top:3px;">👨‍🏫 ${tv.teacherName} (${tv.subject}) | 📅 ${tv.vDate || '-'}</span>
+                        ${statHtml}
+                    </div>
+                `;
+            });
+
+            stu.supVols.forEach(sv => {
+                detailsHTML += `
+                    <div class="v-card" style="background:#fff1f2; border-color:#fda4af;">
+                        <strong style="color:#be185d;">🚨 مخالفة مباشرة (إدارة):</strong> ${sv.violationType}
+                        <span style="display:block; font-size:0.85rem; color:#64748b; margin-top:3px;">👨‍💼 المشرف: ${sv.supervisor} | 📅 ${sv.date || '-'}</span>
+                        <div class="v-sup-card"><strong>إجراء الإدارة:</strong> ${sv.actionTaken}</div>
+                    </div>
+                `;
+            });
+
+            let actionsHTML = `<div class="action-btns-col">`;
+            if(stu.count >= 3 && needsIntervention) {
+                actionsHTML += `<button class="btn-sm btn-action" style="background:#dc2626;" onclick="openActionModal('${stu.name}', '${stu.cls}')">⚠️ تسجيل تدخل إداري</button>`;
+            } else {
+                actionsHTML += `<button class="btn-sm btn-action" onclick="openActionModal('${stu.name}', '${stu.cls}')">🛡️ تسجيل إجراء</button>`;
             }
+            actionsHTML += `<button class="btn-sm btn-print" onclick="prepareAndPrintReport('${stu.name}', '${stu.cls}')">🖨️ طباعة تقرير</button>`;
+            actionsHTML += `</div>`;
 
-            if(studentsInStage.length > 0) {
-                hasData = true;
-                studentsInStage.sort((a,b) => b.totalCount - a.totalCount);
-
-                if(filterCls === 'all') {
-                    dashBody.innerHTML += `<tr style="background:#e2e8f0;"><td colspan="4" style="font-weight:900; font-size:1.3rem; color:#1e40af; text-align:center;">📌 ${stg}</td></tr>`;
-                }
-
-                studentsInStage.forEach(stu => {
-                    let badgeClass = `badge-${stu.totalCount >= 3 ? 3 : stu.totalCount}`;
-                    
-                    // بناء تفاصيل المعلمين
-                    let detailsHTML = "";
-                    let needsIntervention = false;
-
-                    stu.teacherVols.forEach(tv => {
-                        let dateFmt = tv.vDate ? String(tv.vDate).replace(/\n/g, ' - ') : 'غير محدد';
-                        let statHtml = "";
-                        if(tv.supervisorAction && tv.supervisorAction.trim() !== "") {
-                            statHtml = `<div class="v-sup-card">🛡️ <strong>تم تدخل الإدارة:</strong> ${tv.supervisorAction}</div>`;
-                        } else {
-                            needsIntervention = true;
-                        }
-                        detailsHTML += `
-                            <div class="v-card">
-                                <strong>${tv.vNum}:</strong> ${tv.vType}
-                                <span class="violation-teacher">👨‍🏫 ${tv.teacherName} (${tv.subject}) | 📅 ${dateFmt}</span>
-                                ${statHtml}
-                            </div>
-                        `;
-                    });
-
-                    // بناء تفاصيل المشرفين
-                    stu.supVols.forEach(sv => {
-                        let dateFmt = getDayAndDate(sv.date);
-                        detailsHTML += `
-                            <div class="v-card" style="background:#fff1f2; border-color:#fda4af;">
-                                <strong style="color:#be185d;">🚨 مخالفة (إدارة):</strong> ${sv.violationType}
-                                <span class="violation-teacher">👨‍💼 المشرف: ${sv.supervisor} | 📅 ${dateFmt}</span>
-                                <div class="v-sup-card" style="background:#f0fdfa; border-color:#5eead4;"><strong style="color:#0f766e;">إجراء:</strong> ${sv.actionTaken}</div>
-                            </div>
-                        `;
-                    });
-
-                    // أزرار التحكم للمشرف
-                    let actionsHTML = `<div class="action-btns-col">`;
-                    if(stu.totalCount >= 3 && needsIntervention) {
-                        actionsHTML += `<button class="btn-sm btn-action" style="background:#dc2626;" onclick="openActionModal('${stu.name}', '${stu.cls}')">⚠️ تسجيل تدخل إداري</button>`;
-                    } else {
-                        actionsHTML += `<button class="btn-sm btn-action" onclick="openActionModal('${stu.name}', '${stu.cls}')">🛡️ تسجيل إجراء</button>`;
-                    }
-                    actionsHTML += `<button class="btn-sm btn-print" onclick="prepareAndPrintReport('${stu.name}', '${stu.cls}')">🖨️ طباعة تقرير</button>`;
-                    actionsHTML += `</div>`;
-
-                    dashBody.innerHTML += `
-                        <tr>
-                            <td style="font-weight:bold; font-size:1.2rem; color:var(--primary);">${stu.name}<br><span style="font-size:1rem; color:#64748b;">(${stu.cls})</span></td>
-                            <td><span class="badge ${badgeClass}">${stu.totalCount}</span></td>
-                            <td style="padding:10px;">${detailsHTML}</td>
-                            <td style="vertical-align:middle;">${actionsHTML}</td>
-                        </tr>
-                    `;
-                });
-            }
+            dashBody.innerHTML += `
+                <tr>
+                    <td style="font-weight:bold; font-size:1.1rem; color:var(--primary);">${stu.name}<br><span style="font-size:0.9rem; color:#64748b;">(${stu.cls})</span></td>
+                    <td style="text-align:center;"><span class="badge ${badgeClass}">${stu.count}</span></td>
+                    <td>${detailsHTML}</td>
+                    <td>${actionsHTML}</td>
+                </tr>
+            `;
         });
-
-        if(!hasData) dashBody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:30px; font-size:1.2rem;">لا توجد مخالفات مطابقة لبحثك.</td></tr>';
     }
 
-    document.getElementById('dashSearchInput').addEventListener('input', renderDashboardUI);
-    document.getElementById('dashClassFilter').addEventListener('change', renderDashboardUI);
-
-    // 🔴 تسجيل المخالفة المباشرة
     function submitDirectForm() {
         let supName = document.getElementById('supervisorName').value;
         let vDate = document.getElementById('violationDate').value;
@@ -490,33 +546,31 @@
         let student = document.getElementById('studentSelect').value;
         let vType = document.getElementById('violationType').value;
         let vDetails = document.getElementById('violationDetails').value;
-        
-        let actionsChecked = [];
-        document.querySelectorAll('input[name="actionTaken"]:checked').forEach(cb => { actionsChecked.push(cb.value); });
+        let vAction = document.getElementById('actionTakenDirect').value;
 
-        if (!supName || !vDate || !cls || !student || !vType) { alert("⚠️ يرجى التأكد من تعبئة كافة الحقول الأساسية."); return; }
+        if(!supName || !vDate || !cls || !student || !vType) { alert("يرجى تعبئة كافة الحقول الأساسية."); return; }
 
-        let finalViolationText = vType + (vDetails.trim() !== '' ? " | " + vDetails : "");
-        let finalActionText = actionsChecked.join(" + ");
-
+        let finalType = vType + (vDetails ? " | " + vDetails : "");
         let btn = document.getElementById('submitBtn');
-        btn.disabled = true; btn.textContent = "⏳ جاري الإرسال...";
+        btn.disabled = true; btn.innerText = "جاري الحفظ...";
 
-        let payload = { action: "addViolation", supervisorName: supName, className: cls, studentName: student, cpr: "آلي", parentPhone: "آلي", violationType: finalViolationText, actionTaken: finalActionText };
-
-        fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
-        .then(res => res.json())
+        fetch(SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify({ action: "addViolation", supervisorName: supName, className: cls, studentName: student, violationType: finalType, actionTaken: vAction || "تم التوثيق" })
+        })
+        .then(r => r.json())
         .then(data => {
-            if(data.status === "success") { alert("✅ تم تسجيل المخالفة المباشرة بنجاح!"); loadDashboardData(); document.getElementById('violationDetails').value=""; } 
-            else { alert("حدث خطأ: " + data.message); }
-            btn.disabled = false; btn.textContent = "💾 حفظ المخالفة المباشرة";
+            alert("✅ تم الحفظ بنجاح!");
+            btn.disabled = false; btn.innerText = "💾 حفظ المخالفة المباشرة";
+            loadDashboardData();
+            openDashboard();
         });
     }
 
-    function openActionModal(student, cls) {
-        document.getElementById('actionStudentName').value = student;
+    function openActionModal(stu, cls) {
+        document.getElementById('actionStudentName').value = stu;
         document.getElementById('actionClassName').value = cls;
-        document.getElementById('actionStudentDisp').value = student + " (" + cls + ")";
+        document.getElementById('actionStudentDisp').value = stu + " (" + cls + ")";
         document.getElementById('actionModal').style.display = 'block';
     }
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
@@ -524,49 +578,45 @@
     async function submitSupervisorDecision() {
         let stu = document.getElementById('actionStudentName').value;
         let cls = document.getElementById('actionClassName').value;
-        let supName = document.getElementById('actionSupervisor').value;
-        let decision = document.getElementById('actionDecision').value;
+        let sup = document.getElementById('actionSupervisor').value;
+        let dec = document.getElementById('actionDecision').value;
 
-        if(!supName || !decision) { alert("⚠️ يرجى اختيار اسم المشرف والقرار المتخذ."); return; }
+        if(!sup || !dec) { alert("يرجى اختيار المشرف والقرار."); return; }
 
         let btn = document.getElementById('btnSubmitDecision');
-        btn.disabled = true; btn.innerText = "⏳ جاري إغلاق البلاغ وإرساله للمعلمين...";
-
-        let payload = { action: "resolveAlert", studentName: stu, className: cls, supervisorName: supName, supervisorAction: decision };
+        btn.disabled = true; btn.innerText = "جاري الإرسال للمعلمين...";
 
         try {
-            let res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
-            let json = await res.json();
-            if(json.status === "success") {
-                alert("✅ تم إغلاق البلاغ بنجاح! الإجراء يظهر الآن عند المعلمين.");
-                closeModal('actionModal');
-                loadDashboardData(); // ريفرش الجدول
-            }
-        } catch(e) { alert("❌ حدث خطأ."); }
-        btn.disabled = false; btn.innerText = "✅ حفظ القرار وإرساله للمعلمين";
+            await fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: "resolveAlert", studentName: stu, className: cls, supervisorName: sup, supervisorAction: dec })
+            });
+            alert("✅ تم حفظ القرار بنجاح وإرساله للمعلمين!");
+            closeModal('actionModal');
+            loadDashboardData();
+        } catch(e) { alert("حدث خطأ في الاتصال."); }
+        btn.disabled = false; btn.innerText = "✅ حفظ القرار وإرسال الإشعار";
     }
 
     function prepareAndPrintReport(studentName, className) {
-        let stuData = globalStudentsMap[className + "|" + studentName];
-        if(!stuData) return;
+        let stu = globalStudentsMap[className + "|" + studentName];
+        if(!stu) return;
 
         document.getElementById('pRepName').innerText = studentName;
         document.getElementById('pRepPledgeName').innerText = studentName;
-        document.getElementById('pRepCPR').innerText = cprMapData[studentName] || "غير متوفر";
+        document.getElementById('pRepCPR').innerText = cprMapData[studentName] || "غير مسجل";
         document.getElementById('pRepClass').innerText = className;
-        document.getElementById('pRepCount').innerText = stuData.totalCount;
         
         let tbody = document.getElementById('printRepTableBody');
         tbody.innerHTML = '';
 
-        stuData.teacherVols.forEach(r => {
-            let d = r.vDate ? String(r.vDate).replace(/\n/g, ' - ') : '';
-            let a = r.supervisorAction ? `<b>تدخل المشرف:</b> ${r.supervisorAction}` : `<b>إجراء المعلم:</b> ${r.teacherAction}`;
-            tbody.innerHTML += `<tr><td>${d}</td><td>${r.teacherName}</td><td>${r.vType}</td><td style="text-align:right;">${a}</td></tr>`;
+        stu.teacherVols.forEach(r => {
+            let act = r.supervisorAction ? `<b>تدخل المشرف:</b> ${r.supervisorAction}` : `<b>إجراء المعلم:</b> ${r.teacherAction}`;
+            tbody.innerHTML += `<tr><td>${r.vDate || '-'}</td><td>${r.teacherName} (معلم)</td><td>${r.vType}</td><td>${act}</td></tr>`;
         });
-        
-        stuData.supVols.forEach(r => {
-            tbody.innerHTML += `<tr><td>${getDayAndDate(r.date)}</td><td><b>${r.supervisor} (إدارة)</b></td><td><b>${r.violationType}</b></td><td style="text-align:right;"><b>${r.actionTaken}</b></td></tr>`;
+
+        stu.supVols.forEach(r => {
+            tbody.innerHTML += `<tr><td>${r.date || '-'}</td><td>${r.supervisor} (إدارة)</td><td>${r.violationType}</td><td>${r.actionTaken}</td></tr>`;
         });
 
         document.body.classList.add('print-report');
@@ -574,6 +624,5 @@
         setTimeout(() => { document.body.classList.remove('print-report'); }, 1000);
     }
 </script>
-
 </body>
 </html>
