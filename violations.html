@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>سجل المخالفات السلوكية 2026-2027</title>
+    <title>سجل المخالفات السلوكية 2026-2027 (بوابة المشرفين)</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap');
 
@@ -51,13 +51,6 @@
             margin: 20px 0 10px 0;
             font-size: 1.4rem;
         }
-        .page-subtitle {
-            text-align: center;
-            color: #64748b;
-            font-weight: 700;
-            margin-bottom: 25px;
-            font-size: 0.95rem;
-        }
 
         .top-nav {
             padding: 10px 20px;
@@ -67,6 +60,7 @@
             gap: 10px;
             flex-wrap: wrap;
             justify-content: center;
+            align-items: center;
         }
         .btn-nav {
             background: #1e40af;
@@ -86,8 +80,20 @@
         .btn-nav:hover { opacity: 0.9; }
         .btn-social { background: #059669; }
 
+        /* 🔴 تصميم زر الإنذار النابض */
+        @keyframes pulseAlert {
+            0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); transform: scale(1); }
+            50% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); transform: scale(1.02); }
+            100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); transform: scale(1); }
+        }
+        .btn-pulse { 
+            animation: pulseAlert 2s infinite; 
+            background-color: #dc2626 !important; 
+            font-size: 1rem; 
+            border: 2px solid #7f1d1d;
+        }
+
         .form-content { padding: 25px; }
-        
         .form-group { margin-bottom: 20px; }
         .form-group label { display: block; font-weight: 700; margin-bottom: 8px; color: #334155; }
         
@@ -97,6 +103,7 @@
             box-sizing: border-box; background-color: #f8fafc; transition: 0.3s;
         }
         .form-control:focus { outline: none; border-color: var(--primary); background-color: #fff; }
+        .form-control:disabled { background-color: #e2e8f0; color: #64748b; font-weight: bold; }
 
         select optgroup { font-weight: 800; color: #1e40af; background: #e2e8f0; }
         select option { font-weight: 500; color: #1e293b; background: #fff; }
@@ -105,9 +112,7 @@
             display: flex; flex-direction: column; gap: 10px;
             background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid var(--border);
         }
-        .checkbox-label {
-            display: flex; align-items: center; gap: 8px; font-weight: 500; cursor: pointer;
-        }
+        .checkbox-label { display: flex; align-items: center; gap: 8px; font-weight: 500; cursor: pointer; }
         .checkbox-label input { width: 18px; height: 18px; accent-color: var(--primary); }
 
         .btn-submit {
@@ -118,40 +123,32 @@
         .btn-submit:hover { background: var(--primary-hover); }
         .btn-submit:disabled { background: #9ca3af; cursor: not-allowed; }
 
-        .action-buttons { display: none; gap: 10px; margin-top: 15px; }
-        .btn-print { flex: 1; background: #1e40af; color: white; border: none; padding: 15px; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; font-family: inherit; }
-        .btn-new { flex: 1; background: #16a34a; color: white; border: none; padding: 15px; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; font-family: inherit; }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(3px); }
+        .modal-body { background: #fff; max-width: 650px; margin: 50px auto; border-radius: 12px; padding: 25px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); max-height: 85vh; overflow-y: auto; }
+        .modal-close { float: left; font-size: 28px; cursor: pointer; color: var(--primary); font-weight: 800; line-height: 1; }
 
         .alert { padding: 15px; border-radius: 8px; margin-bottom: 20px; display: none; font-weight: bold; text-align: center; }
         .alert-success { background: #dcfce3; color: #16a34a; border: 1px solid #4ade80; }
         .alert-error { background: #fee2e2; color: #dc2626; border: 1px solid #f87171; }
 
-        /* منطقة الطباعة مخفية في الوضع العادي */
         #printArea, #printReportArea { display: none; }
 
         @media print {
             @page { margin: 1cm; }
             body { background: #fff; padding: 0; margin: 0; font-family: 'Tajawal', sans-serif; }
-            
-            #mainContainer, .container:not(#printArea):not(#printReportArea) { display: none !important; }
-            
+            #mainContainer, .container:not(#printArea):not(#printReportArea), .modal { display: none !important; }
             body.print-single #printArea { display: block !important; }
             body.print-single #printReportArea { display: none !important; }
-            
             body.print-report #printReportArea { display: block !important; }
             body.print-report #printArea { display: none !important; }
-
             .print-header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
             .print-header img { max-height: 100px; }
             .print-title { font-size: 22px; font-weight: 800; margin: 10px 0; text-decoration: underline; }
-            
             .print-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 16px; text-align: right; }
             .print-table th, .print-table td { padding: 12px; border: 1px solid #000; vertical-align: middle; }
             .print-table th { background-color: #f1f5f9 !important; -webkit-print-color-adjust: exact; text-align: center; }
             .print-table td:first-child { font-weight: bold; width: 25%; background-color: #f1f5f9 !important; -webkit-print-color-adjust: exact; }
-            
             .pledge-box { margin-top: 20px; border: 2px dashed #000; padding: 20px; border-radius: 8px; font-size: 17px; text-align: right; background-color: #fafafa !important; -webkit-print-color-adjust: exact; }
-            
             .signatures { display: flex; justify-content: space-between; margin-top: 40px; text-align: center; font-size: 16px; }
             .sig-box { width: 30%; }
             .sig-title { font-weight: bold; margin-bottom: 30px; }
@@ -167,14 +164,18 @@
 
     <div class="top-nav">
         <a href="https://sabrysci.github.io/b/supervisor.html" class="btn-nav">⬅️ بوابة المشرفين</a>
-        <a href="https://sabrysci.github.io/b/social.html" class="btn-nav btn-social">⬅️ بوابة الإشراف الاجتماعي</a>
+        <a href="https://sabrysci.github.io/b/social.html" class="btn-nav btn-social">⬅️ الإشراف الاجتماعي</a>
+        
+        <!-- 🚨 زر الإشعارات الذكي (يظهر فقط إذا كان هناك تدخل مطلوب) -->
+        <button id="mainAlertBtn" class="btn-nav btn-pulse" style="display:none;" onclick="openAlertsModal()">
+            🚨 إشعارات المعلمين (<span id="alertCountSpan">0</span>) حالات عاجلة
+        </button>
     </div>
 
     <!-- 1️⃣ نموذج تسجيل المخالفة -->
     <div class="form-content">
-        <h2 class="page-title">تسجيل مخالفة سلوكية جديدة</h2>
-        <p class="page-subtitle">للعام الدراسي 2026-2027 | مدرسة البلاد القديم</p>
-
+        <h2 class="page-title">تسجيل مخالفة سلوكية (مباشرة)</h2>
+        
         <div id="alertBox" class="alert"></div>
 
         <div class="form-group">
@@ -220,38 +221,16 @@
                 <optgroup label="🔴 المخالفات البسيطة">
                     <option value="التأخير الصباحي">التأخير الصباحي</option>
                     <option value="التأخر عن دخول الحصة">التأخر عن دخول الحصة</option>
-                    <option value="الغياب عن بعض الحصص">الغياب عن بعض الحصص</option>
                     <option value="الغياب الكامل">الغياب الكامل</option>
-                    <option value="عدم الالتزام بالمظهر العام">عدم الالتزام بالمظهر العام</option>
                 </optgroup>
                 <optgroup label="🟠 المخالفات المتوسطة">
-                    <option value="إحضار الأجهزة التي تعيق العمل المدرسي">إحضار الأجهزة التي تعيق العمل المدرسي</option>
                     <option value="اضطرابات السلوك">اضطرابات السلوك</option>
-                    <option value="الغش في الامتحانات (التخاطب مع الطلاب الآخرين داخل اللجنة)">الغش في الامتحانات (التخاطب مع الطلاب الآخرين داخل اللجنة)</option>
+                    <option value="الغش في الامتحانات">الغش في الامتحانات</option>
                 </optgroup>
                 <optgroup label="🔴 المخالفات الشديدة">
                     <option value="التخريب">التخريب</option>
-                    <option value="السلوك العدواني العنيف الموجه ضد الطلبة (التهجم)">السلوك العدواني العنيف الموجه ضد الطلبة (التهجم)</option>
-                    <option value="إساءة الأدب مع أعضاء الهيئة الإدارية والتعليمية والفنية والمستخدمين في المدرسة">إساءة الأدب مع أعضاء الهيئة الإدارية والتعليمية والفنية والمستخدمين في المدرسة</option>
-                    <option value="اتلاف الممتلكات الخاصة بالطلبة / المعلمين">اتلاف الممتلكات الخاصة بالطلبة / المعلمين</option>
-                    <option value="الإضرار بالبيئة المدرسية">الإضرار بالبيئة المدرسية</option>
-                    <option value="السرقة">السرقة</option>
-                    <option value="الإنحرافات الأخلاقية">الإنحرافات الأخلاقية</option>
-                    <option value="التدخين">التدخين</option>
-                    <option value="الغش في الإمتحانات (الحصول على معلومات تتعلق بالإمتحان)">الغش في الإمتحانات (الحصول على معلومات تتعلق بالإمتحان)</option>
-                    <option value="الغش في الامتحانات (تبديل أو إخفاء لأوراق الإجابة)">الغش في الامتحانات (تبديل أو إخفاء لأوراق الإجابة)</option>
-                </optgroup>
-                <optgroup label="⚫ المخالفات الحادة">
+                    <option value="السلوك العدواني (التهجم)">السلوك العدواني العنيف الموجه ضد الطلبة</option>
                     <option value="الهروب من المدرسة">الهروب من المدرسة</option>
-                    <option value="تقصير الطالب التحصيلي">تقصير الطالب التحصيلي</option>
-                    <option value="الاعتداء على المعلمين">الاعتداء على المعلمين</option>
-                    <option value="استدراج الطلبة بقصد الاعتداء على العرض أو استغلالهم جنسيًا">استدراج الطلبة بقصد الاعتداء على العرض أو استغلالهم جنسيًا</option>
-                    <option value="الاعتداء على العرض">الاعتداء على العرض</option>
-                    <option value="نشر وترويج الثقافة الإباحية">نشر وترويج الثقافة الإباحية</option>
-                    <option value="تعاطي الممنوعات">تعاطي الممنوعات</option>
-                    <option value="ترويج الممنوعات">ترويج الممنوعات</option>
-                    <option value="انتحال الشخصية (بغرض أداء الامتحان)">انتحال الشخصية (بغرض أداء الامتحان)</option>
-                    <option value="المساس بالسيادة الوطنية">المساس بالسيادة الوطنية</option>
                 </optgroup>
                 <optgroup label="⚪ أخرى">
                     <option value="أخرى">أخرى (اذكرها في التفاصيل)</option>
@@ -260,53 +239,29 @@
         </div>
 
         <div class="form-group">
-            <label>تفاصيل المخالفة (اختياري):</label>
-            <textarea id="violationDetails" class="form-control" rows="3" placeholder="اكتب تفاصيل إضافية عن الواقعة..."></textarea>
+            <label>تفاصيل (اختياري):</label>
+            <textarea id="violationDetails" class="form-control" rows="2" placeholder="اكتب تفاصيل إضافية..."></textarea>
         </div>
 
         <div class="form-group">
-            <label>الإجراءات المتخذة من قبل لجنة الانضباط الطلابي:</label>
+            <label>الإجراءات المتخذة:</label>
             <div class="checkbox-group">
                 <label class="checkbox-label"><input type="checkbox" name="actionTaken" value="النصح والإرشاد والتوجيه"> النصح والإرشاد والتوجيه</label>
                 <label class="checkbox-label"><input type="checkbox" name="actionTaken" value="تعهد طالب"> تعهد طالب</label>
                 <label class="checkbox-label"><input type="checkbox" name="actionTaken" value="الاتصال بولي الأمر"> الاتصال بولي الأمر</label>
-                <label class="checkbox-label"><input type="checkbox" name="actionTaken" value="استدعاء ولي أمر"> استدعاء ولي أمر</label>
-                <label class="checkbox-label"><input type="checkbox" name="actionTaken" value="تعهد ولي أمر"> تعهد ولي أمر</label>
+                <label class="checkbox-label"><input type="checkbox" name="actionTaken" value="استدعاء ولي أمر وتعهد"> استدعاء ولي أمر وتعهد</label>
                 <label class="checkbox-label"><input type="checkbox" name="actionTaken" value="تحويل للمرشد الاجتماعي"> تحويل للمرشد الاجتماعي</label>
-                <label class="checkbox-label"><input type="checkbox" name="actionTaken" value="أخرى"> أخرى (تُكتب في الملاحظات)</label>
             </div>
         </div>
 
-        <div class="form-group">
-            <label>ملاحظات إضافية:</label>
-            <textarea id="notes" class="form-control" rows="2"></textarea>
-        </div>
-
-        <button class="btn-submit" id="submitBtn" onclick="submitForm()">💾 حفظ المخالفة السلوكية في السجل</button>
-        
-        <div class="action-buttons" id="afterSubmitBtns">
-            <button class="btn-print" onclick="printSingleViolation()">🖨️ طباعة إشعار المخالفة والتعهد</button>
-            <button class="btn-new" onclick="location.reload()">➕ تسجيل مخالفة جديدة</button>
-        </div>
+        <button class="btn-submit" id="submitBtn" onclick="submitForm()">💾 حفظ المخالفة السلوكية المباشرة</button>
     </div>
 </div>
 
-<!-- 2️⃣ محرك البحث الشامل عن طريق الكتابة -->
-<div class="container" style="margin-bottom: 20px;">
-    <div class="form-content" style="padding-top: 10px;">
-        <h3 class="page-title" style="font-size: 1.25rem; color: #1e40af; border-bottom: 2px solid #cbd5e1; padding-bottom: 10px;">🔍 البحث في السجل (بالاسم أو الرقم الشخصي)</h3>
-        
-        <div style="display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap;">
-            <input type="text" id="searchViolationInput" class="form-control" style="flex: 1;" placeholder="اكتب اسم الطالب أو الرقم الشخصي للبحث...">
-            <button onclick="searchByText()" class="btn-nav" style="width: auto; padding: 12px 25px; border-radius: 8px;">بحث واستخراج</button>
-        </div>
-    </div>
-</div>
-
-<!-- 3️⃣ الأداة الجديدة: محرك الاستخراج بالقوائم المنسدلة -->
+<!-- 2️⃣ محرك الاستخراج والبحث الشامل -->
 <div class="container" style="margin-bottom: 50px;">
     <div class="form-content" style="padding-top: 10px;">
-        <h3 class="page-title" style="font-size: 1.25rem; color: var(--accent); border-bottom: 2px solid #cbd5e1; padding-bottom: 10px;">📂 استخراج السجل السلوكي والتعهد (بالقوائم المنسدلة)</h3>
+        <h3 class="page-title" style="font-size: 1.25rem; color: var(--accent); border-bottom: 2px solid #cbd5e1; padding-bottom: 10px;">📂 استخراج السجل الشامل للطالب (المعلمين + المشرفين)</h3>
         
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px;">
             <div>
@@ -326,19 +281,22 @@
                 </select>
             </div>
         </div>
-        <button onclick="extractStudentHistory()" class="btn-submit" style="background-color: var(--accent); margin-top: 15px;">استخراج وعرض السجل</button>
+        
+        <div style="display: flex; gap: 10px; margin-top: 15px;">
+            <input type="text" id="searchViolationInput" class="form-control" placeholder="أو ابحث هنا بكتابة اسم الطالب...">
+            <button onclick="extractStudentHistory()" class="btn-nav" style="padding: 12px 25px; background-color: var(--accent);">استخراج وعرض السجل</button>
+        </div>
 
-        <!-- حاوية عرض النتائج (مشتركة بين البحث والاستخراج) -->
         <div id="searchViolationsResults" style="display: none; margin-top: 25px; border-top: 2px solid #e2e8f0; padding-top: 20px;">
-            <button onclick="printViolationReport()" class="btn-submit" style="background-color: #1e293b; margin-bottom: 15px;">🖨️ طباعة التقرير الشامل والتعهد لولي الأمر</button>
+            <button onclick="printViolationReport()" class="btn-submit" style="background-color: #1e293b; margin-bottom: 15px;">🖨️ طباعة التقرير الشامل لولي الأمر (حجة رسمية)</button>
             <div style="overflow-x: auto; background: #fff; border: 1px solid var(--border); border-radius: 8px;">
                 <table style="width: 100%; border-collapse: collapse; text-align: center; font-size: 0.95rem;">
                     <thead style="background-color: #f1f5f9; color: #334155;">
                         <tr>
-                            <th style="padding: 12px; border: 1px solid var(--border);">التاريخ واليوم</th>
-                            <th style="padding: 12px; border: 1px solid var(--border);">الاسم</th>
-                            <th style="padding: 12px; border: 1px solid var(--border);">نوع المخالفة</th>
-                            <th style="padding: 12px; border: 1px solid var(--border);">الإجراء المتخذ</th>
+                            <th style="padding: 12px; border: 1px solid var(--border);">التاريخ</th>
+                            <th style="padding: 12px; border: 1px solid var(--border);">الراصد</th>
+                            <th style="padding: 12px; border: 1px solid var(--border);">المخالفة</th>
+                            <th style="padding: 12px; border: 1px solid var(--border);">الإجراء (المعلم / المشرف)</th>
                         </tr>
                     </thead>
                     <tbody id="searchViolationsTableBody"></tbody>
@@ -348,53 +306,74 @@
     </div>
 </div>
 
-<!-- منطقة طباعة 1: إشعار المخالفة الفردية -->
-<div id="printArea">
-    <div class="print-header">
-        <img src="https://i.postimg.cc/K88X7RLb/trwysyh-dhhbyt.png" alt="ترويسة المدرسة">
-        <div class="print-title">إشعار مخالفة سلوكية (2026-2027)</div>
-    </div>
-    
-    <table class="print-table">
-        <tr><td>تاريخ الواقعة:</td><td id="pDate" style="font-weight:bold;"></td></tr>
-        <tr><td>اسم الطالب:</td><td id="pStudent" style="font-weight:bold;"></td></tr>
-        <tr><td>الصف:</td><td id="pClass"></td></tr>
-        <tr><td>المخالفة السلوكية:</td><td id="pType" style="color: #b91c1c; font-weight:bold;"></td></tr>
-        <tr><td>تفاصيل الواقعة:</td><td id="pDetails"></td></tr>
-        <tr><td>الإجراء المتخذ:</td><td id="pAction"></td></tr>
-        <tr><td>ملاحظات:</td><td id="pNotes"></td></tr>
-    </table>
-
-    <div class="pledge-box">
-        <p style="text-decoration: underline; font-weight: bold; margin-top:0;">تعهد الطالب:</p>
-        <p>أتعهد أنا الطالب: <span id="pPledgeName" style="font-weight:bold; color:#1e40af; border-bottom: 1px dotted #000; padding: 0 10px;"></span> بعدم تكرار المخالفة المذكورة أعلاه مرة أخرى، وألتزم بلوائح الانضباط المدرسي.</p>
-        <p style="margin-top: 25px; text-align: left; padding-left: 50px;"><strong>توقيع الطالب:</strong> ..........................</p>
-    </div>
-
-    <div class="signatures">
-        <div class="sig-box">
-            <div class="sig-title">المشرف المسجل للمخالفة</div>
-            <div id="pSupervisor" style="margin-bottom:15px; font-weight:bold; color:#1e40af;"></div>
-            التوقيع: ..........................
-        </div>
-        <div class="sig-box">
-            <div class="sig-title">المدير المساعد</div>
-            <div style="margin-bottom:15px; font-weight:bold;">الأستاذ عبدالله احمد دليم</div>
-            التوقيع: ..........................
-        </div>
-        <div class="sig-box">
-            <div class="sig-title">مدير المدرسة</div>
-            <div style="margin-bottom:15px; font-weight:bold;">الأستاذ محمد ابراهيم محمد ناصر</div>
-            التوقيع: ..........................
-        </div>
+<!-- 🔴 نوافذ (Modals) الإشعارات وتسجيل الإجراء الإداري 🔴 -->
+<div id="alertsModal" class="modal">
+    <div class="modal-body">
+        <span class="modal-close" onclick="closeModal('alertsModal')">&times;</span>
+        <h3 style="margin-top:0; color:var(--primary); border-bottom: 2px solid #fee2e2; padding-bottom: 10px;">
+            🚨 طلبة استنفدوا إنذارات المعلمين (بانتظار تدخلكم)
+        </h3>
+        <table style="width:100%; border-collapse: collapse; text-align: center; margin-top: 15px;">
+            <thead style="background-color: #fee2e2; color: #991b1b;">
+                <tr>
+                    <th style="padding: 10px;">الصف</th>
+                    <th style="padding: 10px;">اسم الطالب</th>
+                    <th style="padding: 10px;">عدد المخالفات</th>
+                    <th style="padding: 10px;">تسجيل إجراء</th>
+                </tr>
+            </thead>
+            <tbody id="alertsTableBody"></tbody>
+        </table>
     </div>
 </div>
 
-<!-- منطقة طباعة 2: التقرير الشامل والمخالفات السابقة والتعهد -->
+<div id="actionModal" class="modal" style="z-index: 1050;">
+    <div class="modal-body" style="max-width: 450px;">
+        <span class="modal-close" onclick="closeModal('actionModal')">&times;</span>
+        <h3 style="margin-top:0; color:var(--accent);">🛡️ تسجيل قرار إداري (إغلاق البلاغ)</h3>
+        
+        <input type="hidden" id="actionStudentName">
+        <input type="hidden" id="actionClassName">
+        
+        <div class="form-group">
+            <label>الطالب المستهدف:</label>
+            <input type="text" id="actionStudentDisp" class="form-control" disabled>
+        </div>
+        
+        <div class="form-group">
+            <label>المشرف الذي اتخذ القرار:</label>
+            <select id="actionSupervisor" class="form-control">
+                <option value="">-- اختر اسمك --</option>
+                <option value="السيد عبد الله الكامل">السيد عبد الله الكامل</option>
+                <option value="جاسم محمد جعفر الحداد">جاسم محمد جعفر الحداد</option>
+                <option value="عباس فردان">عباس فردان</option>
+                <option value="علي محسن سيف">علي محسن سيف</option>
+                <option value="درويش يحيى">درويش يحيى</option>
+                <option value="السيد محمد ضياء">السيد محمد ضياء</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label>القرار المتخذ / الإجراء الإداري:</label>
+            <select id="actionDecision" class="form-control">
+                <option value="">-- حدد الإجراء ليتم إرساله للمعلم --</option>
+                <option value="تم استدعاء ولي الأمر وتوقيع تعهد">استدعاء ولي الأمر وتوقيع تعهد</option>
+                <option value="تم النصح والإرشاد وتوقيع تعهد طالب">توقيع تعهد على الطالب</option>
+                <option value="تم التحويل للباحث الاجتماعي">التحويل للباحث الاجتماعي للمتابعة</option>
+                <option value="تم تطبيق لائحة الانضباط المدرسي">تطبيق لائحة الانضباط (إيقاف/حرمان)</option>
+            </select>
+        </div>
+        
+        <button id="btnSubmitDecision" class="btn-submit" onclick="submitSupervisorDecision()">✅ حفظ القرار وإرسال الإشعار للمعلمين</button>
+    </div>
+</div>
+
+<!-- مناطق الطباعة المخفية -->
+<div id="printArea"></div>
 <div id="printReportArea">
     <div class="print-header">
         <img src="https://i.postimg.cc/K88X7RLb/trwysyh-dhhbyt.png" alt="ترويسة المدرسة">
-        <div class="print-title">التقرير التاريخي للمخالفات السلوكية</div>
+        <div class="print-title">التقرير التاريخي الشامل للمخالفات السلوكية</div>
     </div>
     
     <div style="margin-bottom: 20px; font-size: 18px; line-height: 1.8; border: 2px solid #000; padding: 15px; border-radius: 8px;">
@@ -407,31 +386,31 @@
             <div><strong>رقم التواصل:</strong> <span id="pRepPhone" style="direction:ltr; display:inline-block;"></span></div>
         </div>
         <div style="margin-top: 10px; color: #b91c1c; font-size: 20px;">
-            <strong>إجمالي عدد المخالفات المسجلة:</strong> <span id="pRepCount"></span> مخالفة
+            <strong>إجمالي المخالفات (معلمين + إدارة):</strong> <span id="pRepCount"></span> مخالفة
         </div>
     </div>
 
     <table class="print-table" style="font-size: 15px; text-align: center;">
         <thead>
             <tr>
-                <th style="width: 20%; background-color:#f1f5f9; -webkit-print-color-adjust: exact;">التاريخ واليوم</th>
-                <th style="width: 40%; background-color:#f1f5f9; -webkit-print-color-adjust: exact;">نوع المخالفة</th>
-                <th style="width: 40%; background-color:#f1f5f9; -webkit-print-color-adjust: exact;">الإجراء المتخذ</th>
+                <th style="width: 15%; background-color:#f1f5f9;">التاريخ</th>
+                <th style="width: 25%; background-color:#f1f5f9;">الراصد</th>
+                <th style="width: 30%; background-color:#f1f5f9;">نوع المخالفة</th>
+                <th style="width: 30%; background-color:#f1f5f9;">الإجراء المتخذ</th>
             </tr>
         </thead>
         <tbody id="printRepTableBody"></tbody>
     </table>
 
-    <!-- مربع التعهد الجديد الخاص بالتقرير الشامل (يظهر فقط إذا كانت هناك مخالفات) -->
     <div id="reportPledgeBox" class="pledge-box" style="margin-top: 25px; padding: 15px;">
-        <p style="text-decoration: underline; font-weight: bold; margin-top:0;">تعهد الطالب:</p>
-        <p>أتعهد أنا الطالب: <span id="pRepPledgeName" style="font-weight:bold; color:#1e40af; border-bottom: 1px dotted #000; padding: 0 10px;"></span> بعدم تكرار المخالفات المذكورة أعلاه مرة أخرى، وألتزم بلوائح الانضباط المدرسي.</p>
+        <p style="text-decoration: underline; font-weight: bold; margin-top:0;">تعهد إلزامي:</p>
+        <p>أتعهد أنا الطالب: <span id="pRepPledgeName" style="font-weight:bold; color:#1e40af; border-bottom: 1px dotted #000; padding: 0 10px;"></span> بعدم تكرار هذه المخالفات التراكمية المذكورة أعلاه، وأتحمل المسؤولية كاملة في حال التكرار.</p>
         <p style="margin-top: 25px; text-align: left; padding-left: 50px;"><strong>توقيع الطالب:</strong> ..........................</p>
     </div>
 
     <div class="signatures" style="margin-top: 40px;">
         <div class="sig-box" style="width: 45%;">
-            <div class="sig-title">توقيع المشرف / الباحث الاجتماعي</div>
+            <div class="sig-title">توقيع المشرف الإداري</div>
             <p>.......................................</p>
         </div>
         <div class="sig-box" style="width: 45%;">
@@ -444,55 +423,28 @@
 <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxlJnpJN9y9h04cOswtY3BGGwUS8rhybOisxDFkIQJ6_9nFSPMJeK-wiuFEECnBY3v5/exec";
     
-    let allViolationsData = [];
+    let allViolationsData = []; // مخالفات مسجلة مباشرة من المشرفين
+    let allTeacherViolations = []; // مخالفات المعلمين المسحوبة
     let cprMapData = {};
 
-const HARDCODED_ROSTERS = {
-  "سادس ابتدائي 1": ["ابراهيم على خليل الحايكي", "السيد حسن صالح الموسوي", "السيد علوي ابراهيم ناصر حسن", "السيد هاشم مجيد فيصل محمد", "إيليا سعيد حسن حسن", "حسن على ميرزا خليل", "حسین اسامه عبد الجليل الجشي", "حسين عمار جاسم الاسكافي", "حيدر على ابراهيم حسن", "سيد صادق جعفر على ناصر", "سيد حامد حسین محمد درویش", "صادق على عبدالله اسماعيل", "عبد العزيز جلال عبد العزيز حاجی عبدالله", "عبدالله حسین عبدالله مال الله", "عبدالله على عباس شاهين", "على حسين على عبد على", "على عيسى ابراهيم الستراوي", "على قاسم عباس حسن", "عمار محمد عبد الامير الحصار", "غسان مهند عقيل مرهون", "قاسم جابر جاسم منصور", "قاسم محمد احمد حسن", "ليث محمود مسعود الوطني", "محمد صالح شوقي البناء", "محمد عباس خميس السودان", "نوح زهير عبد الوهاب غزوان", "يوسف كاظم محمد الحايكي"],
-  "سادس ابتدائي 2": ["احمد مهدي احمد احمد", "آدم على عبدالله عبد النبي", "السيد على حسين جعفر على شرف", "السيد يوسف احمد على الموسوي", "أمير مالك حبيب التوبلي", "جاسم محمد حميد السباع", "جواد جاسم جواد عبدالله", "حامد يوسف احمد يحيى", "حبيب حسین میرزا اسماعیل", "حسین عباس عبدالله مرهون", "حسين على احمد عيسى", "حسين علي حسن طاهر", "حيدر عبد الحسين احمد على", "رضا على مهدي على", "رضا میرزا خلف شعبان", "عباس احمد محسن العلواني", "عبدالله حميد عبد الرسول احمد", "على حسن جاسم حسن", "على عبد العزيز عبد الكريم الشيخ حسن", "على عبد الكريم على محمد", "کرار حسین احمد حسين", "ماجد يوسف احمد يحيى", "محمد احمد حسن احمد", "محمد عبد علي سعيد الغنامي", "مهدي جواد احمد مليح"],
-  "سادس ابتدائي 3": ["السيد أحمد قاسم ابراهیم هاشم", "السيد حيدر نزار نوري العرادي", "السيد طه جلال ابراهيم شرف", "السيد فارس رضا باقر شرف", "السيد يوسف حسن حيدر علوي", "إلياس يونس خليل محمد", "حسن على عبد المحسن المدحوب", "حسن فيصل على مدن", "حسين حسن على موسى", "حسین عباس عبدالله احمد", "حسين عبد الرضا عبدالحسین املیح", "حسين على جعفر الكوفي", "حسين على عبد المحسن المدحوب", "حسین محمود محمد مرهون", "حيدر عبدالله میرزا على", "حیدره غسان احمد متروك", "سيد محمد السيد جعفر على الموسوي", "عبدالله سعيد عبدالله القيدوم", "على جعفر عبدالله احمد", "محمد احمد عبدالله عبدالعظيم", "محمد احمد محمد الاسكافي", "محمد جميل منصور العصفور", "محمد هاني عمار خميس", "منتظر احمد معتوق مطر", "منصور حسين على على", "مهدي جميل حميد السباع", "يس محمد عبدالله فردان"],
-  
-  "أول إعدادي 1": [
-    "احمد مازن احمد ابوطاهر", "السيد حسن جعفر علوي العلوي", "السيد عدنان ضياء عدنان عبد الصمد", "السيد هاشم طاهر محمد الموسوي", "جاسم عبد الجليل سعيد جاسم", "جواد جعفر زكريا رحمه", "جواد عيسى جواد حسن", "حبيب جاسم على حسن", "حسن صلاح عبد على عبد الاثنا عشر", "حسن على احمد عبدالله", "حسن محمد محمد صالح الربيعي", "حسين على احمد فضل", "حسين فاضل عيسى خميس", "حيدر محمد فتيل عبدالله", "رضا حسين عبدالله قادر", "رضا نادر ميرزا العرادي", "عباس احمد عاشور حسن", "عبدالله عادل احمد الاسكافي", "عدنان عادل عبدالله عبدالله", "على حسن محمود طراده", "على حسين جاسم البقالي", "على سعيد منصور عبدالحي", "على صلاح عبد على عبد الاثنا عشر", "على عادل جاسم عتيق", "على عبد الامير محسن عبدالله", "على محمود احمد سلمان", "على مهدي على خلف", "عمران صادق احمد کاظم", "فاضل عباس عبدالله احمد", "محمد حسن على على", "محمد عبد الرضا عبد الحسين حسن", "هانی عبدالله عبد الجبار محسن", "يوسف احمد عبد اللطيف محمد", "يوسف احمد عبد الوهاب شعبان", "يوسف ناصر سالم عبدالنبی"
-  ],
-  "أول إعدادي 2": [
-    "احمد جاسم محمد داود", "أحمد حسن شعبان فرحان", "احمد حسن كاظم العويناتي", "السيد إبراهيم محمد عدنان البلادي", "السيد على هادي ابراهيم علوي", "السيد هاشم عبدالهادي هاشم ناصر", "أمير حسن على محمد", "حسن سهيل حبيب سلمان", "حسن مصطفى على العلي", "حسين احمد زكريا يوسف رحمه", "حسین حسن منصور جاسم", "حسين حكيم عبد الرسول المختار", "حسين فاضل على عبدالله", "حسين يونس جاسم الاسكافي", "حيدر شاكر محمد محمد", "رضا حسن خليل فخر", "سجاد عبد الامير على الصفار", "سيد مجتبی قاسم سعيد يوسف", "صادق جعفر عبد النبي السطيح", "عباس محمود عباس موسی", "عبدالله على محسن سيف", "على عبد الغني عبد الحسین املیح", "على فاضل عبد على حسن", "على محمد ابراهيم ال طوق", "على محمود عبدالله المدحوب", "فراس عبدالله عيسى النكاس", "قاسم محمود ماشاء الله حاجی", "لؤي حسين محمد امین ابراهیم", "مجتبی حسین میرزا احمد", "محمود محمد سلمان التل", "مهدي هاني حبيب عبدالله", "ناصر حسین ناصر عبدالله", "يعقوب يوسف طاهر مهدي", "يوسف احمد زكريا يوسف رحمه", "يوسف محمود خليل مرهون"
-  ],
-  "أول إعدادي 3": [
-    "احمد حسن عبد العزيز آل قنبر", "أحمد عبدالله احمد على", "السيد احمد على شرف محفوظ", "السيد حيدر از هر جعفر الغنی", "السيد عمار هادی ابراهیم هاشم", "السيد محمد حسين يوسف احمد", "السيد حسن جابر عدنان عبد الصمد", "السيد صادق احمد صادق العبار", "الياس على عباس قنديل", "حاتم حسين على احمد", "حسین امین حبيب جمعه", "حسین صادق عبدالله متروك", "حسين على حسن الشجار", "حسین هاني على درويش", "حيدر قاسم احمد الخياط", "رضا محمد حسن حسن", "سجاد بدر جاسم جاسم", "سجاد محمد جعفر الدبه", "سلمان علی سلمان سلمان", "سلمان ناجی سلمان سلمان", "علاء عبدالله على على", "على حبيب عبد الرسول احمد", "على حسين عباس نويصر", "على حسين عبد الجبار ناصر", "على حسين ناصر دبي", "على محمود على حسن", "كرار حسین عباس موسى", "كرار عبد الحسين حمزه الاسكافي", "محمد حسين سلمان حبيب", "محمد حسين على السلاطنه", "محمد صادق محمد عبد الرسول", "محمود عباس على مهدي", "منتظر عمار عبدالله يوسف", "مهدي اياد عيسى صالح", "يوسف حسين ابراهيم حسن"
-  ],
-  "أول إعدادي 4": [
-    "أحمد حسین احمد مشيمع", "السيد محمد جعفر عباس علوي", "السيد حسين فاضل على الموسوي", "السيد حيدر محمد عباس عبدالنبي", "حسن على حسن عبد الرسول", "حسن محمد علی حسن", "حسین جعفر حسن حسن", "حسين على عاشور ضبعان", "حيدر حسين على الاسود", "داود محمد داود مشيمع", "رضا حسن احمد حمیده", "رضا على موسى كاظم", "سلمان محمد سلمان طريف", "سید عباس امجد فاضل العلوي", "صالح عبد الغني صالح الحداد", "عباس على ابراهيم الونه", "عبد العزيز ایمن میرزا احمد", "عبدالله احمد عبد الجليل احمد", "على حمد اسماعيل بدر", "على خليل ابراهيم ابراهيم", "على صادق اسماعيل حبيب", "على محمد جمعه عاشوري", "على ناصر ملا حسن زين الدين", "على هاني احمد العصار", "عيسى حسن احمد شمطوط", "كرار على ابراهيم الونه", "محمد عمران ميرزا السطيح", "محمد فاضل عبد الحسين الأدرج", "محمد هانی جمعه طريف", "محمد باقر شاكر عبدالله خميس", "محمد هادي حسين على محمد", "مهدي احمد ابراهیم نوار", "يوسف على احمد العصار"
-  ],
-
-  "ثاني إعدادي 1": [
-    "أحمد على حبيب كاظم", "أحمد محمد ميرزا التيتون", "إدريس عبد العزيز احمد عبد النبي", "آدم فاضل عباس حسين", "آدم نوح محمد المشخص", "السيد جعفر ضياء عدنان عبد الصمد", "السيد حسين ميثم سعيد ماجد", "السيد صادق جعفر علوي العلوي", "السيد محمد حسين حمزه على", "جاسم محمد جواد مكي", "حسن جعفر حسن حسن", "حسن على محسن التيتون", "حسين شريف اسماعيل اسماعيل", "حسين عبد النبي ناصر دبی", "حسين عقيل عباس زبيل", "حسين على عبد الحسين حسن", "حسین محمد حبيب غريب", "حیدر سعيد رضى النجاس", "رضا موسی جعفر مرهون", "صادق جعفر عبد الوهاب البصري", "عادل محمد عادل الترنج", "عباس عبدالله ابراهيم ال عميري", "على فيصل مختار محمد", "على محمود على الصفار", "على هلال على هلال", "على يوسف سلمان الصفار", "محمد باقر حسن محمد باقر نعمه", "محمد حسن عيسى أحمد على", "محمد حسين جعفر مال الله", "منتظر حسن صالح الصيرفي"
-  ],
-  "ثاني إعدادي 2": [
-    "احمد باسم ابراهيم الخنيزي", "السيد حيدر فيصل علوي ناصر", "إلياس بن شاكر بن على البراهيم", "امیر محمد عبد الامیر رضی", "بدر طاهر عبد الرسول جديد", "حسن محمد حسن عيسى", "حسن محمود منصور عبد على", "حسين حسن على محمد", "حسین محمد جعفر حسن", "حيدر احمد عبد الرسول بن الشيخ", "حيدر رائد معتوق حمود", "حيدر على ميرزا الصفار", "راشد يوسف احمد يحيى", "سجاد حسین محسن عاشور", "سجاد زهير حسن عبد الرسول", "عبد الكريم محمود عبد الكريم ابراهيم", "عبدالله محمد جعفر سهوان", "عبدالله محمد عبدالله الغيص", "على حسین احمد عزیز", "على حسين ميرزا ال عبدالحي", "على حمد احمد على", "على مصطفى على العلى", "فيصل احمد عباس زبيل", "محسن ابراهیم محسن عبد الرسول", "محمد جلال عيسى نعمه", "محمد صادق احمد مشيمع", "محمد نادر ميرزا العرادي", "مصطفى احمد محمد الاسكافي", "هيثم فاضل ابراهيم اسماعيل", "يوسف ابراهيم على الصفار"
-  ],
-  "ثاني إعدادي 3": [
-    "السيد حسن ابراهيم محمد علوي", "السيد عباس حسین ناصر شرف", "السيد عباس فاضل على الموسوي", "السيد على حسین نزار علوی", "السيد حيدر على مهدي يوسف", "أيمن جاسم احمد نصيف", "حسن على حسن عبد الوهاب", "حسین رضى على الصفار", "حسين على عبد الحسين الصفار", "حيدر محمد موسى طاهر", "سلمان ابراهيم عبدالله عبدالله", "سيدرضا السيد حسين عيسى", "صلاح عقیل عباس موسى", "طه جعفر حسن عيسى", "عبدالله منصور عبدالله شعبان", "على حسن على مهدي", "على حسین عباس موسى", "على محمد احمد المغلق", "علی محمد علی امان", "عماد ايمن احمد المديفع", "عيسى عبد الهادي عبد الجليل على", "عيسى على عيسى النكاس", "كريم فائق عبد الكريم على", "مجتبى مرتضى ميرزا السطيح", "محمد حسن عبدالله امان", "محمد خالد احمد علي", "محمد عباس عبدالله مرهون", "محمد على ابراهيم محمد على ال مرهون", "مهدي حسين اكبر محسن", "يوسف زهير عبد الوهاب غزوان"
-  ],
-  "ثاني إعدادي 4": [
-    "السيد حسين ماجد اسماعیل ناصر", "السيد على احمد عدنان البلادي", "السيد محسن ياسر عبدالله ناصر", "السيد محمد على حمزه عبدالله", "السيد هاشم رائد حمید علی", "جعفر صادق حسن الصفار", "جواد عبد المجيد حسن راشد", "حسن هانی ابراهیم حسن", "حسین محمد يعقوب الكليب", "خليل ابراهيم خليل الحايكي", "سلمان حبيب سلمان الحواج", "سلمان حسین سلمان العالي", "عباس محمد حسن الشيخ على", "عباس هانی عباس شاوش", "على حسن احمد الشيوخ", "على حسن على حبيب", "على حسين عيسى الزامل", "على حسين عيسى خميس", "على عقيل جمعه جمعه", "على محمود جليل طاهر", "علي هادي حسين سلمان علي", "عمار یاسر ابراهيم ناصر", "فاضل عباس جعفر المحسن", "قاسم حسن منصور القيدوم", "محمد عبدالله احمد البقالي", "محمد على شاكر عبدالله خميس", "محمد هشام ايوب سوار", "محمد يونس خليل محمد", "محمود ياسر محمد على", "مصطفى محمود عبدالله السابوري", "مهدي احمد عبد الرسول احمد على", "مهدي عبد الحسين ميرزا على", "مهدي محمد مهدي عبدالله"
-  ],
-  "ثالث إعدادي 1": [
-    "أحمد عبد الامير مهدي حسن", "أحمد محمد عبد الامير الحصار", "ادم احمد عبد النبي ال رضى", "السيد حسين شبر ابراهیم هاشم", "السيد حيدر محمد سعید هاشم", "السيد عباس نور محمود شرف", "السيد على جلال حيدر علوي", "السيد مجتبي السيد جواد مهدي يوسف", "السيد محمد عدنان ابراهیم هاشم", "السيد محمد ماجد حسن احمد", "السيد هاشم السيد عدنان ابراهيم محمد", "باسم احمد عبد الرسول الصالح", "باسم على مكى طريف", "جعفر مهدي عبدالله ناصر", "حسن على يعقوب محمد الكليب", "حسن محمد عبدالحسین رضی", "حسن محمود عباس نويصر", "حسين عصام عبد الكريم ابراهيم", "رضا حسن على عنان", "عبدالله قاسم فاضل عبد النبي", "على ابراهيم جعفر العرادي", "على يوسف كاظم القلاف", "عمار محمد حسن على يوسف", "قاسم حسن على على", "قاسم على سلمان حسن", "ليث على خليل الحايكي", "محمد حسن يوسف مهدي", "محمد حسين عبد الحسين هلال", "محمد حسين على الطراح", "محمد حسین ناصر حسن", "محمد عبد النبي سلمان جدید", "محمد عبد علی محمد سلمان", "محمد كريم صالح الحواج", "محمدرضا اسامه عبد الجليل الجشي", "يوسف صالح شوقي البناء"
-  ],
-  "ثالث إعدادي 2": [
-    "إبراهيم خليل ابراهيم حسن", "السيد فاضل عباس علوي العلوي", "السيد فراس السيد حسين مهدي شرف", "السيد مهدي حسن مصطفى علوي", "بدر فيصل على مدن", "جاسم محمد حبيب غريب", "جاسم محمد عبد الحسين على", "جواد ثابت جواد شاهین", "حبيب حمزه احمد المقابي", "حبيب فيصل احمد درويش", "حسن حسين خميس خميس", "حسن عبدالستار غلوم حسين", "حسن على عبدالله عباس", "حسين السيد على شرف محفوظ", "حسين سمير عبد الحسين هلال", "حسین صادق حبيب ال ربيع", "حسین صادق حسن حسن", "حسين عبد الرضا عبدالله السابوري", "رضا على عبدالله اسماعيل", "عبدالله على حسن الرمل", "على حسين محمد الحداد", "على سعيد محمد المشخص", "على فهد على السميع", "قاسم عبد الوهاب محمد على ابراهيم", "مجتبي عقيل خميس صالح", "محمد حسن على خميس", "محمد مهدي على خلف", "محمود عبدالله ابراهيم مهدي", "مقتدى عبد الجبار ميرزا اسماعيل", "مهدی مكى ملا حسن زين الدين", "هادي على عبد الكريم ابراهيم", "يوسف احمد عبد الكريم السقاي"
-  ],
-  "ثالث إعدادي 3": [
-    "أحمد ابراهيم على زويد", "آدم حسين عبدالله مال الله", "جعفر منير ميرزا مشيمع", "حسن صادق حبيب ال ربيع", "حسن عبد على سعيد الغنامي", "حسن على حسن منصور حسن", "حسين حبيب خميس خميس", "حسین صادق اسماعيل حبيب", "حسين محمود عبد الكريم القلاف", "سجاد عون فؤاد المذوب", "سجاد فاضل عباس السابودي", "عباس يونس عبدالله محمد", "عبد الرحمن محمد فكري ابراهيم", "عبد الرضا عبد المحسن احمد احمد", "على احمد محمد العلواني", "على جواد ملا عبد العزيز مشيمع", "على حسن احمد الجني", "على حسين سلمان راشد علی", "على محمد سلمان حسن", "قاسم سعيد جاسم الاسكافي", "مؤتمن فاضل عباس کاظم", "محمد ناصر عبدالله محمد", "مصطفى جعفر موسى خميس", "منتظر عادل عبد الشهيد الاسكافي", "مهدي هيثم مهدي شمطوط", "هادي ميرزا عبد الامير الحصار", "ياسر احمد عبدالنبي قاسم", "يوسف احمد معتوق مطر", "يوسف عباس حسین عبدالله", "يوسف عبد المجيد احمد عبد الحسين", "يوسف على احمد على"
-  ],
-  "ثالث إعدادي 4": [
-    "إبراهيم عبدالله ابراهيم الجبل", "أحمد محسن عبد النبي محمد", "السيد حيدر علی فردان شرف", "السيد قاسم مؤنس ابراهیم هاشم", "جعفر عادل عبد على الشعله", "حسین محمد عبد الجليل كاظم", "حيدر زهير حميد السباع", "حيدر عقيل حسن الشيخ على", "رضا حبيب سلمان على", "سلمان علاء عيسى السهلاوي", "سيد مهدي علوي السيد ابراهيم شرف", "صادق احمد عبدالله صالح", "صادق اسماعيل على حسن", "طارق على خليل الحايكي", "عباس نزار هاشم شبر", "عبدالله محمود عبدالله الشهابي", "عبدالله محمود عبدالنبي حسين", "عبدالله میرزا صالح الحواج", "على أكبر محمد ابراهيم المبشر", "على جلال على احمد", "على حسين جعفر مال الله", "على حسين على خميس", "على عبد الرضا عبدالحسین املیح", "على عبدالله على على", "مجتبى على حسن يوسف", "محمد صلاح میرزا احمد", "منتظر جعفر جواد حسن", "مهدي جعفر مهدي فردان", "يوسف احمد عبدالله السابوري", "يوسف باسل عبد الجبار عبد النبي"
-  ],
-  "ثالث إعدادي 5": [
-    "احمد يعقوب اسحاق يونس", "آدم محمد يوسف المحاسنيه", "السيد محمد جواد درويش الشرخات", "السيد محمد على جعفر الغنى", "السيد هاشم جلال عيسى حسن", "إلياس محمد يوسف المحاسنيه", "حسن محمد داود مشيمع", "حسين على حسن حسن", "حيدر عبد الامير سعيد عبدالوهاب", "حيدر فلاح موسى خميس", "سید قاسم حسين على ناصر", "سید محمد حسين محمد درويش", "سيدهاشم السيد فيصل حيدر علوي", "عباس حسن يوسف شريف", "عباس على عبدالوهاب الشيخ على", "عباس فاضل عبد النبي العود", "عبد العزيز حسن علی احمد", "على حسن جمعه حسن", "على حسن كاظم العويناتي", "على حسين سلمان على احمد", "على حسين عبدالله عباس", "على حسین عبدالله عبدالله", "على حمد عبد الرضا خمدن", "على عادل احمد عبدالله", "على محمد علی عباس", "علي مهدي عبدالله مرهون", "على يوسف احمد امان", "عمار على سعيد عباس", "قاسم فاضل جاسم عتيق", "مجتبى عادل احمد کاظم", "محمد حبيب عبد الرسول احمد", "محمد حسين مرزوق الجبل", "محمد مهدي رائد عبد الكريم عبد على", "مناف عبدالله ابراهيم ال عميري", "يوسف احمد هلال فردان"
-  ]
-};
+    const HARDCODED_ROSTERS = {
+      "سادس ابتدائي 1": ["ابراهيم على خليل الحايكي", "السيد حسن صالح الموسوي", "السيد علوي ابراهيم ناصر حسن", "السيد هاشم مجيد فيصل محمد", "إيليا سعيد حسن حسن", "حسن على ميرزا خليل", "حسین اسامه عبد الجليل الجشي", "حسين عمار جاسم الاسكافي", "حيدر على ابراهيم حسن", "سيد صادق جعفر على ناصر", "سيد حامد حسین محمد درویش", "صادق على عبدالله اسماعيل", "عبد العزيز جلال عبد العزيز حاجی عبدالله", "عبدالله حسین عبدالله مال الله", "عبدالله على عباس شاهين", "على حسين على عبد على", "على عيسى ابراهيم الستراوي", "على قاسم عباس حسن", "عمار محمد عبد الامير الحصار", "غسان مهند عقيل مرهون", "قاسم جابر جاسم منصور", "قاسم محمد احمد حسن", "ليث محمود مسعود الوطني", "محمد صالح شوقي البناء", "محمد عباس خميس السودان", "نوح زهير عبد الوهاب غزوان", "يوسف كاظم محمد الحايكي"],
+      "سادس ابتدائي 2": ["احمد مهدي احمد احمد", "آدم على عبدالله عبد النبي", "السيد على حسين جعفر على شرف", "السيد يوسف احمد على الموسوي", "أمير مالك حبيب التوبلي", "جاسم محمد حميد السباع", "جواد جاسم جواد عبدالله", "حامد يوسف احمد يحيى", "حبيب حسین میرزا اسماعیل", "حسین عباس عبدالله مرهون", "حسين على احمد عيسى", "حسين علي حسن طاهر", "حيدر عبد الحسين احمد على", "رضا على مهدي على", "رضا میرزا خلف شعبان", "عباس احمد محسن العلواني", "عبدالله حميد عبد الرسول احمد", "على حسن جاسم حسن", "على عبد العزيز عبد الكريم الشيخ حسن", "على عبد الكريم على محمد", "کرار حسین احمد حسين", "ماجد يوسف احمد يحيى", "محمد احمد حسن احمد", "محمد عبد علي سعيد الغنامي", "مهدي جواد احمد مليح"],
+      "سادس ابتدائي 3": ["السيد أحمد قاسم ابراهیم هاشم", "السيد حيدر نزار نوري العرادي", "السيد طه جلال ابراهيم شرف", "السيد فارس رضا باقر شرف", "السيد يوسف حسن حيدر علوي", "إلياس يونس خليل محمد", "حسن على عبد المحسن المدحوب", "حسن فيصل على مدن", "حسين حسن على موسى", "حسین عباس عبدالله احمد", "حسين عبد الرضا عبدالحسین املیح", "حسين على جعفر الكوفي", "حسين على عبد المحسن المدحوب", "حسین محمود محمد مرهون", "حيدر عبدالله میرزا على", "حیدره غسان احمد متروك", "سيد محمد السيد جعفر على الموسوي", "عبدالله سعيد عبدالله القيدوم", "على جعفر عبدالله احمد", "محمد احمد عبدالله عبدالعظيم", "محمد احمد محمد الاسكافي", "محمد جميل منصور العصفور", "محمد هاني عمار خميس", "منتظر احمد معتوق مطر", "منصور حسين على على", "مهدي جميل حميد السباع", "يس محمد عبدالله فردان"],
+      "أول إعدادي 1": ["احمد مازن احمد ابوطاهر", "السيد حسن جعفر علوي العلوي", "السيد عدنان ضياء عدنان عبد الصمد", "السيد هاشم طاهر محمد الموسوي", "جاسم عبد الجليل سعيد جاسم", "جواد جعفر زكريا رحمه", "جواد عيسى جواد حسن", "حبيب جاسم على حسن", "حسن صلاح عبد على عبد الاثنا عشر", "حسن على احمد عبدالله", "حسن محمد محمد صالح الربيعي", "حسين على احمد فضل", "حسين فاضل عيسى خميس", "حيدر محمد فتيل عبدالله", "رضا حسين عبدالله قادر", "رضا نادر ميرزا العرادي", "عباس احمد عاشور حسن", "عبدالله عادل احمد الاسكافي", "عدنان عادل عبدالله عبدالله", "على حسن محمود طراده", "على حسين جاسم البقالي", "على سعيد منصور عبدالحي", "على صلاح عبد على عبد الاثنا عشر", "على عادل جاسم عتيق", "على عبد الامير محسن عبدالله", "على محمود احمد سلمان", "على مهدي على خلف", "عمران صادق احمد کاظم", "فاضل عباس عبدالله احمد", "محمد حسن على على", "محمد عبد الرضا عبد الحسين حسن", "هانی عبدالله عبد الجبار محسن", "يوسف احمد عبد اللطيف محمد", "يوسف احمد عبد الوهاب شعبان", "يوسف ناصر سالم عبدالنبی"],
+      "أول إعدادي 2": ["احمد جاسم محمد داود", "أحمد حسن شعبان فرحان", "احمد حسن كاظم العويناتي", "السيد إبراهيم محمد عدنان البلادي", "السيد على هادي ابراهيم علوي", "السيد هاشم عبدالهادي هاشم ناصر", "أمير حسن على محمد", "حسن سهيل حبيب سلمان", "حسن مصطفى على العلي", "حسين احمد زكريا يوسف رحمه", "حسین حسن منصور جاسم", "حسين حكيم عبد الرسول المختار", "حسين فاضل على عبدالله", "حسين يونس جاسم الاسكافي", "حيدر شاكر محمد محمد", "رضا حسن خليل فخر", "سجاد عبد الامير على الصفار", "سيد مجتبی قاسم سعيد يوسف", "صادق جعفر عبد النبي السطيح", "عباس محمود عباس موسی", "عبدالله على محسن سيف", "على عبد الغني عبد الحسین املیح", "على فاضل عبد على حسن", "على محمد ابراهيم ال طوق", "على محمود عبدالله المدحوب", "فراس عبدالله عيسى النكاس", "قاسم محمود ماشاء الله حاجی", "لؤي حسين محمد امین ابراهیم", "مجتبی حسین میرزا احمد", "محمود محمد سلمان التل", "مهدي هاني حبيب عبدالله", "ناصر حسین ناصر عبدالله", "يعقوب يوسف طاهر مهدي", "يوسف احمد زكريا يوسف رحمه", "يوسف محمود خليل مرهون"],
+      "أول إعدادي 3": ["احمد حسن عبد العزيز آل قنبر", "أحمد عبدالله احمد على", "السيد احمد على شرف محفوظ", "السيد حيدر از هر جعفر الغنی", "السيد عمار هادی ابراهیم هاشم", "السيد محمد حسين يوسف احمد", "السيد حسن جابر عدنان عبد الصمد", "السيد صادق احمد صادق العبار", "الياس على عباس قنديل", "حاتم حسين على احمد", "حسین امین حبيب جمعه", "حسین صادق عبدالله متروك", "حسين على حسن الشجار", "حسین هاني على درويش", "حيدر قاسم احمد الخياط", "رضا محمد حسن حسن", "سجاد بدر جاسم جاسم", "سجاد محمد جعفر الدبه", "سلمان علی سلمان سلمان", "سلمان ناجی سلمان سلمان", "علاء عبدالله على على", "على حبيب عبد الرسول احمد", "على حسين عباس نويصر", "على حسين عبد الجبار ناصر", "على حسين ناصر دبي", "على محمود على حسن", "كرار حسین عباس موسى", "كرار عبد الحسين حمزه الاسكافي", "محمد حسين سلمان حبيب", "محمد حسين على السلاطنه", "محمد صادق محمد عبد الرسول", "محمود عباس على مهدي", "منتظر عمار عبدالله يوسف", "مهدي اياد عيسى صالح", "يوسف حسين ابراهيم حسن"],
+      "أول إعدادي 4": ["أحمد حسین احمد مشيمع", "السيد محمد جعفر عباس علوي", "السيد حسين فاضل على الموسوي", "السيد حيدر محمد عباس عبدالنبي", "حسن على حسن عبد الرسول", "حسن محمد علی حسن", "حسین جعفر حسن حسن", "حسين على عاشور ضبعان", "حيدر حسين على الاسود", "داود محمد داود مشيمع", "رضا حسن احمد حمیده", "رضا على موسى كاظم", "سلمان محمد سلمان طريف", "سید عباس امجد فاضل العلوي", "صالح عبد الغني صالح الحداد", "عباس على ابراهيم الونه", "عبد العزيز ایمن میرزا احمد", "عبدالله احمد عبد الجليل احمد", "على حمد اسماعيل بدر", "على خليل ابراهيم ابراهيم", "على صادق اسماعيل حبيب", "على محمد جمعه عاشوري", "على ناصر ملا حسن زين الدين", "على هاني احمد العصار", "عيسى حسن احمد شمطوط", "كرار على ابراهيم الونه", "محمد عمران ميرزا السطيح", "محمد فاضل عبد الحسين الأدرج", "محمد هانی جمعه طريف", "محمد باقر شاكر عبدالله خميس", "محمد هادي حسين على محمد", "مهدي احمد ابراهیم نوار", "يوسف على احمد العصار"],
+      "ثاني إعدادي 1": ["أحمد على حبيب كاظم", "أحمد محمد ميرزا التيتون", "إدريس عبد العزيز احمد عبد النبي", "آدم فاضل عباس حسين", "آدم نوح محمد المشخص", "السيد جعفر ضياء عدنان عبد الصمد", "السيد حسين ميثم سعيد ماجد", "السيد صادق جعفر علوي العلوي", "السيد محمد حسين حمزه على", "جاسم محمد جواد مكي", "حسن جعفر حسن حسن", "حسن على محسن التيتون", "حسين شريف اسماعيل اسماعيل", "حسين عبد النبي ناصر دبی", "حسين عقيل عباس زبيل", "حسين على عبد الحسين حسن", "حسین محمد حبيب غريب", "حیدر سعيد رضى النجاس", "رضا موسی جعفر مرهون", "صادق جعفر عبد الوهاب البصري", "عادل محمد عادل الترنج", "عباس عبدالله ابراهيم ال عميري", "على فيصل مختار محمد", "على محمود على الصفار", "على هلال على هلال", "على يوسف سلمان الصفار", "محمد باقر حسن محمد باقر نعمه", "محمد حسن عيسى أحمد على", "محمد حسين جعفر مال الله", "منتظر حسن صالح الصيرفي"],
+      "ثاني إعدادي 2": ["احمد باسم ابراهيم الخنيزي", "السيد حيدر فيصل علوي ناصر", "إلياس بن شاكر بن على البراهيم", "امیر محمد عبد الامیر رضی", "بدر طاهر عبد الرسول جديد", "حسن محمد حسن عيسى", "حسن محمود منصور عبد على", "حسين حسن على محمد", "حسین محمد جعفر حسن", "حيدر احمد عبد الرسول بن الشيخ", "حيدر رائد معتوق حمود", "حيدر على ميرزا الصفار", "راشد يوسف احمد يحيى", "سجاد حسین محسن عاشور", "سجاد زهير حسن عبد الرسول", "عبد الكريم محمود عبد الكريم ابراهيم", "عبدالله محمد جعفر سهوان", "عبدالله محمد عبدالله الغيص", "على حسین احمد عزیز", "على حسين ميرزا ال عبدالحي", "على حمد احمد على", "على مصطفى على العلى", "فيصل احمد عباس زبيل", "محسن ابراهیم محسن عبد الرسول", "محمد جلال عيسى نعمه", "محمد صادق احمد مشيمع", "محمد نادر ميرزا العرادي", "مصطفى احمد محمد الاسكافي", "هيثم فاضل ابراهيم اسماعيل", "يوسف ابراهيم على الصفار"],
+      "ثاني إعدادي 3": ["السيد حسن ابراهيم محمد علوي", "السيد عباس حسین ناصر شرف", "السيد عباس فاضل على الموسوي", "السيد على حسین نزار علوی", "السيد حيدر على مهدي يوسف", "أيمن جاسم احمد نصيف", "حسن على حسن عبد الوهاب", "حسین رضى على الصفار", "حسين على عبد الحسين الصفار", "حيدر محمد موسى طاهر", "سلمان ابراهيم عبدالله عبدالله", "سيدرضا السيد حسين عيسى", "صلاح عقیل عباس موسى", "طه جعفر حسن عيسى", "عبدالله منصور عبدالله شعبان", "على حسن على مهدي", "على حسین عباس موسى", "على محمد احمد المغلق", "علی محمد علی امان", "عماد ايمن احمد المديفع", "عيسى عبد الهادي عبد الجليل على", "عيسى على عيسى النكاس", "كريم فائق عبد الكريم على", "مجتبى مرتضى ميرزا السطيح", "محمد حسن عبدالله امان", "محمد خالد احمد علي", "محمد عباس عبدالله مرهون", "محمد على ابراهيم محمد على ال مرهون", "مهدي حسين اكبر محسن", "يوسف زهير عبد الوهاب غزوان"],
+      "ثاني إعدادي 4": ["السيد حسين ماجد اسماعیل ناصر", "السيد على احمد عدنان البلادي", "السيد محسن ياسر عبدالله ناصر", "السيد محمد على حمزه عبدالله", "السيد هاشم رائد حمید علی", "جعفر صادق حسن الصفار", "جواد عبد المجيد حسن راشد", "حسن هانی ابراهیم حسن", "حسین محمد يعقوب الكليب", "خليل ابراهيم خليل الحايكي", "سلمان حبيب سلمان الحواج", "سلمان حسین سلمان العالي", "عباس محمد حسن الشيخ على", "عباس هانی عباس شاوش", "على حسن احمد الشيوخ", "على حسن على حبيب", "على حسين عيسى الزامل", "على حسين عيسى خميس", "على عقيل جمعه جمعه", "على محمود جليل طاهر", "علي هادي حسين سلمان علي", "عمار یاسر ابراهيم ناصر", "فاضل عباس جعفر المحسن", "قاسم حسن منصور القيدوم", "محمد عبدالله احمد البقالي", "محمد على شاكر عبدالله خميس", "محمد هشام ايوب سوار", "محمد يونس خليل محمد", "محمود ياسر محمد على", "مصطفى محمود عبدالله السابوري", "مهدي احمد عبد الرسول احمد على", "مهدي عبد الحسين ميرزا على", "مهدي محمد مهدي عبدالله"],
+      "ثالث إعدادي 1": ["أحمد عبد الامير مهدي حسن", "أحمد محمد عبد الامير الحصار", "ادم احمد عبد النبي ال رضى", "السيد حسين شبر ابراهیم هاشم", "السيد حيدر محمد سعید هاشم", "السيد عباس نور محمود شرف", "السيد على جلال حيدر علوي", "السيد مجتبي السيد جواد مهدي يوسف", "السيد محمد عدنان ابراهیم هاشم", "السيد محمد ماجد حسن احمد", "السيد هاشم السيد عدنان ابراهيم محمد", "باسم احمد عبد الرسول الصالح", "باسم على مكى طريف", "جعفر مهدي عبدالله ناصر", "حسن على يعقوب محمد الكليب", "حسن محمد عبدالحسین رضی", "حسن محمود عباس نويصر", "حسين عصام عبد الكريم ابراهيم", "رضا حسن على عنان", "عبدالله قاسم فاضل عبد النبي", "على ابراهيم جعفر العرادي", "على يوسف كاظم القلاف", "عمار محمد حسن على يوسف", "قاسم حسن على على", "قاسم على سلمان حسن", "ليث على خليل الحايكي", "محمد حسن يوسف مهدي", "محمد حسين عبد الحسين هلال", "محمد حسين على الطراح", "محمد حسین ناصر حسن", "محمد عبد النبي سلمان جدید", "محمد عبد علی محمد سلمان", "محمد كريم صالح الحواج", "محمدرضا اسامه عبد الجليل الجشي", "يوسف صالح شوقي البناء"],
+      "ثالث إعدادي 2": ["إبراهيم خليل ابراهيم حسن", "السيد فاضل عباس علوي العلوي", "السيد فراس السيد حسين مهدي شرف", "السيد مهدي حسن مصطفى علوي", "بدر فيصل على مدن", "جاسم محمد حبيب غريب", "جاسم محمد عبد الحسين على", "جواد ثابت جواد شاهین", "حبيب حمزه احمد المقابي", "حبيب فيصل احمد درويش", "حسن حسين خميس خميس", "حسن عبدالستار غلوم حسين", "حسن على عبدالله عباس", "حسين السيد على شرف محفوظ", "حسين سمير عبد الحسين هلال", "حسین صادق حبيب ال ربيع", "حسین صادق حسن حسن", "حسين عبد الرضا عبدالله السابوري", "رضا على عبدالله اسماعيل", "عبدالله على حسن الرمل", "على حسين محمد الحداد", "على سعيد محمد المشخص", "على فهد على السميع", "قاسم عبد الوهاب محمد على ابراهيم", "مجتبي عقيل خميس صالح", "محمد حسن على خميس", "محمد مهدي على خلف", "محمود عبدالله ابراهيم مهدي", "مقتدى عبد الجبار ميرزا اسماعيل", "مهدی مكى ملا حسن زين الدين", "هادي على عبد الكريم ابراهيم", "يوسف احمد عبد الكريم السقاي"],
+      "ثالث إعدادي 3": ["أحمد ابراهيم على زويد", "آدم حسين عبدالله مال الله", "جعفر منير ميرزا مشيمع", "حسن صادق حبيب ال ربيع", "حسن عبد على سعيد الغنامي", "حسن على حسن منصور حسن", "حسين حبيب خميس خميس", "حسین صادق اسماعيل حبيب", "حسين محمود عبد الكريم القلاف", "سجاد عون فؤاد المذوب", "سجاد فاضل عباس السابودي", "عباس يونس عبدالله محمد", "عبد الرحمن محمد فكري ابراهيم", "عبد الرضا عبد المحسن احمد احمد", "على احمد محمد العلواني", "على جواد ملا عبد العزيز مشيمع", "على حسن احمد الجني", "على حسين سلمان راشد علی", "على محمد سلمان حسن", "قاسم سعيد جاسم الاسكافي", "مؤتمن فاضل عباس کاظم", "محمد ناصر عبدالله محمد", "مصطفى جعفر موسى خميس", "منتظر عادل عبد الشهيد الاسكافي", "مهدي هيثم مهدي شمطوط", "هادي ميرزا عبد الامير الحصار", "ياسر احمد عبدالنبي قاسم", "يوسف احمد معتوق مطر", "يوسف عباس حسین عبدالله", "يوسف عبد المجيد احمد عبد الحسين", "يوسف على احمد على"],
+      "ثالث إعدادي 4": ["إبراهيم عبدالله ابراهيم الجبل", "أحمد محسن عبد النبي محمد", "السيد حيدر علی فردان شرف", "السيد قاسم مؤنس ابراهیم هاشم", "جعفر عادل عبد على الشعله", "حسین محمد عبد الجليل كاظم", "حيدر زهير حميد السباع", "حيدر عقيل حسن الشيخ على", "رضا حبيب سلمان على", "سلمان علاء عيسى السهلاوي", "سيد مهدي علوي السيد ابراهيم شرف", "صادق احمد عبدالله صالح", "صادق اسماعيل على حسن", "طارق على خليل الحايكي", "عباس نزار هاشم شبر", "عبدالله محمود عبدالله الشهابي", "عبدالله محمود عبدالنبي حسين", "عبدالله میرزا صالح الحواج", "على أكبر محمد ابراهيم المبشر", "على جلال على احمد", "على حسين جعفر مال الله", "على حسين على خميس", "على عبد الرضا عبدالحسین املیح", "على عبدالله على على", "مجتبى على حسن يوسف", "محمد صلاح میرزا احمد", "منتظر جعفر جواد حسن", "مهدي جعفر مهدي فردان", "يوسف احمد عبدالله السابوري", "يوسف باسل عبد الجبار عبد النبي"],
+      "ثالث إعدادي 5": ["احمد يعقوب اسحاق يونس", "آدم محمد يوسف المحاسنيه", "السيد محمد جواد درويش الشرخات", "السيد محمد على جعفر الغنى", "السيد هاشم جلال عيسى حسن", "إلياس محمد يوسف المحاسنيه", "حسن محمد داود مشيمع", "حسين على حسن حسن", "حيدر عبد الامير سعيد عبدالوهاب", "حيدر فلاح موسى خميس", "سید قاسم حسين على ناصر", "سید محمد حسين محمد درويش", "سيدهاشم السيد فيصل حيدر علوي", "عباس حسن يوسف شريف", "عباس على عبدالوهاب الشيخ على", "عباس فاضل عبد النبي العود", "عبد العزيز حسن علی احمد", "على حسن جمعه حسن", "على حسن كاظم العويناتي", "على حسين سلمان على احمد", "على حسين عبدالله عباس", "على حسین عبدالله عبدالله", "على حمد عبد الرضا خمدن", "على عادل احمد عبدالله", "على محمد علی عباس", "علي مهدي عبدالله مرهون", "على يوسف احمد امان", "على يوسف كاظم القلاف", "عمار على سعيد عباس", "قاسم فاضل جاسم عتيق", "مجتبى عادل احمد کاظم", "محمد حبيب عبد الرسول احمد", "محمد حسين مرزوق الجبل", "محمد مهدي رائد عبد الكريم عبد على", "مناف عبدالله ابراهيم ال عميري", "يوسف احمد هلال فردان"]
+    };
 
     document.addEventListener("DOMContentLoaded", () => {
         document.getElementById('violationDate').value = new Date().toLocaleDateString('en-CA');
@@ -501,14 +453,126 @@ const HARDCODED_ROSTERS = {
 
     async function loadAllDataInBackground() {
         try {
+            // جلب معلومات الهواتف
             let resCPR = await fetch(`${SCRIPT_URL}?action=social_init&pass=social123`);
             let cprData = await resCPR.json();
             if(cprData.status === "success" && cprData.cprMap) cprMapData = cprData.cprMap;
 
+            // جلب مخالفات المشرفين المسجلة
             let resViol = await fetch(`${SCRIPT_URL}?action=getViolations`);
             let violData = await resViol.json();
             if(violData.status === "success" && violData.data) allViolationsData = violData.data;
+
+            // 🔴 [جديد] جلب مخالفات المعلمين وفحص الإنذارات
+            let resTea = await fetch(`${SCRIPT_URL}?action=getTeacherViolations`);
+            let teaData = await resTea.json();
+            if(teaData.status === "success" && teaData.data) {
+                allTeacherViolations = teaData.data;
+                processTeacherAlerts(allTeacherViolations);
+            }
         } catch(e) { console.log("جاري التحميل في الخلفية..."); }
+    }
+
+    // 🔴 معالجة وإظهار الإنذارات الذكية
+    function processTeacherAlerts(data) {
+        let studentCounts = {};
+        
+        data.forEach(v => {
+            if(!v.studentName || !v.vType) return;
+            let key = v.className + "|" + String(v.studentName).trim();
+            if(!studentCounts[key]) studentCounts[key] = { count: 0, unresolved: false };
+            
+            studentCounts[key].count++;
+            // إذا كان هناك أي مخالفة بدون إجراء من المشرف، يعتبر الملف معلقاً
+            if(!v.supervisorAction || String(v.supervisorAction).trim() === "") {
+                studentCounts[key].unresolved = true;
+            }
+        });
+
+        let alertList = [];
+        for(let key in studentCounts) {
+            if(studentCounts[key].count >= 3 && studentCounts[key].unresolved) {
+                let parts = key.split("|");
+                alertList.push({className: parts[0], studentName: parts[1], count: studentCounts[key].count});
+            }
+        }
+
+        let alertBtn = document.getElementById('mainAlertBtn');
+        let countSpan = document.getElementById('alertCountSpan');
+        let tBody = document.getElementById('alertsTableBody');
+        
+        if(alertList.length > 0) {
+            countSpan.innerText = alertList.length;
+            alertBtn.style.display = 'inline-flex';
+            
+            tBody.innerHTML = '';
+            alertList.forEach(stu => {
+                tBody.innerHTML += `
+                    <tr style="border-bottom: 1px solid #cbd5e1;">
+                        <td style="padding: 12px; font-weight:bold;">${stu.className}</td>
+                        <td style="padding: 12px; font-weight:bold; color:var(--primary);">${stu.studentName}</td>
+                        <td style="padding: 12px;"><span style="background:var(--primary); color:white; padding:4px 10px; border-radius:15px;">${stu.count}</span></td>
+                        <td style="padding: 12px;">
+                            <button class="btn-nav" style="background:#059669;" onclick="openActionModal('${stu.studentName}', '${stu.className}')">🛡️ تسجيل إجراء إداري</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        } else {
+            alertBtn.style.display = 'none';
+        }
+    }
+
+    function openAlertsModal() { document.getElementById('alertsModal').style.display = 'block'; }
+    
+    function openActionModal(student, cls) {
+        document.getElementById('actionStudentName').value = student;
+        document.getElementById('actionClassName').value = cls;
+        document.getElementById('actionStudentDisp').value = student + " (" + cls + ")";
+        document.getElementById('actionModal').style.display = 'block';
+    }
+
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+    // 🔴 إرسال الإجراء الإداري لإغلاق البلاغ لدى المعلم
+    async function submitSupervisorDecision() {
+        let stu = document.getElementById('actionStudentName').value;
+        let cls = document.getElementById('actionClassName').value;
+        let supName = document.getElementById('actionSupervisor').value;
+        let decision = document.getElementById('actionDecision').value;
+
+        if(!supName || !decision) {
+            alert("⚠️ يرجى اختيار اسم المشرف والقرار المتخذ.");
+            return;
+        }
+
+        let btn = document.getElementById('btnSubmitDecision');
+        btn.disabled = true;
+        btn.innerText = "⏳ جاري حفظ القرار وإرساله للمعلمين...";
+
+        let payload = {
+            action: "resolveAlert",
+            studentName: stu,
+            className: cls,
+            supervisorName: supName,
+            supervisorAction: decision
+        };
+
+        try {
+            let res = await fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) });
+            let json = await res.json();
+            if(json.status === "success") {
+                alert("✅ تم إغلاق البلاغ بنجاح! سيظهر إشعار الإجراء في لوحة المعلمين الآن.");
+                closeModal('actionModal');
+                closeModal('alertsModal');
+                loadAllDataInBackground(); // إعادة تحميل البيانات لتحديث الإنذارات
+            }
+        } catch(e) {
+            alert("❌ حدث خطأ في الاتصال بالخادم.");
+        }
+        
+        btn.disabled = false;
+        btn.innerText = "✅ حفظ القرار وإرسال الإشعار للمعلمين";
     }
 
     function getDayName(dateString) {
@@ -532,10 +596,7 @@ const HARDCODED_ROSTERS = {
         studentSelect.innerHTML = '<option value="">-- اختر الطالب --</option>';
         if (cls && HARDCODED_ROSTERS[cls]) {
             HARDCODED_ROSTERS[cls].forEach(s => {
-                let opt = document.createElement('option');
-                opt.value = s;
-                opt.textContent = s;
-                studentSelect.appendChild(opt);
+                studentSelect.appendChild(new Option(s, s));
             });
         }
     }
@@ -546,10 +607,7 @@ const HARDCODED_ROSTERS = {
         studentSelect.innerHTML = '<option value="">-- اختر الطالب --</option>';
         if (cls && HARDCODED_ROSTERS[cls]) {
             HARDCODED_ROSTERS[cls].forEach(s => {
-                let opt = document.createElement('option');
-                opt.value = s;
-                opt.textContent = s;
-                studentSelect.appendChild(opt);
+                studentSelect.appendChild(new Option(s, s));
             });
         }
     }
@@ -562,19 +620,6 @@ const HARDCODED_ROSTERS = {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // 1️⃣ تسجيل مخالفة وإعداد بياناتها للطباعة
-    function preparePrintData(superName, vDate, cls, student, vType, vDetails, finalActionText, notes) {
-        document.getElementById('pDate').innerText = getDayAndDate(vDate);
-        document.getElementById('pStudent').innerText = student;
-        document.getElementById('pClass').innerText = cls;
-        document.getElementById('pType').innerText = vType;
-        document.getElementById('pDetails').innerText = vDetails || "لا توجد تفاصيل إضافية.";
-        document.getElementById('pAction').innerText = finalActionText || "لم يحدد إجراء بعد.";
-        document.getElementById('pNotes').innerText = notes || "لا توجد ملاحظات.";
-        document.getElementById('pSupervisor').innerText = superName;
-        document.getElementById('pPledgeName').innerText = student;
-    }
-
     function submitForm() {
         const superName = document.getElementById('supervisorName').value;
         const vDate = document.getElementById('violationDate').value;
@@ -582,8 +627,6 @@ const HARDCODED_ROSTERS = {
         const student = document.getElementById('studentSelect').value;
         const vType = document.getElementById('violationType').value;
         const vDetails = document.getElementById('violationDetails').value;
-        const notes = document.getElementById('notes').value;
-
         let actionsChecked = [];
         document.querySelectorAll('input[name="actionTaken"]:checked').forEach(cb => { actionsChecked.push(cb.value); });
 
@@ -594,11 +637,7 @@ const HARDCODED_ROSTERS = {
 
         let finalViolationText = vType;
         if (vDetails.trim() !== '') finalViolationText += " | تفاصيل: " + vDetails;
-
         let finalActionText = actionsChecked.join(" + ");
-        if (notes.trim() !== '') finalActionText += (finalActionText ? " | ملاحظات: " : "ملاحظات: ") + notes;
-
-        preparePrintData(superName, vDate, cls, student, vType, vDetails, actionsChecked.join(" + "), notes);
 
         const btn = document.getElementById('submitBtn');
         btn.disabled = true;
@@ -606,145 +645,152 @@ const HARDCODED_ROSTERS = {
         document.getElementById('alertBox').style.display = 'none';
 
         const payload = {
-            action: "addViolation",
-            supervisorName: superName,
-            className: cls,
-            studentName: student,
-            cpr: "سيتم إرفاقه آلياً",
-            parentPhone: "سيتم جلبه آلياً",
-            violationType: finalViolationText,
-            actionTaken: finalActionText
+            action: "addViolation", supervisorName: superName, className: cls,
+            studentName: student, cpr: "آلي", parentPhone: "آلي",
+            violationType: finalViolationText, actionTaken: finalActionText
         };
 
         fetch(SCRIPT_URL, { method: 'POST', body: JSON.stringify(payload) })
         .then(res => res.json())
         .then(data => {
             if(data.status === "success") {
-                showAlert("✅ تم تسجيل المخالفة بنجاح! يمكنك الآن طباعة الإشعار.", true);
+                showAlert("✅ تم تسجيل المخالفة الإدارية بنجاح!", true);
                 btn.style.display = 'none';
-                document.getElementById('afterSubmitBtns').style.display = 'flex';
-                allViolationsData.push({ date: vDate, className: cls, studentName: student, violationType: finalViolationText, actionTaken: finalActionText });
+                loadAllDataInBackground();
             } else {
                 showAlert("حدث خطأ: " + data.message, false);
-                btn.disabled = false;
-                btn.textContent = "💾 حفظ المخالفة السلوكية في السجل";
+                btn.disabled = false; btn.textContent = "💾 حفظ المخالفة السلوكية المباشرة";
             }
-        }).catch(err => {
-            showAlert("تعذر الاتصال بالخادم، يرجى المحاولة مرة أخرى.", false);
-            btn.disabled = false;
-            btn.textContent = "💾 حفظ المخالفة السلوكية في السجل";
         });
     }
 
-    // 2️⃣ محرك البحث النصي
-    function searchByText() {
-        const query = document.getElementById('searchViolationInput').value.trim().toLowerCase();
-        if(!query) { alert("يرجى إدخال اسم الطالب أو رقمه الشخصي."); return; }
-        
-        let studentRealName = "";
-        let studentRealClass = "";
-        
-        for (let className in HARDCODED_ROSTERS) {
-            let students = HARDCODED_ROSTERS[className];
-            for (let i = 0; i < students.length; i++) {
-                let sName = students[i];
-                let sClean = cleanNameDisplay(sName);
-                let sCpr = cprMapData[sClean] || "";
-                
-                if (sName.toLowerCase().includes(query) || sCpr.includes(query)) {
-                    studentRealName = cleanNameDisplay(sName);
-                    studentRealClass = className;
-                    break;
-                }
-            }
-            if(studentRealName) break;
-        }
-
-        if(!studentRealName) {
-            document.getElementById('searchViolationsTableBody').innerHTML = '<tr><td colspan="4" style="padding:15px; font-weight:bold; color:#dc2626;">❌ هذا الطالب غير مسجل في قوائم المدرسة، يرجى التأكد من الاسم أو الرقم.</td></tr>';
-            document.getElementById('searchViolationsResults').style.display = 'block';
-            return;
-        }
-        
-        displayReportForStudent(studentRealName, studentRealClass);
-    }
-
-    // 3️⃣ أداة الاستخراج بالقوائم
     function extractStudentHistory() {
-        const cls = document.getElementById('histClassSelect').value;
-        const studentRaw = document.getElementById('histStudentSelect').value;
-        if(!cls || !studentRaw) { alert("يرجى اختيار الصف واسم الطالب أولاً."); return; }
+        let studentRaw = "";
+        let cls = "";
+
+        // البحث بالنص إذا وجد، وإلا نعتمد على القوائم المنسدلة
+        let query = document.getElementById('searchViolationInput').value.trim().toLowerCase();
+        if(query) {
+            for (let c in HARDCODED_ROSTERS) {
+                let students = HARDCODED_ROSTERS[c];
+                for (let i = 0; i < students.length; i++) {
+                    let sName = students[i];
+                    let sCpr = cprMapData[cleanNameDisplay(sName)] || "";
+                    if (sName.toLowerCase().includes(query) || sCpr.includes(query)) {
+                        studentRaw = sName;
+                        cls = c;
+                        break;
+                    }
+                }
+                if(studentRaw) break;
+            }
+        } else {
+            cls = document.getElementById('histClassSelect').value;
+            studentRaw = document.getElementById('histStudentSelect').value;
+        }
+
+        if(!cls || !studentRaw) { alert("يرجى كتابة اسم الطالب أو اختياره من القوائم."); return; }
         
-        let studentRealName = cleanNameDisplay(studentRaw);
-        displayReportForStudent(studentRealName, cls);
+        displayCombinedReport(cleanNameDisplay(studentRaw), cls);
     }
 
-    // الدالة المشتركة لعرض تقرير الطالب وبناء ورقة الطباعة
-    function displayReportForStudent(studentRealName, studentRealClass) {
+    // 🔴 عرض التقرير المدمج (المعلمين + المشرفين)
+    function displayCombinedReport(studentName, className) {
         const tbodyUI = document.getElementById('searchViolationsTableBody');
         const tbodyPrint = document.getElementById('printRepTableBody');
         const resContainer = document.getElementById('searchViolationsResults');
-        const pledgeBox = document.getElementById('reportPledgeBox');
 
-        let studentCPR = cprMapData[studentRealName] || "غير متوفر";
+        let studentCPR = cprMapData[studentName] || "غير متوفر";
 
-        let results = allViolationsData.filter(r => {
-            let sClean = String(r.studentName || '').replace(/^[\d\s._-]+/, '').trim();
-            return sClean === studentRealName;
-        });
+        // 1. تصفية مخالفات المشرفين (المباشرة)
+        let supResults = allViolationsData.filter(r => cleanNameDisplay(r.studentName) === studentName);
+        
+        // 2. تصفية مخالفات المعلمين
+        let teaResults = allTeacherViolations.filter(r => cleanNameDisplay(r.studentName) === studentName && r.vType);
 
         tbodyUI.innerHTML = '';
         tbodyPrint.innerHTML = '';
 
-        document.getElementById('pRepName').innerText = studentRealName;
-        document.getElementById('pRepPledgeName').innerText = studentRealName;
-        document.getElementById('pRepCPR').innerText = studentCPR;
-        document.getElementById('pRepClass').innerText = studentRealClass;
-        document.getElementById('pRepPhone').innerText = results.length > 0 ? (results[0].phone || "غير متوفر") : "غير متوفر";
-        document.getElementById('pRepCount').innerText = results.length;
+        let totalCount = supResults.length + teaResults.length;
 
-        if(results.length === 0) {
-            tbodyUI.innerHTML = `<tr><td colspan="4" style="padding:15px; font-weight:bold; color:#059669;">✅ لا توجد أي مخالفات سلوكية مسجلة للطالب (${studentRealName}). سجل الطالب نظيف!</td></tr>`;
-            tbodyPrint.innerHTML = `<tr><td colspan="3" style="padding:20px; font-weight:bold; color:#059669; font-size:18px;">✅ سجل الطالب نظيف، لا توجد مخالفات سلوكية مدونة.</td></tr>`;
-            pledgeBox.style.display = 'none'; // إخفاء التعهد في حال السجل نظيف
+        document.getElementById('pRepName').innerText = studentName;
+        document.getElementById('pRepPledgeName').innerText = studentName;
+        document.getElementById('pRepCPR').innerText = studentCPR;
+        document.getElementById('pRepClass').innerText = className;
+        document.getElementById('pRepCount').innerText = totalCount;
+        
+        let pPhone = "غير متوفر";
+        if(supResults.length > 0 && supResults[0].phone) pPhone = supResults[0].phone;
+        document.getElementById('pRepPhone').innerText = pPhone;
+
+        if(totalCount === 0) {
+            tbodyUI.innerHTML = `<tr><td colspan="4" style="padding:15px; font-weight:bold; color:#059669;">✅ لا توجد أي مخالفات سلوكية (من معلمين أو إدارة). سجل الطالب نظيف!</td></tr>`;
+            tbodyPrint.innerHTML = `<tr><td colspan="4" style="padding:20px; font-weight:bold; color:#059669;">✅ سجل الطالب نظيف بالكامل.</td></tr>`;
+            document.getElementById('reportPledgeBox').style.display = 'none';
         } else {
-            pledgeBox.style.display = 'block'; // إظهار التعهد لأنه توجد مخالفات سابقة
-            [...results].reverse().forEach(r => {
+            document.getElementById('reportPledgeBox').style.display = 'block';
+
+            // عرض مخالفات المعلمين أولاً (كأساس للمشكلة)
+            teaResults.forEach(r => {
+                let formattedDate = r.vDate ? String(r.vDate).replace(/\n/g, ' - ') : 'غير محدد';
+                
+                // حالة تدخل الإدارة
+                let actionHtmlUI = r.teacherAction;
+                let actionHtmlPrint = r.teacherAction;
+                if(r.supervisorAction && r.supervisorAction.trim() !== "") {
+                    actionHtmlUI += `<br><span style="display:inline-block; margin-top:5px; padding:4px 8px; background:#dcfce3; color:#16a34a; border-radius:4px; font-size:0.85rem;">🛡️ إدارة: ${r.supervisorAction}</span>`;
+                    actionHtmlPrint += `<br><b>تدخل الإدارة:</b> ${r.supervisorAction}`;
+                } else {
+                    actionHtmlUI += `<br><span style="display:inline-block; margin-top:5px; padding:4px 8px; background:#fee2e2; color:#dc2626; border-radius:4px; font-size:0.85rem;">⏳ بانتظار الإدارة</span>`;
+                    actionHtmlPrint += `<br><b>تدخل الإدارة:</b> قيد الانتظار`;
+                }
+
+                let rowUI = `
+                    <tr>
+                        <td style="padding: 10px; border: 1px solid var(--border); font-weight:bold; color:#1e40af; font-size:0.85rem;">${formattedDate}</td>
+                        <td style="padding: 10px; border: 1px solid var(--border);">${r.teacherName}<br><span style="font-size:0.8rem; color:#64748b;">(معلم ${r.subject})</span></td>
+                        <td style="padding: 10px; border: 1px solid var(--border);">${r.vNum}: ${r.vType}</td>
+                        <td style="padding: 10px; border: 1px solid var(--border); text-align:right;">${actionHtmlUI}</td>
+                    </tr>`;
+                tbodyUI.innerHTML += rowUI;
+                
+                tbodyPrint.innerHTML += `
+                    <tr>
+                        <td>${formattedDate}</td>
+                        <td>${r.teacherName} (معلم)</td>
+                        <td>${r.vType}</td>
+                        <td style="text-align:right; font-size:14px;">${actionHtmlPrint}</td>
+                    </tr>`;
+            });
+
+            // عرض مخالفات المشرفين المباشرة (العنيفة وغيرها)
+            supResults.forEach(r => {
                 let fullDate = getDayAndDate(r.date);
                 
-                tbodyUI.innerHTML += `
-                    <tr>
-                        <td style="padding: 10px; border: 1px solid var(--border); font-weight:bold; color:#1e40af;">${fullDate}</td>
-                        <td style="padding: 10px; border: 1px solid var(--border); font-weight:bold;">${studentRealName}</td>
-                        <td style="padding: 10px; border: 1px solid var(--border); color: #b91c1c;">${r.violationType}</td>
-                        <td style="padding: 10px; border: 1px solid var(--border);">${r.actionTaken}</td>
-                    </tr>
-                `;
+                let rowUI = `
+                    <tr style="background-color: #fdf2f8;">
+                        <td style="padding: 10px; border: 1px solid var(--border); font-weight:bold; color:#be185d; font-size:0.85rem;">${fullDate}</td>
+                        <td style="padding: 10px; border: 1px solid var(--border); font-weight:bold; color:#9d174d;">${r.supervisor}<br><span style="font-size:0.8rem;">(إشراف إداري)</span></td>
+                        <td style="padding: 10px; border: 1px solid var(--border); color:#b91c1c; font-weight:bold;">${r.violationType}</td>
+                        <td style="padding: 10px; border: 1px solid var(--border); font-weight:bold; color:#0f766e; text-align:right;">${r.actionTaken}</td>
+                    </tr>`;
+                tbodyUI.innerHTML += rowUI;
 
                 tbodyPrint.innerHTML += `
                     <tr>
                         <td>${fullDate}</td>
-                        <td style="color:#b91c1c;">${r.violationType}</td>
-                        <td>${r.actionTaken}</td>
-                    </tr>
-                `;
+                        <td><b>${r.supervisor} (إدارة)</b></td>
+                        <td><b>${r.violationType}</b></td>
+                        <td style="text-align:right; font-size:14px;"><b>${r.actionTaken}</b></td>
+                    </tr>`;
             });
         }
         resContainer.style.display = 'block';
         resContainer.scrollIntoView({ behavior: 'smooth' });
     }
 
-    // دوال الطباعة الذكية
-    function printSingleViolation() {
-        document.body.classList.add('print-single');
-        document.body.classList.remove('print-report');
-        window.print();
-        setTimeout(() => { document.body.classList.remove('print-single'); }, 1000);
-    }
-
     function printViolationReport() {
         document.body.classList.add('print-report');
-        document.body.classList.remove('print-single');
         window.print();
         setTimeout(() => { document.body.classList.remove('print-report'); }, 1000);
     }
