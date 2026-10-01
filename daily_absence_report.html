@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>كشف متابعة حالة الغياب اليومي - وزارة التربية والتعليم</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap');
+
+        :root {
+            --primary: #1e40af;
+            --accent: #ca8a04;
+            --danger: #dc2626;
+            --success: #16a34a;
+            --border: #000000;
+        }
+
+        body { font-family: 'Tajawal', sans-serif; background-color: #f1f5f9; color: #000; margin: 0; padding: 20px; }
+
+        .auth-card { max-width: 400px; margin: 80px auto; padding: 30px; text-align: center; background: #fff; border-radius: 12px; border: 1px solid #cbd5e1; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); }
+        .auth-card input { width: 100%; padding: 12px; text-align: center; font-size: 1.1rem; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; margin: 15px 0; font-family: inherit; }
+        
+        .btn { border: none; padding: 10px 20px; border-radius: 6px; font-family: inherit; font-weight: 800; font-size: 1rem; cursor: pointer; transition: 0.2s; color: #fff; display: inline-flex; align-items: center; justify-content: center; gap: 8px;}
+        .btn-blue { background-color: #2563eb; } .btn-blue:hover { background-color: #1d4ed8; }
+        .btn-green { background-color: #059669; } .btn-green:hover { background-color: #047857; }
+        
+        /* أدوات التحكم العلوية */
+        .controls-bar { background: #fff; padding: 15px 25px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 15px; border: 1px solid #cbd5e1; }
+        .date-picker { display: flex; align-items: center; gap: 10px; font-weight: bold; font-size: 1.1rem;}
+        .date-picker input { padding: 8px 15px; font-family: inherit; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 1rem; outline: none;}
+
+        /* تنسيق الورقة الرسمية (A4 Landscape محاكاة) */
+        .a4-wrapper { background: #fff; max-width: 1300px; margin: 0 auto; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-radius: 5px; overflow-x: auto;}
+        
+        .form-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 3px double #000; padding-bottom: 15px;}
+        .form-header img { max-height: 85px; }
+        .form-title { text-align: center; flex-grow: 1; }
+        .form-title h2 { margin: 0 0 10px 0; font-size: 1.6rem; font-weight: 800; }
+        .header-info { display: flex; justify-content: center; gap: 40px; font-size: 1.1rem; font-weight: 700; }
+        
+        /* الجدول الوزاري الموحد */
+        .ministry-table { width: 100%; border-collapse: collapse; min-width: 1000px; }
+        .ministry-table th, .ministry-table td { border: 1px solid #000; padding: 8px; text-align: center; vertical-align: middle; font-size: 14px;}
+        .ministry-table th { background-color: #f8fafc; font-weight: 800; padding: 12px 8px;}
+        
+        /* تنسيق الخيارات داخل الجدول */
+        .options-col { text-align: right; padding-right: 15px !important; line-height: 1.8; }
+        .radio-lbl { display: flex; align-items: center; gap: 6px; cursor: pointer; font-weight: 500; font-size: 13px;}
+        .radio-lbl input[type="radio"], .radio-lbl input[type="checkbox"] { margin: 0; width: 14px; height: 14px; accent-color: #000;}
+        .text-input { width: 90%; border: none; border-bottom: 1px dashed #000; outline: none; font-family: inherit; background: transparent; font-size: 13px; text-align: center; padding: 4px;}
+        .text-input:focus { border-bottom: 1px solid var(--primary); }
+
+        .loading-overlay { display: none; text-align: center; padding: 50px; font-size: 1.5rem; font-weight: bold; color: var(--primary); }
+
+        /* تنسيقات الطباعة الصارمة */
+        @media print {
+            @page { size: A4 landscape; margin: 10mm; }
+            body { background: #fff; padding: 0; }
+            .controls-bar, .auth-card { display: none !important; }
+            .a4-wrapper { box-shadow: none; padding: 0; max-width: 100%; border-radius: 0; overflow: visible;}
+            .ministry-table th { background-color: #f1f5f9 !important; -webkit-print-color-adjust: exact; }
+            .text-input { border-bottom: 1px dotted #000; }
+            .radio-lbl input[type="radio"], .radio-lbl input[type="checkbox"] { -webkit-print-color-adjust: exact; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- شاشة المصادقة -->
+    <div id="authScreen" class="auth-card">
+        <img src="https://i.postimg.cc/K88X7RLb/trwysyh-dhhbyt.png" alt="شعار" style="max-height: 70px; margin-bottom: 15px;">
+        <h2 style="margin-top: 0; color: #1e40af;">سجل الغياب اليومي الوزاري</h2>
+        <p style="color: #64748b; font-size: 0.9rem;">يرجى إدخال كلمة المرور (الإشراف العام)</p>
+        <input type="password" id="passInput" placeholder="••••••••">
+        <button class="btn btn-blue" style="width: 100%;" onclick="authenticate()">دخول وتهيئة السجل</button>
+    </div>
+
+    <!-- لوحة التحكم وتحديد التاريخ -->
+    <div id="dashboardArea" style="display: none;">
+        <div class="controls-bar no-print">
+            <div class="date-picker">
+                <label>تاريخ السجل:</label>
+                <input type="date" id="targetDate" onchange="fetchAbsencesForDate()">
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn btn-blue" onclick="fetchAbsencesForDate()">🔄 سحب بيانات الغياب</button>
+                <button class="btn btn-green" onclick="window.print()">🖨️ طباعة النموذج للاعتماد</button>
+            </div>
+        </div>
+
+        <div id="loading" class="loading-overlay">⏳ جاري جلب وتحليل السجلات من قاعدة البيانات...</div>
+
+        <!-- النموذج الوزاري الورقي -->
+        <div id="formWrapper" class="a4-wrapper" style="display: none;">
+            <div class="form-header">
+                <div style="width: 150px;"></div> <!-- توازن الترويسة -->
+                <div class="form-title">
+                    <img src="https://i.postimg.cc/K88X7RLb/trwysyh-dhhbyt.png" alt="وزارة التربية والتعليم">
+                    <h2>كشف متابعة حالة الغياب اليومي</h2>
+                    <div class="header-info">
+                        <div>اسم المدرسة: <span style="border-bottom: 1px solid #000; padding: 0 15px;">البلاد القديم الابتدائية الإعدادية للبنين</span></div>
+                        <div>اليوم: <span id="lblDay" style="border-bottom: 1px solid #000; padding: 0 15px; min-width:80px; display:inline-block;"></span></div>
+                        <div>التاريخ: <span id="lblDate" style="border-bottom: 1px solid #000; padding: 0 15px; direction:ltr; display:inline-block;"></span></div>
+                    </div>
+                </div>
+                <div style="width: 150px; text-align: left;">
+                    <!-- يمكن وضع شعار رؤية 2030 هنا إن وجد -->
+                </div>
+            </div>
+
+            <table class="ministry-table">
+                <thead>
+                    <tr>
+                        <th style="width: 3%;">الرقم</th>
+                        <th style="width: 15%;">اسم الطالب</th>
+                        <th style="width: 8%;">الصف</th>
+                        <th style="width: 10%;">أرقام التواصل</th>
+                        <th style="width: 12%;">حالة الغياب</th>
+                        <th style="width: 22%;">الإجراء المتخذ</th>
+                        <th style="width: 10%;">حالة الاستجابة</th>
+                        <th style="width: 12%;">سبب الغياب</th>
+                        <th style="width: 8%;">اعتماد المبلغ عن الغياب</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                    <!-- سيتم تعبئة الطلاب هنا آلياً -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+<script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxlJnpJN9y9h04cOswtY3BGGwUS8rhybOisxDFkIQJ6_9nFSPMJeK-wiuFEECnBY3v5/exec";
+    let apiData = null;
+
+    document.addEventListener("DOMContentLoaded", () => {
+        document.getElementById('targetDate').value = new Date().toLocaleDateString('en-CA');
+    });
+
+    function authenticate() {
+        const pass = document.getElementById('passInput').value.trim();
+        if(!pass) return alert("يرجى إدخال كلمة المرور");
+        
+        document.getElementById('authScreen').style.display = 'none';
+        document.getElementById('dashboardArea').style.display = 'block';
+        fetchAbsencesForDate(pass);
+    }
+
+    function getDayNameAr(dateString) {
+        const days = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+        const d = new Date(dateString);
+        return isNaN(d.getTime()) ? "" : days[d.getDay()];
+    }
+
+    async function fetchAbsencesForDate(initialPass = null) {
+        const pass = initialPass || document.getElementById('passInput').value;
+        const targetDate = document.getElementById('targetDate').value;
+        
+        document.getElementById('formWrapper').style.display = 'none';
+        document.getElementById('loading').style.display = 'block';
+
+        try {
+            // جلب بيانات الرصد والأعذار والأرقام الشخصية
+            const [resAbs, resSocial] = await Promise.all([
+                fetch(`${SCRIPT_URL}?action=supervisor&pass=${pass}`).then(r => r.json()),
+                fetch(`${SCRIPT_URL}?action=social_init&pass=social123`).then(r => r.json())
+            ]);
+
+            if (resAbs.status !== "success") {
+                alert(resAbs.message || "خطأ في جلب البيانات");
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('authScreen').style.display = 'block';
+                document.getElementById('dashboardArea').style.display = 'none';
+                return;
+            }
+
+            apiData = resAbs;
+            const fullDataMap = resSocial.fullDataMap || {}; // لجلب أرقام الهواتف إن أمكن
+
+            // تحديث الترويسة
+            document.getElementById('lblDate').innerText = targetDate;
+            document.getElementById('lblDay').innerText = getDayNameAr(targetDate);
+
+            processAndRenderAbsentees(targetDate, fullDataMap);
+
+        } catch (error) {
+            alert("حدث خطأ في الاتصال بالخادم");
+            document.getElementById('loading').style.display = 'none';
+        }
+    }
+
+    function processAndRenderAbsentees(targetDate, fullDataMap) {
+        // 1. تحديد الأعذار والتأخير لتاريخ اليوم
+        let dailyExcuses = {};
+        let dailyLates = {};
+        
+        if (apiData.excuses) {
+            apiData.excuses.forEach(ex => {
+                if (ex.date === targetDate) {
+                    let sClean = ex.studentName.replace(/^[\d\s._-]+/, '').trim();
+                    dailyExcuses[sClean] = ex;
+                }
+            });
+        }
+        
+        if (apiData.lates) {
+            apiData.lates.forEach(l => {
+                if (l.date === targetDate) {
+                    let sClean = l.studentName.replace(/^[\d\s._-]+/, '').trim();
+                    dailyLates[sClean] = true;
+                }
+            });
+        }
+
+        // 2. حساب الغياب الكلي (غاب جميع الحصص المسجلة للصف)
+        let classPeriodsByDate = {}; 
+        let studentAbsByDate = {};   
+
+        apiData.data.forEach(r => {
+            if (r.date !== targetDate || r.studentName.includes('لا يوجد')) return;
+            
+            let p = String(r.period);
+            let sClean = r.studentName.replace(/^[\d\s._-]+/, '').trim();
+
+            if(!classPeriodsByDate[r.className]) classPeriodsByDate[r.className] = new Set();
+            classPeriodsByDate[r.className].add(p);
+
+            if(!studentAbsByDate[sClean]) studentAbsByDate[sClean] = { cls: r.className, rawName: r.studentName, periods: new Set() };
+            studentAbsByDate[sClean].periods.add(p);
+        });
+
+        let finalAbsentees = [];
+
+        Object.keys(studentAbsByDate).forEach(sClean => {
+            if (dailyLates[sClean]) return; // استبعاد المتأخرين (هم حضور جزئي)
+
+            let st = studentAbsByDate[sClean];
+            let totalClassPeriods = classPeriodsByDate[st.cls] ? classPeriodsByDate[st.cls].size : 0;
+            
+            if (st.periods.size >= totalClassPeriods && totalClassPeriods > 0) {
+                finalAbsentees.push({
+                    cleanName: sClean,
+                    rawName: st.rawName,
+                    className: st.cls,
+                    hasExcuse: !!dailyExcuses[sClean],
+                    excuseReason: dailyExcuses[sClean] ? dailyExcuses[sClean].reason : ""
+                });
+            }
+        });
+
+        // 3. ترتيب ورسم الجدول
+        finalAbsentees.sort((a, b) => a.className.localeCompare(b.className) || a.rawName.localeCompare(b.rawName));
+
+        const tbody = document.getElementById('tableBody');
+        tbody.innerHTML = '';
+
+        if (finalAbsentees.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="9" style="padding: 40px; font-size: 1.2rem; font-weight: bold; color: var(--success);">✅ لا يوجد غياب كلي مسجل لهذا اليوم.</td></tr>`;
+        } else {
+            finalAbsentees.forEach((stu, index) => {
+                // جلب رقم الهاتف إذا كان متوفراً في القاعدة
+                let phone = "";
+                if(fullDataMap[stu.cleanName] && fullDataMap[stu.cleanName]["رقم الهاتف المعتمد (واتساب)"]) {
+                    phone = fullDataMap[stu.cleanName]["رقم الهاتف المعتمد (واتساب)"];
+                }
+
+                // تحديد التعليم الآلي لسبب الغياب (بعذر / بدون عذر)
+                let c_excused = stu.hasExcuse ? 'checked' : '';
+                let c_unexcused = !stu.hasExcuse ? 'checked' : '';
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td style="font-weight: bold;">${index + 1}</td>
+                        <td style="font-weight: bold; text-align: right;">${stu.rawName}</td>
+                        <td>${stu.className}</td>
+                        <td><input type="text" class="text-input" value="${phone}"></td>
+                        
+                        <td class="options-col">
+                            <label class="radio-lbl"><input type="radio" name="st_${index}" value="غياب"> غياب</label>
+                            <label class="radio-lbl"><input type="radio" name="st_${index}" value="بعذر" ${c_excused}> بعذر</label>
+                            <label class="radio-lbl"><input type="radio" name="st_${index}" value="بدون عذر" ${c_unexcused}> بدون عذر</label>
+                            <label class="radio-lbl"><input type="radio" name="st_${index}" value="انقطاع"> انقطاع</label>
+                        </td>
+
+                        <td class="options-col">
+                            <label class="radio-lbl"><input type="checkbox" name="act1_${index}"> إشعار بالغياب عبر SMS أو WhatsApp</label>
+                            <label class="radio-lbl"><input type="checkbox" name="act2_${index}"> الاتصال بولي الأمر</label>
+                            <label class="radio-lbl"><input type="checkbox" name="act3_${index}"> إشعار ولي الأمر المسبق بالغياب</label>
+                            <label class="radio-lbl"><input type="checkbox" name="act4_${index}"> تواصل ولي الأمر مع المعلم</label>
+                            <label class="radio-lbl"><input type="checkbox" name="act5_${index}"> أخرى: <input type="text" class="text-input" style="width: 60%;"></label>
+                        </td>
+
+                        <td class="options-col">
+                            <label class="radio-lbl"><input type="radio" name="res_${index}" value="تم الرد"> تم الرد</label>
+                            <label class="radio-lbl"><input type="radio" name="res_${index}" value="لا يوجد رد"> لا يوجد رد</label>
+                            <label class="radio-lbl"><input type="radio" name="res_${index}" value="الهاتف مغلق"> الهاتف مغلق</label>
+                        </td>
+
+                        <td><input type="text" class="text-input" style="width: 95%;" value="${stu.excuseReason || ''}"></td>
+                        
+                        <td><!-- اعتماد المبلغ --></td>
+                    </tr>
+                `;
+            });
+        }
+
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('formWrapper').style.display = 'block';
+    }
+
+</script>
+</body>
+</html>
