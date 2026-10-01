@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بوابة المشرفين - سجل الغياب التراكمي الشامل</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap');
+
+        :root {
+            --primary: #1e40af;
+            --accent: #ca8a04;
+            --bg-main: #f1f5f9;
+            --card-bg: #ffffff;
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
+            --danger: #dc2626;
+            --danger-light: #fee2e2;
+            --success: #16a34a;
+            --border: #cbd5e1;
+        }
+
+        body { font-family: 'Tajawal', sans-serif; background-color: var(--bg-main); color: var(--text-dark); margin: 0; padding: 15px; }
+
+        .container { max-width: 1200px; margin: 0 auto; background: var(--card-bg); border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.06); overflow: hidden; border: 1px solid var(--border); }
+        
+        .school-header-container { text-align: center; padding: 15px; background: #fff; border-bottom: 2px solid var(--border); }
+        .school-header { max-width: 100%; height: auto; max-height: 90px; }
+
+        .top-toolbar { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; padding: 15px 20px; background: #f8fafc; border-bottom: 1px solid var(--border); gap: 10px; }
+        
+        .btn { border: none; padding: 10px 18px; border-radius: 6px; font-family: inherit; font-weight: 800; font-size: 1rem; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 6px; color: #fff; text-decoration: none; }
+        .btn-blue { background-color: #2563eb; } .btn-blue:hover { background-color: #1d4ed8; }
+        .btn-red { background-color: #dc2626; } .btn-red:hover { background-color: #b91c1c; }
+        .btn-green { background-color: #059669; } .btn-green:hover { background-color: #047857; }
+        .btn-gray { background-color: #64748b; } .btn-gray:hover { background-color: #475569; }
+
+        .dashboard-content { padding: 25px; }
+        
+        .control-panel { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; background: #fff; padding: 15px; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 20px; gap: 15px; }
+        
+        .select-group { display: flex; align-items: center; gap: 10px; font-size: 1.1rem; font-weight: 700; }
+        .select-group select { padding: 8px 15px; font-size: 1rem; font-family: inherit; font-weight: 700; border: 1px solid var(--border); border-radius: 6px; outline: none; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 1rem; background: #fff; }
+        th, td { border: 1px solid var(--border); padding: 12px; text-align: center; vertical-align: middle; }
+        th { background: #1e293b; color: #fff; font-weight: 800; }
+        
+        tr:nth-child(even) { background: #f8fafc; }
+        tr.row-danger { background-color: var(--danger-light) !important; }
+        
+        .badge { padding: 4px 10px; border-radius: 12px; font-weight: 800; color: white; display: inline-block; min-width: 25px; }
+        .badge-zero { background-color: #10b981; color: #fff; }
+        .badge-warn { background-color: #f59e0b; color: #fff; }
+        .badge-danger { background-color: #dc2626; color: #fff; font-size: 1.1rem; }
+        
+        .val-excused { color: #15803d; font-weight: 800; }
+        .val-unexcused { color: #b91c1c; font-weight: 800; }
+        .val-late { color: #b45309; font-weight: 800; }
+
+        /* نوافذ (Modals) */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(3px); }
+        .modal-body { background: #fff; max-width: 600px; margin: 50px auto; border-radius: 12px; padding: 25px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); max-height: 85vh; overflow-y: auto; }
+        .modal-close { float: left; font-size: 28px; cursor: pointer; color: var(--danger); font-weight: 800; line-height: 1; }
+
+        .details-list { list-style: none; padding: 0; margin: 15px 0; }
+        .details-list li { background: #f1f5f9; padding: 10px 15px; margin-bottom: 8px; border-radius: 6px; border: 1px solid #cbd5e1; font-weight: bold; display: flex; justify-content: space-between; align-items: center; font-size: 1.1rem; }
+        .details-list li span.day-name { color: #1e40af; }
+        .details-list li span.day-date { color: #b91c1c; }
+
+        /* منطقة الطباعة */
+        #printAbsenceArea { display: none; }
+
+        @media print {
+            @page { margin: 1cm; }
+            body { background: #fff; padding: 0; margin: 0; }
+            #mainContainer, .modal { display: none !important; }
+            
+            body.print-absence #printAbsenceArea { display: block !important; }
+            
+            .print-header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
+            .print-header img { max-height: 100px; }
+            .print-title { font-size: 22px; font-weight: 800; margin: 10px 0; text-decoration: underline; }
+            
+            .print-info-box { border: 2px solid #000; padding: 15px; border-radius: 8px; margin-bottom: 20px; font-size: 18px; line-height: 1.8; }
+            
+            .print-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 16px; text-align: center; }
+            .print-table th, .print-table td { padding: 12px; border: 1px solid #000; }
+            .print-table th { background-color: #f1f5f9 !important; -webkit-print-color-adjust: exact; }
+            
+            .pledge-box { margin-top: 20px; border: 2px dashed #000; padding: 20px; border-radius: 8px; font-size: 17px; text-align: right; background-color: #fafafa !important; -webkit-print-color-adjust: exact; }
+            .signatures { display: flex; justify-content: space-between; margin-top: 40px; text-align: center; font-size: 16px; }
+            .sig-box { width: 45%; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container" id="mainContainer">
+    <div class="school-header-container">
+        <img src="https://i.postimg.cc/K88X7RLb/trwysyh-dhhbyt.png" alt="ترويسة مدرسة البلاد القديم" class="school-header">
+    </div>
+
+    <!-- واجهة النظام بعد الدخول -->
+    <div id="mainDashboard">
+        <div class="top-toolbar no-print">
+            <button class="btn btn-green" onclick="loadDataAutomatically()">🔄 تحديث البيانات</button>
+            <a href="https://sabrysci.github.io/b/supervisor.html" class="btn btn-blue">⬅️ العودة للرصد اللحظي</a>
+            <a href="https://sabrysci.github.io/b/violations.html" class="btn btn-gray">⚖️ سجل المخالفات السلوكية</a>
+        </div>
+
+        <div class="dashboard-content">
+            <h2 style="text-align:center; color:var(--primary); margin-top:0;">📊 الإحصاء التراكمي الشامل للغياب والتأخير</h2>
+
+            <div class="control-panel no-print">
+                <div class="select-group">
+                    <label>عرض سجل الصف بالكامل:</label>
+                    <select id="classSelect" onchange="renderClassView()">
+                        <option value="">-- اختر الصف --</option>
+                    </select>
+                </div>
+                
+                <button class="btn btn-red" style="font-size: 1.1rem; padding: 10px 25px;" onclick="renderDangerView()">
+                    🚨 تجميع طلاب المرحلة (5 أيام غياب فأكثر)
+                </button>
+            </div>
+
+            <h3 id="tableTitle" style="color:var(--text-dark); border-bottom: 2px solid var(--border); padding-bottom: 10px;">جاري تحميل البيانات، يرجى الانتظار...</h3>
+
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width: 5%;">م</th>
+                            <th style="width: 15%;">الصف</th>
+                            <th style="width: 30%;">اسم الطالب</th>
+                            <th style="width: 10%;">التأخير</th>
+                            <th style="width: 10%;">غياب بعذر</th>
+                            <th style="width: 10%;">بدون عذر</th>
+                            <th style="width: 10%;">إجمالي أيام الغياب</th>
+                            <th style="width: 10%;">تفاصيل الأيام</th>
+                        </tr>
+                    </thead>
+                    <tbody id="dataTableBody">
+                        <tr><td colspan="8" style="padding:40px; font-weight:bold; color:var(--primary); font-size:1.2rem;">⏳ جاري الاتصال بقاعدة البيانات وجمع الإحصائيات...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 📋 نافذة التفاصيل وطباعة التقرير لولي الأمر -->
+<div id="detailsModal" class="modal">
+    <div class="modal-body">
+        <span class="modal-close" onclick="closeModal('detailsModal')">&times;</span>
+        <h3 style="margin-top:0; color:var(--primary); border-bottom: 2px solid #cbd5e1; padding-bottom: 10px;">
+            📅 تفاصيل أيام الغياب للطالب
+        </h3>
+        
+        <div style="margin-bottom: 15px; font-size: 1.2rem;">
+            <strong>الطالب:</strong> <span id="detStudentName" style="color:var(--danger);"></span> <br>
+            <strong>الصف:</strong> <span id="detClassName"></span>
+        </div>
+
+        <ul id="datesList" class="details-list">
+            <!-- سيتم إضافة الأيام هنا برمجياً -->
+        </ul>
+
+        <div style="text-align: center; margin-top: 20px;">
+            <button class="btn btn-blue" style="width: 100%; justify-content: center; font-size: 1.2rem; padding: 12px;" onclick="printStudentAbsenceReport()">
+                🖨️ طباعة إشعار الغياب التفصيلي لولي الأمر
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- 🖨️ منطقة طباعة إشعار الغياب (مخفية وتظهر في الطباعة فقط) -->
+<div id="printAbsenceArea">
+    <div class="print-header">
+        <img src="https://i.postimg.cc/K88X7RLb/trwysyh-dhhbyt.png" alt="ترويسة المدرسة">
+        <div class="print-title">إشعار تفصيلي بالغياب المتكرر</div>
+    </div>
+    
+    <div class="print-info-box">
+        <div style="display:flex; justify-content:space-between;">
+            <div><strong>اسم الطالب:</strong> <span id="pAbsName" style="font-weight:bold;"></span></div>
+            <div><strong>الرقم الشخصي:</strong> <span id="pAbsCPR"></span></div>
+        </div>
+        <div style="display:flex; justify-content:space-between;">
+            <div><strong>الصف:</strong> <span id="pAbsClass"></span></div>
+            <div><strong>إجمالي عدد أيام الغياب:</strong> <span id="pAbsCount" style="color:var(--danger); font-weight:bold;"></span> أيام</div>
+        </div>
+    </div>
+
+    <h4 style="margin-bottom: 10px; font-size: 18px;">تفصيل التواريخ التي تغيب فيها الطالب عن المدرسة:</h4>
+    <table class="print-table">
+        <thead>
+            <tr>
+                <th style="width: 10%;">م</th>
+                <th style="width: 40%;">اليوم</th>
+                <th style="width: 50%;">التاريخ</th>
+            </tr>
+        </thead>
+        <tbody id="printAbsTableBody"></tbody>
+    </table>
+
+    <div class="pledge-box">
+        <p style="text-decoration: underline; font-weight: bold; margin-top:0;">السيد ولي الأمر المحترم:</p>
+        <p>نود إشعاركم بأن ابنكم المذكور أعلاه قد تغيب عن الحضور للمدرسة في الأيام الموضحة بالجدول. ونظراً لأهمية الحضور والانتظام في التحصيل الدراسي، نأمل منكم متابعة الطالب وحثه على الالتزام بالدوام المدرسي.</p>
+        <p style="margin-top: 25px; font-weight:bold;">توقيع ولي الأمر (بمتابعة الحالة واستلام الإشعار): ........................................</p>
+    </div>
+
+    <div class="signatures">
+        <div class="sig-box"><div style="font-weight:bold; margin-bottom:20px;">توقيع المشرف الإداري</div><p>.............................</p></div>
+        <div class="sig-box"><div style="font-weight:bold; margin-bottom:20px;">اعتماد مدير المدرسة</div><p>.............................</p></div>
+    </div>
+</div>
+
+<script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxlJnpJN9y9h04cOswtY3BGGwUS8rhybOisxDFkIQJ6_9nFSPMJeK-wiuFEECnBY3v5/exec";
+    
+    let apiData = null;
+    let attendanceStats = {}; 
+    let currentDetailedStudent = null; // للاحتفاظ ببيانات الطالب للطباعة
+
+    // تحميل البيانات تلقائياً بمجرد فتح الصفحة (تخطي تسجيل الدخول)
+    document.addEventListener("DOMContentLoaded", () => {
+        loadDataAutomatically();
+    });
+
+    function loadDataAutomatically() {
+        const tbody = document.getElementById('dataTableBody');
+        tbody.innerHTML = '<tr><td colspan="8" style="padding:40px; font-weight:bold; color:var(--primary); font-size:1.2rem;">⏳ جاري الاتصال بقاعدة البيانات وجمع الإحصائيات...</td></tr>';
+        
+        // تمرير الباسورد برمجياً للوصول للبيانات (الإشراف العام)
+        fetch(`${SCRIPT_URL}?action=supervisor&pass=admin123`)
+            .then(res => res.json())
+            .then(data => {
+                if(data.status === "success") {
+                    apiData = data;
+                    
+                    const cSelect = document.getElementById('classSelect');
+                    cSelect.innerHTML = '<option value="">-- اختر الصف --</option>';
+                    data.classes.forEach(c => cSelect.appendChild(new Option(c, c)));
+                    
+                    document.getElementById('tableTitle').innerText = 'يرجى اختيار الصف من القائمة العلوية لعرض السجل.';
+                    tbody.innerHTML = '<tr><td colspan="8" style="padding:30px; font-weight:bold; color:var(--text-muted);">بانتظار تحديد خيار العرض</td></tr>';
+                    
+                    buildAttendanceStats();
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="8" style="color:red; font-weight:bold;">حدث خطأ في قراءة البيانات. تأكد من صلاحيات النظام.</td></tr>';
+                }
+            })
+            .catch(() => {
+                tbody.innerHTML = '<tr><td colspan="8" style="color:red; font-weight:bold;">حدث خطأ في الاتصال بالسيرفر.</td></tr>';
+            });
+    }
+
+    function buildAttendanceStats() {
+        attendanceStats = {};
+
+        for (let cls in apiData.rosters) {
+            if(apiData.classes.includes(cls)) { 
+                apiData.rosters[cls].forEach(stu => {
+                    let sClean = stu.replace(/^[\d\s._-]+/, '').trim();
+                    attendanceStats[sClean] = {
+                        className: cls,
+                        rawName: stu,
+                        lates: 0,
+                        excusedDays: 0,
+                        unexcusedDays: 0,
+                        totalFullDaysAbsent: 0,
+                        absentDates: []
+                    };
+                });
+            }
+        }
+
+        if (apiData.lates) {
+            apiData.lates.forEach(l => {
+                let sClean = l.studentName.replace(/^[\d\s._-]+/, '').trim();
+                if (attendanceStats[sClean]) attendanceStats[sClean].lates++;
+            });
+        }
+
+        let classPeriodsByDate = {}; 
+        let studentAbsByDate = {};   
+
+        apiData.data.forEach(r => {
+            if (r.studentName.includes('لا يوجد')) return;
+            let d = r.date;
+            let c = r.className;
+            let sClean = r.studentName.replace(/^[\d\s._-]+/, '').trim();
+            let p = String(r.period);
+
+            let cpKey = d + "_" + c;
+            if(!classPeriodsByDate[cpKey]) classPeriodsByDate[cpKey] = new Set();
+            classPeriodsByDate[cpKey].add(p);
+
+            let spKey = d + "_" + sClean;
+            if(!studentAbsByDate[spKey]) studentAbsByDate[spKey] = new Set();
+            studentAbsByDate[spKey].add(p);
+        });
+
+        Object.keys(studentAbsByDate).forEach(spKey => {
+            let parts = spKey.split("_");
+            let d = parts[0];
+            let sClean = parts[1];
+            let st = attendanceStats[sClean];
+            
+            if(st) {
+                let cpKey = d + "_" + st.className;
+                let totalClassPeriods = classPeriodsByDate[cpKey] ? classPeriodsByDate[cpKey].size : 0;
+                let studentMissedPeriods = studentAbsByDate[spKey].size;
+
+                if (studentMissedPeriods >= totalClassPeriods && totalClassPeriods > 0) {
+                    st.totalFullDaysAbsent++;
+                    st.absentDates.push(d);
+                }
+            }
+        });
+
+        if (apiData.excuses) {
+            apiData.excuses.forEach(ex => {
+                let sClean = ex.studentName.replace(/^[\d\s._-]+/, '').trim();
+                let st = attendanceStats[sClean];
+                
+                if (st && st.absentDates.includes(ex.date)) {
+                    st.excusedDays++;
+                }
+            });
+        }
+
+        Object.keys(attendanceStats).forEach(key => {
+            let st = attendanceStats[key];
+            st.unexcusedDays = st.totalFullDaysAbsent - st.excusedDays;
+            if (st.unexcusedDays < 0) st.unexcusedDays = 0; 
+            
+            // ترتيب التواريخ تصاعدياً
+            st.absentDates.sort((a, b) => new Date(a) - new Date(b));
+        });
+    }
+
+    function renderClassView() {
+        const cls = document.getElementById('classSelect').value;
+        const tbody = document.getElementById('dataTableBody');
+        
+        if(!cls) {
+            tbody.innerHTML = '<tr><td colspan="8" style="padding:30px; font-weight:bold;">يرجى اختيار الصف</td></tr>';
+            document.getElementById('tableTitle').innerText = 'يرجى اختيار الصف لعرض السجل...';
+            return;
+        }
+
+        document.getElementById('tableTitle').innerText = `📋 السجل التراكمي لطلاب صف: ( ${cls} )`;
+        tbody.innerHTML = '';
+
+        let studentsInClass = [];
+        for(let key in attendanceStats) {
+            if(attendanceStats[key].className === cls) studentsInClass.push(attendanceStats[key]);
+        }
+
+        studentsInClass.sort((a, b) => a.rawName.localeCompare(b.rawName));
+
+        let counter = 1;
+        studentsInClass.forEach(st => {
+            let isDanger = st.totalFullDaysAbsent >= 5;
+            let rowClass = isDanger ? 'row-danger' : '';
+            let badgeClass = isDanger ? 'badge-danger' : (st.totalFullDaysAbsent > 0 ? 'badge-warn' : 'badge-zero');
+            let dangerIcon = isDanger ? '🚨 ' : '';
+
+            // زر التفاصيل
+            let detailsBtn = st.totalFullDaysAbsent > 0 
+                ? `<button class="btn btn-blue" style="padding: 6px 12px; font-size: 0.9rem;" onclick="openDetails('${st.rawName}')">📄 التفاصيل</button>` 
+                : `<span style="color:var(--text-muted);">سجل نظيف</span>`;
+
+            tbody.innerHTML += `
+                <tr class="${rowClass}">
+                    <td>${counter++}</td>
+                    <td>${st.className}</td>
+                    <td style="text-align:right; font-weight:bold;">${dangerIcon}${st.rawName}</td>
+                    <td class="val-late">${st.lates > 0 ? st.lates : '-'}</td>
+                    <td class="val-excused">${st.excusedDays > 0 ? st.excusedDays : '-'}</td>
+                    <td class="val-unexcused">${st.unexcusedDays > 0 ? st.unexcusedDays : '-'}</td>
+                    <td><span class="badge ${badgeClass}">${st.totalFullDaysAbsent}</span></td>
+                    <td>${detailsBtn}</td>
+                </tr>
+            `;
+        });
+    }
+
+    function renderDangerView() {
+        const tbody = document.getElementById('dataTableBody');
+        document.getElementById('classSelect').value = ""; 
+        document.getElementById('tableTitle').innerHTML = '🚨 <span style="color:var(--danger);">تقرير الحالات الحرجة (5 أيام غياب كلي فأكثر) لجميع طلاب المرحلة</span>';
+        
+        tbody.innerHTML = '';
+
+        let dangerStudents = [];
+        for(let key in attendanceStats) {
+            if(attendanceStats[key].totalFullDaysAbsent >= 5) {
+                dangerStudents.push(attendanceStats[key]);
+            }
+        }
+
+        dangerStudents.sort((a, b) => b.totalFullDaysAbsent - a.totalFullDaysAbsent);
+
+        if(dangerStudents.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="8" style="padding:30px; font-weight:bold; color:var(--success); font-size:1.2rem;">✅ لا يوجد أي طالب تجاوز 5 أيام غياب في هذه المرحلة.</td></tr>';
+            return;
+        }
+
+        let counter = 1;
+        dangerStudents.forEach(st => {
+            let detailsBtn = `<button class="btn btn-red" style="padding: 6px 12px; font-size: 0.9rem;" onclick="openDetails('${st.rawName}')">📄 إشعار لولي الأمر</button>`;
+
+            tbody.innerHTML += `
+                <tr class="row-danger">
+                    <td>${counter++}</td>
+                    <td style="font-weight:bold;">${st.className}</td>
+                    <td style="text-align:right; font-weight:bold;">🚨 ${st.rawName}</td>
+                    <td class="val-late">${st.lates > 0 ? st.lates : '-'}</td>
+                    <td class="val-excused">${st.excusedDays > 0 ? st.excusedDays : '-'}</td>
+                    <td class="val-unexcused">${st.unexcusedDays > 0 ? st.unexcusedDays : '-'}</td>
+                    <td><span class="badge badge-danger">${st.totalFullDaysAbsent}</span></td>
+                    <td>${detailsBtn}</td>
+                </tr>
+            `;
+        });
+    }
+
+    // 🔴 دوال تفاصيل وتواريخ الغياب والطباعة 🔴
+    
+    function getDayNameAr(dateString) {
+        const days = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+        const d = new Date(dateString);
+        if(isNaN(d.getTime())) return "";
+        return days[d.getDay()];
+    }
+
+    function openDetails(rawName) {
+        let sClean = rawName.replace(/^[\d\s._-]+/, '').trim();
+        let st = attendanceStats[sClean];
+        if(!st) return;
+
+        currentDetailedStudent = st; // تخزينه لاستخدامه في الطباعة
+
+        document.getElementById('detStudentName').innerText = st.rawName;
+        document.getElementById('detClassName').innerText = st.className;
+
+        const listEl = document.getElementById('datesList');
+        listEl.innerHTML = '';
+
+        st.absentDates.forEach((dateStr, index) => {
+            let dayName = getDayNameAr(dateStr);
+            listEl.innerHTML += `
+                <li>
+                    <span><span style="color:#64748b; font-size:0.9rem;">#${index+1}</span> | <span class="day-name">${dayName}</span></span>
+                    <span class="day-date">${dateStr}</span>
+                </li>
+            `;
+        });
+
+        document.getElementById('detailsModal').style.display = 'block';
+    }
+
+    function printStudentAbsenceReport() {
+        if(!currentDetailedStudent) return;
+        let st = currentDetailedStudent;
+        let sClean = st.rawName.replace(/^[\d\s._-]+/, '').trim();
+        let cpr = (apiData.cprMap && apiData.cprMap[sClean]) ? apiData.cprMap[sClean] : "غير مسجل";
+
+        document.getElementById('pAbsName').innerText = st.rawName;
+        document.getElementById('pAbsCPR').innerText = cpr;
+        document.getElementById('pAbsClass').innerText = st.className;
+        document.getElementById('pAbsCount').innerText = st.totalFullDaysAbsent;
+        
+        let tbody = document.getElementById('printAbsTableBody');
+        tbody.innerHTML = '';
+
+        st.absentDates.forEach((dateStr, index) => {
+            let dayName = getDayNameAr(dateStr);
+            tbody.innerHTML += `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td style="font-weight:bold;">${dayName}</td>
+                    <td style="font-weight:bold;">${dateStr}</td>
+                </tr>
+            `;
+        });
+
+        document.body.classList.add('print-absence');
+        window.print();
+        setTimeout(() => { document.body.classList.remove('print-absence'); }, 1000);
+    }
+
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+</script>
+
+</body>
+</html>
