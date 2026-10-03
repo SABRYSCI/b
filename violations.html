@@ -92,15 +92,34 @@
         /* تنسيق الحقل المخفي للخيارات الأخرى */
         .other-input { display: none; margin-top: 8px; border: 1px solid var(--accent); background-color: #fff; box-shadow: 0 0 5px rgba(5, 150, 105, 0.2); }
 
-        #printReportArea, #printGeneralArea { display: none; }
+        #printReportArea, #printGeneralArea, #printMonthlyArea { display: none; }
+
+        /* ===== تنسيقات التقرير الشهري ===== */
+        .m-summary { display: flex; gap: 10px; margin: 15px 0; }
+        .m-box { flex: 1; border: 2px solid #000; border-radius: 8px; padding: 8px; text-align: center; }
+        .m-lbl { font-size: 13px; font-weight: bold; color: #475569; }
+        .m-num { font-size: 26px; font-weight: 800; color: #b91c1c; }
+        .m-h { font-size: 17px; margin: 18px 0 8px; border-right: 5px solid #b91c1c; padding-right: 8px; }
+        .m-chart { margin: 10px 0; text-align: center; }
+        .m-chart svg { max-width: 100%; height: auto; }
+        .m-stage-title { font-size: 15px; font-weight: bold; background: #f1f5f9 !important; padding: 6px 10px; border: 1px solid #000; margin-top: 14px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        .m-footer { display: flex; justify-content: space-between; margin-top: 40px; text-align: center; font-size: 14px; page-break-inside: avoid; }
+        .m-sig { width: 32%; }
+        .m-role { font-weight: bold; text-decoration: underline; margin-bottom: 4px; }
+        .m-name { font-weight: bold; margin-bottom: 18px; }
+        .page-break { page-break-after: always; }
+        .m-chart-lg svg { max-height: 8cm; }
+        .m-chart:not(.m-chart-lg) svg { max-height: 6.2cm; }
+        .m-prepared { text-align: center; margin-top: 15px; font-size: 14px; font-weight: bold; border-top: 1px solid #000; padding-top: 8px; }
 
         @media print {
-            @page { margin: 1cm; }
+            @page { size: A4 portrait; margin: 1cm; }
             body { background: #fff; padding: 0; margin: 0; font-family: 'Tajawal', sans-serif; }
             #mainContainer, .modal { display: none !important; }
             
             body.print-report #printReportArea { display: block !important; }
             body.print-general #printGeneralArea { display: block !important; }
+            body.print-monthly #printMonthlyArea { display: block !important; }
             
             .print-header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
             .print-header img { max-height: 100px; }
@@ -111,6 +130,14 @@
             .pledge-box { margin-top: 20px; border: 2px dashed #000; padding: 15px; border-radius: 8px; font-size: 15px; text-align: right; background-color: #fafafa !important; -webkit-print-color-adjust: exact; }
             .signatures { display: flex; justify-content: space-between; margin-top: 35px; text-align: center; font-size: 14px; }
             .sig-box { width: 45%; }
+
+            .m-box, .m-chart svg { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .class-block { page-break-inside: avoid; }
+            html, body { width: 210mm; }
+            #printMonthlyArea { width: 100%; }
+            #printMonthlyArea * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .print-table { page-break-inside: auto; }
+            .print-table tr { page-break-inside: avoid; }
         }
     </style>
 </head>
@@ -124,6 +151,7 @@
     <div class="top-nav">
         <button class="btn-nav btn-dash" onclick="openDashboard()">📊 لوحة الإحصائيات والمخالفات</button>
         <button class="btn-nav" onclick="openForm()">➕ تسجيل مخالفة مباشرة</button>
+        <button class="btn-nav" style="background:#0f766e;" onclick="openMonthlyModal()">📅 التقرير الشهري</button>
         <a href="https://sabrysci.github.io/b/social.html" class="btn-nav btn-social">⬅️ الإشراف الاجتماعي</a>
 
         <!-- 🚨 زر الإنذارات الذكية 🚨 -->
@@ -323,6 +351,28 @@
     </div>
 </div>
 
+<!-- 📅 نافذة اختيار الشهر للتقرير الشهري -->
+<div id="monthlyModal" class="modal">
+    <div class="modal-body" style="max-width:450px;">
+        <span class="modal-close" onclick="closeModal('monthlyModal')">&times;</span>
+        <h3 style="margin-top:0; color:#0f766e;">📅 طباعة التقرير الشهري للمخالفات</h3>
+        <div class="form-group">
+            <label>الشهر:</label>
+            <select id="monthlyMonth" class="form-control">
+                <option value="1">يناير</option><option value="2">فبراير</option><option value="3">مارس</option>
+                <option value="4">أبريل</option><option value="5">مايو</option><option value="6">يونيو</option>
+                <option value="7">يوليو</option><option value="8">أغسطس</option><option value="9">سبتمبر</option>
+                <option value="10">أكتوبر</option><option value="11">نوفمبر</option><option value="12">ديسمبر</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>السنة:</label>
+            <input type="number" id="monthlyYear" class="form-control" min="2020" max="2100">
+        </div>
+        <button class="btn-submit" style="background:#0f766e;" onclick="generateMonthlyReport()">🖨️ إنشاء وطباعة التقرير</button>
+    </div>
+</div>
+
 <!-- منطقة طباعة التقرير الفردي للطالب -->
 <div id="printReportArea">
     <div class="print-header">
@@ -386,6 +436,46 @@
     </div>
 </div>
 
+<!-- منطقة طباعة التقرير الشهري -->
+<div id="printMonthlyArea">
+    <div class="print-header">
+        <img src="https://i.postimg.cc/K88X7RLb/trwysyh-dhhbyt.png" alt="ترويسة المدرسة">
+        <div class="print-title">التقرير الشهري الإحصائي للمخالفات السلوكية</div>
+        <div style="font-size:16px; font-weight:bold;">شهر: <span id="pMonthName"></span></div>
+    </div>
+
+    <div class="m-summary">
+        <div class="m-box"><div class="m-lbl">إجمالي المخالفات</div><div class="m-num" id="pmTotal">0</div></div>
+        <div class="m-box"><div class="m-lbl">عدد الطلاب المخالفين</div><div class="m-num" id="pmStudents">0</div></div>
+        <div class="m-box"><div class="m-lbl">المرحلة الأعلى مخالفات</div><div class="m-num" style="font-size:15px;" id="pmTopStage">-</div></div>
+        <div class="m-box"><div class="m-lbl">المرحلة الأقل مخالفات</div><div class="m-num" style="font-size:15px;" id="pmLowStage">-</div></div>
+    </div>
+
+    <h3 class="m-h">أولاً: مقارنة المخالفات بين المراحل الدراسية</h3>
+    <table class="print-table" id="pmStageTable"></table>
+    <div id="pmStageChart" class="m-chart m-chart-lg"></div>
+
+    <div class="page-break"></div>
+
+    <h3 class="m-h">ثانياً: نسبة توزيع المخالفات على المراحل</h3>
+    <div id="pmPieChart" class="m-chart m-chart-lg"></div>
+
+    <h3 class="m-h">ثالثاً: أكثر أنواع المخالفات تكراراً</h3>
+    <table class="print-table" id="pmTypesTable"></table>
+
+    <div class="page-break"></div>
+
+    <h3 class="m-h">رابعاً: المخالفات في صفوف كل مرحلة</h3>
+    <div id="pmClassSections"></div>
+
+    <div class="m-footer">
+        <div class="m-sig"><div class="m-role">المرشد الاجتماعي</div><div class="m-name">الأستاذ: السيد عبدالله الكامل</div><div>..................</div></div>
+        <div class="m-sig"><div class="m-role">المدير المساعد</div><div class="m-name">الأستاذ: عبدالله أحمد دليم</div><div>..................</div></div>
+        <div class="m-sig"><div class="m-role">يعتمد مدير المدرسة</div><div class="m-name">الأستاذ: محمد إبراهيم محمد ناصر</div><div>..................</div></div>
+    </div>
+    <div class="m-prepared">إعداد: صبري محمد حمد</div>
+</div>
+
 <script>
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxlJnpJN9y9h04cOswtY3BGGwUS8rhybOisxDFkIQJ6_9nFSPMJeK-wiuFEECnBY3v5/exec";
     
@@ -410,7 +500,7 @@
       "ثالث إعدادي 1": ["أحمد عبد الامير مهدي حسن", "أحمد محمد عبد الامير الحصار", "ادم احمد عبد النبي ال رضى", "السيد حسين شبر ابراهيم هاشم", "السيد حيدر محمد سعيد هاشم", "السيد عباس نور محمود شرف", "السيد على جلال حيدر علوي", "السيد مجتبى السيد جواد مهدي يوسف", "السيد محمد عدنان ابراهيم هاشم", "السيد محمد ماجد حسن احمد", "السيد هاشم السيد عدنان ابراهيم محمد", "باسم احمد عبد الرسول الصالح", "باسم على مكى طريف", "جعفر مهدي عبدالله ناصر", "حسن على يعقوب محمد الكليب", "حسن محمد عبدالحسين رضى", "حسن محمود عباس نويصر", "حسين عصام عبد الكريم ابراهيم", "رضا حسن على عنان", "عبدالله قاسم فاضل عبد النبي", "على ابراهيم جعفر العرادي", "على يوسف كاظم القلاف", "عمار محمد حسن على يوسف", "قاسم حسن على على", "قاسم على سلمان حسن", "ليث على خليل الحايكي", "محمد حسن يوسف مهدي", "محمد حسين عبد الحسين هلال", "محمد حسين على الطراح", "محمد حسين ناصر حسن", "محمد عبد النبي سلمان جديد", "محمد عبد علي محمد سلمان", "محمد كريم صالح الحواج", "محمدرضا اسامه عبد الجليل الجشي", "يوسف صالح شوقي البناء"],
       "ثالث إعدادي 2": ["إبراهيم خليل ابراهيم حسن", "السيد فاضل عباس علوي العلوي", "السيد فراس السيد حسين مهدي شرف", "السيد مهدي حسن مصطفى علوي", "بدر فيصل على مدن", "جاسم محمد حبيب غريب", "جاسم محمد عبد الحسين على", "جواد ثابت جواد شاهين", "حبيب حمزه احمد المقابي", "حبيب فيصل احمد درويش", "حسن حسين خميس خميس", "حسن عبدالستار غلوم حسين", "حسن على عبدالله عباس", "حسين السيد على شرف محفوظ", "حسين سمير عبد الحسين هلال", "حسين صادق حبيب ال ربيع", "حسين صادق حسن حسن", "حسين عبد الرضا عبدالله السابوري", "رضا على عبدالله اسماعيل", "عبدالله على حسن الرمل", "على حسين محمد الحداد", "على سعيد محمد المشخص", "على فهد على السميع", "قاسم عبد الوهاب محمد على ابراهيم", "مجتبى عقيل خميس صالح", "محمد حسن على خميس", "محمد مهدي على خلف", "محمود عبدالله ابراهيم مهدي", "مقتدى عبد الجبار ميرزا اسماعيل", "مهدي مكى ملا حسن زين الدين", "هادي على عبد الكريم ابراهيم", "يوسف احمد عبد الكريم السقاي"],
       "ثالث إعدادي 3": ["أحمد ابراهيم على زويد", "آدم حسين عبدالله مال الله", "جعفر منير ميرزا مشيمع", "حسن صادق حبيب ال ربيع", "حسن عبد على سعيد الغنامي", "حسن على حسن منصور حسن", "حسين حبيب خميس خميس", "حسين صادق اسماعيل حبيب", "حسين محمود عبد الكريم القلاف", "سجاد عون فؤاد المذوب", "سجاد فاضل عباس السابودي", "عباس يونس عبدالله محمد", "عبد الرحمن محمد فكري ابراهيم", "عبد الرضا عبد المحسن احمد احمد", "على احمد محمد العلواني", "على جواد ملا عبد العزيز مشيمع", "على حسن احمد الجني", "على حسين سلمان راشد علي", "على محمد سلمان حسن", "قاسم سعيد جاسم الاسكافي", "مؤتمن فاضل عباس کاظم", "محمد ناصر عبدالله محمد", "مصطفى جعفر موسى خميس", "منتظر عادل عبد الشهيد الاسكافي", "مهدي هيثم مهدي شمطوط", "هادي ميرزا عبد الامير الحصار", "ياسر احمد عبدالنبي قاسم", "يوسف احمد معتوق مطر", "يوسف عباس حسين عبدالله", "يوسف عبد المجيد احمد عبد الحسين", "يوسف على احمد على"],
-      "ثالث إعدادي 4": ["إبراهيم عبدالله ابراهيم الجبل", "أحمد محسن عبد النبي محمد", "السيد حيدر علي فردان شرف", "السيد قاسم مؤنس ابراهيم هاشم", "جعفر عادل عبد على الشعله", "حسين محمد عبد الجليل كاظم", "حيدر زهير حميد السباع", "حيدر عقيل حسن الشيخ على", "رضا حبيب سلمان على", "سلمان علاء عيسى السهلاوي", "سيد مهدي علوي السيد ابراهيم شرف", "صادق احمد عبدالله صالح", "صادق اسماعيل على حسن", "طارق على خليل الحايكي", "عباس نزار هاشم شبر", "عبدالله محمود عبدالله الشهابي", "عبدالله محمود عبدالنبي حسين", "عبدالله ميرزا صالح الحواج", "على أكبر محمد ابراهيم المبشر", "على جلال على احمد", "على حسين جعفر مال الله", "على حسين على خميس", "على عبد الرضا عبدالحسين امليح", "على عبدالله على على", "مجتبى على حسن يوسف", "محمد صلاح ميرزا احمد", "منتظر جعفر جواد حسن", "مهدي جعفر مهدي فردان", "يوسف احمد عبدالله السابوري", "يوسف باسل عبد الجبار عبد النبي"],
+      "ثالث إعدادي 4": ["إبراهيم عبدالله ابراهيم الجبل", "أحمد محسن عبد النبي محمد", "السيد حيدر علي فردان شرف", "السيد قاسم مؤنس ابراهيم هاشم", "جعفر عادل عبد على الشعله", "حسين محمد عبد الجليل كاظم", "حيدر زهير حميد السباع", "حيدر عقيل حسن الشيخ على", "رضا حبيب سلمان على", "سلمان علاء عيسى السهلاوي", "سيد مهدي علوي السيد ابراهيم شرف", "صادق احمد عبدالله صالح", "صادق اسماعيل على حسن", "طارق على خليل الحايكي", "عباس نزار هاشم شبر", "عبدالله محمود عبدالله الشهابي", "عبدالله محمود عبدالنبي حسين", "عبدالله ميرزا صالح الحواج", "على أكبر محمد ابراهيم المبشر", "على جلال على احمد", "على حسين جعفر مال الله", "على حسين على خميس", "على عبد الرضا عبدالحسین امليح", "على عبدالله على على", "مجتبى على حسن يوسف", "محمد صلاح ميرزا احمد", "منتظر جعفر جواد حسن", "مهدي جعفر مهدي فردان", "يوسف احمد عبدالله السابوري", "يوسف باسل عبد الجبار عبد النبي"],
       "ثالث إعدادي 5": ["احمد يعقوب اسحاق يونس", "آدم محمد يوسف المحاسنيه", "السيد محمد جواد درويش الشرخات", "السيد محمد على جعفر الغنى", "السيد هاشم جلال عيسى حسن", "إلياس محمد يوسف المحاسنيه", "حسن محمد داود مشيمع", "حسين على حسن حسن", "حيدر عبد الامير سعيد عبدالوهاب", "حيدر فلاح موسى خميس", "سيد قاسم حسين على ناصر", "سيد محمد حسين محمد درويش", "سيدهاشم السيد فيصل حيدر علوي", "عباس حسن يوسف شريف", "عباس على عبدالوهاب الشيخ على", "عباس فاضل عبد النبي العود", "عبد العزيز حسن علی احمد", "على حسن جمعه حسن", "على حسن كاظم العويناتي", "على حسين سلمان على احمد", "على حسين عبدالله عباس", "على حسين عبدالله عبدالله", "على حمد عبد الرضا خمدن", "على عادل احمد عبدالله", "على محمد علي عباس", "علي مهدي عبدالله مرهون", "على يوسف احمد امان", "على يوسف كاظم القلاف", "عمار على سعيد عباس", "قاسم فاضل جاسم عتيق", "مجتبى عادل احمد كاظم", "محمد حبيب عبد الرسول احمد", "محمد حسين مرزوق الجبل", "محمد مهدي رائد عبد الكريم عبد على", "مناف عبدالله ابراهيم ال عميري", "يوسف احمد هلال فردان"]
     };
 
@@ -845,6 +935,239 @@
         document.body.classList.add('print-general');
         window.print();
         setTimeout(() => { document.body.classList.remove('print-general'); }, 1000);
+    }
+
+    // ================== التقرير الشهري ==================
+    const MONTH_NAMES = ["","يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];
+    const STAGES_DEF = [
+        { key: "سادس", label: "السادس الابتدائي", color: "#2563eb" },
+        { key: "أول",  label: "الأول الإعدادي",   color: "#d97706" },
+        { key: "ثاني", label: "الثاني الإعدادي",  color: "#059669" },
+        { key: "ثالث", label: "الثالث الإعدادي",  color: "#b91c1c" }
+    ];
+
+    function openMonthlyModal() {
+        const now = new Date();
+        document.getElementById('monthlyMonth').value = now.getMonth() + 1;
+        document.getElementById('monthlyYear').value = now.getFullYear();
+        document.getElementById('monthlyModal').style.display = 'block';
+    }
+
+    // يتحقق أن التاريخ ضمن الشهر المختار
+    function inMonth(dateStr, y, m) {
+        const d = parseDate(dateStr);
+        if (!d) return false;
+        const p = d.split('-');
+        return parseInt(p[0]) === y && parseInt(p[1]) === m;
+    }
+
+    // رسم بياني أعمدة SVG
+    function buildBarChartSVG(items, title) {
+        const W = 700, H = 320, padL = 40, padR = 20, padT = 40, padB = 70;
+        const chartW = W - padL - padR, chartH = H - padT - padB;
+        const maxVal = Math.max(1, ...items.map(i => i.value));
+        const niceMax = Math.max(4, Math.ceil(maxVal / 4) * 4);
+        const slot = chartW / items.length;
+        const barW = Math.min(70, slot * 0.6);
+        const maxItem = Math.max(...items.map(i => i.value));
+        const minItem = Math.min(...items.map(i => i.value));
+
+        let svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" style="font-family:Tajawal,Arial,sans-serif; direction:rtl; background:#fff;">`;
+        svg += `<text x="${W/2}" y="22" text-anchor="middle" font-size="16" font-weight="bold" fill="#1e293b">${title}</text>`;
+
+        for (let i = 0; i <= 4; i++) {
+            const v = niceMax * i / 4;
+            const y = padT + chartH - (v / niceMax) * chartH;
+            svg += `<line x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}" stroke="#e2e8f0" stroke-width="1"/>`;
+            svg += `<text x="${padL - 6}" y="${y + 4}" text-anchor="end" font-size="11" fill="#64748b">${Math.round(v)}</text>`;
+        }
+        svg += `<line x1="${padL}" y1="${padT + chartH}" x2="${W - padR}" y2="${padT + chartH}" stroke="#334155" stroke-width="1.5"/>`;
+
+        items.forEach((it, idx) => {
+            const cx = W - padR - slot * idx - slot / 2;
+            const h = (it.value / niceMax) * chartH;
+            const x = cx - barW / 2;
+            const y = padT + chartH - h;
+            let stroke = "none", tag = "";
+            if (items.length > 1 && maxItem !== minItem) {
+                if (it.value === maxItem) { stroke = "#000"; tag = "▲ الأعلى"; }
+                else if (it.value === minItem) { stroke = "#000"; tag = "▼ الأقل"; }
+            }
+            svg += `<rect x="${x}" y="${y}" width="${barW}" height="${Math.max(h, 0)}" fill="${it.color}" rx="4" stroke="${stroke}" stroke-width="${stroke === 'none' ? 0 : 2}"/>`;
+            svg += `<text x="${cx}" y="${y - 6}" text-anchor="middle" font-size="14" font-weight="bold" fill="#1e293b">${it.value}</text>`;
+            if (tag) svg += `<text x="${cx}" y="${y - 22}" text-anchor="middle" font-size="11" font-weight="bold" fill="#000">${tag}</text>`;
+            svg += `<text x="${cx}" y="${padT + chartH + 18}" text-anchor="middle" font-size="12" font-weight="bold" fill="#1e293b">${it.label}</text>`;
+        });
+        svg += `</svg>`;
+        return svg;
+    }
+
+    // رسم بياني دائري SVG
+    function buildPieChartSVG(items, title) {
+        const W = 700, H = 320, cx = 190, cy = 175, r = 110;
+        const total = items.reduce((a, b) => a + b.value, 0);
+        let svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" style="font-family:Tajawal,Arial,sans-serif; direction:rtl; background:#fff;">`;
+        svg += `<text x="${W/2}" y="24" text-anchor="middle" font-size="16" font-weight="bold" fill="#1e293b">${title}</text>`;
+
+        if (total === 0) {
+            svg += `<text x="${W/2}" y="${H/2}" text-anchor="middle" font-size="16" fill="#64748b">لا توجد مخالفات في هذا الشهر</text></svg>`;
+            return svg;
+        }
+
+        let angle = -Math.PI / 2;
+        items.forEach(it => {
+            if (it.value <= 0) return;
+            const frac = it.value / total;
+            if (frac === 1) {
+                svg += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${it.color}" stroke="#fff" stroke-width="2"/>`;
+            } else {
+                const a1 = angle + frac * 2 * Math.PI;
+                const x0 = cx + r * Math.cos(angle), y0 = cy + r * Math.sin(angle);
+                const x1 = cx + r * Math.cos(a1),    y1 = cy + r * Math.sin(a1);
+                const large = (a1 - angle) > Math.PI ? 1 : 0;
+                svg += `<path d="M ${cx} ${cy} L ${x0} ${y0} A ${r} ${r} 0 ${large} 1 ${x1} ${y1} Z" fill="${it.color}" stroke="#fff" stroke-width="2"/>`;
+                if (frac >= 0.06) {
+                    const mid = angle + (a1 - angle) / 2;
+                    const tx = cx + (r * 0.65) * Math.cos(mid), ty = cy + (r * 0.65) * Math.sin(mid);
+                    svg += `<text x="${tx}" y="${ty + 4}" text-anchor="middle" font-size="13" font-weight="bold" fill="#fff">${(frac * 100).toFixed(0)}%</text>`;
+                }
+                angle = a1;
+            }
+        });
+
+        items.forEach((it, i) => {
+            const y = 110 + i * 38;
+            const pct = ((it.value / total) * 100).toFixed(1);
+            svg += `<rect x="620" y="${y - 12}" width="18" height="18" fill="${it.color}" rx="3"/>`;
+            svg += `<text x="610" y="${y + 2}" text-anchor="end" font-size="14" font-weight="bold" fill="#1e293b">${it.label}: ${it.value} (${pct}%)</text>`;
+        });
+        svg += `</svg>`;
+        return svg;
+    }
+
+    function generateMonthlyReport() {
+        const m = parseInt(document.getElementById('monthlyMonth').value);
+        const y = parseInt(document.getElementById('monthlyYear').value);
+        if (!m || !y) { alert("يرجى اختيار الشهر والسنة."); return; }
+        if (Object.keys(globalStudentsMap).length === 0) { alert("لم يتم تحميل البيانات بعد، اضغط زر التحديث ثم أعد المحاولة."); return; }
+
+        // 1) تجميع المخالفات في الشهر المحدد
+        let classCounts = {};
+        for (let c in HARDCODED_ROSTERS) classCounts[c] = 0;
+        let typeCounts = {};
+        let studentsSet = new Set();
+        let total = 0;
+
+        const addType = (t) => {
+            t = String(t || "").split(" | ")[0].trim();
+            if (!t) t = "غير محدد";
+            typeCounts[t] = (typeCounts[t] || 0) + 1;
+        };
+
+        for (let key in globalStudentsMap) {
+            const stu = globalStudentsMap[key];
+            let cnt = 0;
+
+            stu.teacherVols.forEach(v => {
+                if (inMonth(v.vDate, y, m) || (!parseDate(v.vDate) && inMonth(v.timestamp, y, m))) {
+                    cnt++; addType(v.vType);
+                }
+            });
+
+            stu.supVols.forEach(v => {
+                // استبعاد سجلات "التدخل الإداري" لأنها ليست مخالفات جديدة
+                if (String(v.violationType || "").indexOf("تدخل إداري وإغلاق بلاغ") === 0) return;
+                if (inMonth(v.date, y, m)) { cnt++; addType(v.violationType); }
+            });
+
+            if (cnt > 0) {
+                if (classCounts[stu.cls] === undefined) classCounts[stu.cls] = 0;
+                classCounts[stu.cls] += cnt;
+                total += cnt;
+                studentsSet.add(key);
+            }
+        }
+
+        // 2) تجميع حسب المرحلة
+        const stageTotals = STAGES_DEF.map(st => {
+            let sum = 0;
+            for (let c in classCounts) if (c.startsWith(st.key)) sum += classCounts[c];
+            return { ...st, value: sum };
+        });
+
+        const maxV = Math.max(...stageTotals.map(s => s.value));
+        const minV = Math.min(...stageTotals.map(s => s.value));
+        const topStages = stageTotals.filter(s => s.value === maxV).map(s => s.label).join(" / ");
+        const lowStages = stageTotals.filter(s => s.value === minV).map(s => s.label).join(" / ");
+
+        // 3) الملخص
+        const monthTitle = MONTH_NAMES[m] + " " + y;
+        document.getElementById('pMonthName').innerText = monthTitle;
+        document.getElementById('pmTotal').innerText = total;
+        document.getElementById('pmStudents').innerText = studentsSet.size;
+        document.getElementById('pmTopStage').innerText = total === 0 ? "-" : topStages + " (" + maxV + ")";
+        document.getElementById('pmLowStage').innerText = total === 0 ? "-" : lowStages + " (" + minV + ")";
+
+        // 4) جدول المراحل
+        let tHTML = `<thead><tr><th>المرحلة</th><th>عدد المخالفات</th><th>النسبة من الإجمالي</th></tr></thead><tbody>`;
+        stageTotals.forEach(s => {
+            const pct = total ? ((s.value / total) * 100).toFixed(1) + "%" : "0%";
+            tHTML += `<tr><td style="font-weight:bold;">${s.label}</td><td>${s.value}</td><td>${pct}</td></tr>`;
+        });
+        tHTML += `<tr style="background:#f1f5f9;"><td style="font-weight:bold;">الإجمالي</td><td style="font-weight:bold;">${total}</td><td>100%</td></tr></tbody>`;
+        document.getElementById('pmStageTable').innerHTML = tHTML;
+
+        // 5) الرسوم: أعمدة + دائري
+        const stageItems = stageTotals.map(s => ({ label: s.label, value: s.value, color: s.color }));
+        document.getElementById('pmStageChart').innerHTML = buildBarChartSVG(stageItems, "مقارنة عدد المخالفات بين المراحل - " + monthTitle);
+        document.getElementById('pmPieChart').innerHTML = buildPieChartSVG(stageItems, "نسبة توزيع المخالفات على المراحل - " + monthTitle);
+
+        // 6) أكثر المخالفات تكراراً
+        const sortedTypes = Object.keys(typeCounts).map(t => ({ t: t, c: typeCounts[t] })).sort((a, b) => b.c - a.c).slice(0, 10);
+        let typeHTML = `<thead><tr><th style="width:8%;">م</th><th style="width:60%;">نوع المخالفة</th><th style="width:16%;">التكرار</th><th style="width:16%;">النسبة</th></tr></thead><tbody>`;
+        if (sortedTypes.length === 0) {
+            typeHTML += `<tr><td colspan="4">لا توجد مخالفات مسجلة في هذا الشهر</td></tr>`;
+        } else {
+            sortedTypes.forEach((it, i) => {
+                const pct = ((it.c / total) * 100).toFixed(1) + "%";
+                typeHTML += `<tr><td>${i + 1}</td><td style="text-align:right; font-weight:bold;">${it.t}</td><td>${it.c}</td><td>${pct}</td></tr>`;
+            });
+        }
+        typeHTML += `</tbody>`;
+        document.getElementById('pmTypesTable').innerHTML = typeHTML;
+
+        // 7) أقسام الصفوف (مرحلتان في كل صفحة)
+        let secHTML = "";
+        STAGES_DEF.forEach((st, idx) => {
+            const classes = Object.keys(HARDCODED_ROSTERS).filter(c => c.startsWith(st.key));
+            const items = classes.map(c => ({ label: c, value: classCounts[c] || 0, color: st.color }));
+            const stageSum = items.reduce((a, b) => a + b.value, 0);
+
+            let rows = items.map(it => {
+                const pct = stageSum ? ((it.value / stageSum) * 100).toFixed(1) + "%" : "0%";
+                return `<tr><td style="font-weight:bold;">${it.label}</td><td>${it.value}</td><td>${pct}</td></tr>`;
+            }).join("");
+
+            secHTML += `
+                <div class="class-block">
+                    <div class="m-stage-title">${st.label} — إجمالي المخالفات: ${stageSum}</div>
+                    <table class="print-table" style="margin-bottom:5px;">
+                        <thead><tr><th>الصف</th><th>عدد المخالفات</th><th>النسبة داخل المرحلة</th></tr></thead>
+                        <tbody>${rows}</tbody>
+                    </table>
+                    <div class="m-chart">${buildBarChartSVG(items, "المخالفات في صفوف " + st.label)}</div>
+                </div>`;
+            if (idx === 1) secHTML += `<div class="page-break"></div>`;
+        });
+        document.getElementById('pmClassSections').innerHTML = secHTML;
+
+        // 8) الطباعة
+        closeModal('monthlyModal');
+        document.body.classList.add('print-monthly');
+        setTimeout(() => {
+            window.print();
+            setTimeout(() => { document.body.classList.remove('print-monthly'); }, 1000);
+        }, 300);
     }
 </script>
 </body>
