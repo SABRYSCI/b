@@ -133,8 +133,12 @@
 
             .m-box, .m-chart svg { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             .class-block { page-break-inside: avoid; }
-            html, body { width: 210mm; }
-            #printMonthlyArea { width: 100%; }
+            html, body { width: auto !important; max-width: 100% !important; overflow: visible; }
+            #printMonthlyArea, #printReportArea, #printGeneralArea { box-sizing: border-box; width: 100%; max-width: 100%; }
+            #printMonthlyArea .print-table { table-layout: fixed; width: 100%; }
+            #printMonthlyArea .m-summary { width: 100%; box-sizing: border-box; }
+            #printMonthlyArea .m-box { min-width: 0; box-sizing: border-box; padding: 6px 4px; }
+            #printMonthlyArea .m-chart svg { width: 100%; height: auto; }
             #printMonthlyArea * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             .print-table { page-break-inside: auto; }
             .print-table tr { page-break-inside: avoid; }
@@ -963,7 +967,7 @@
 
     // رسم بياني أعمدة SVG
     function buildBarChartSVG(items, title) {
-        const W = 700, H = 320, padL = 40, padR = 20, padT = 40, padB = 70;
+        const W = 700, H = 330, padL = 40, padR = 20, padT = 62, padB = 66;
         const chartW = W - padL - padR, chartH = H - padT - padB;
         const maxVal = Math.max(1, ...items.map(i => i.value));
         const niceMax = Math.max(4, Math.ceil(maxVal / 4) * 4);
