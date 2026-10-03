@@ -1,123 +1,112 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بوابة الارشاد الاجتماعي - لوحة التحكم الشاملة</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap');
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>بوابة الارشاد الاجتماعي - لوحة التحكم الشاملة</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap');
+:root{--primary:#4338ca;--primary-hover:#3730a3;--secondary:#1e3a8a;--success:#16a34a;--danger:#dc2626;--warning:#ca8a04;--info:#0891b2;--bg-color:#f3f4f6;--card-bg:#fff;--text-main:#1f2937}
+body{font-family:'Tajawal',sans-serif;background-color:var(--bg-color);color:var(--text-main);margin:0;padding:20px}
+.container{max-width:1250px;margin:0 auto}
+.school-header-container{background:#fff;text-align:center;padding:15px;border-bottom:4px solid var(--primary);border-radius:12px 12px 0 0;box-shadow:0 4px 6px -1px rgba(0,0,0,.05);margin-bottom:20px}
+.school-header{max-width:100%;height:auto;display:inline-block}
+.header{text-align:center;margin-bottom:25px}
+.header h1{color:var(--primary);margin:0 0 5px;font-weight:800;font-size:2rem}
+.header h3{margin:0;color:#4b5563;font-weight:500}
+.auth-card{background:#fff;max-width:450px;margin:50px auto;padding:40px 30px;border-radius:15px;box-shadow:0 10px 25px rgba(0,0,0,.1);text-align:center;border-top:5px solid var(--primary)}
+.auth-card h3{color:var(--text-main);margin-bottom:20px;font-weight:800}
+.auth-card input{width:80%;padding:12px;border:1px solid #d1d5db;border-radius:8px;text-align:center;font-size:1.1rem;margin-bottom:20px;font-family:inherit}
+.auth-card button{width:80%;padding:12px;font-size:1.1rem;border-radius:8px}
+.tabs-container{display:flex;justify-content:center;gap:15px;margin-bottom:25px;flex-wrap:wrap}
+.tab-btn{padding:12px 30px;border:none;border-radius:8px;font-size:1.1rem;font-weight:bold;cursor:pointer;background:#e5e7eb;color:#4b5563;transition:.3s;box-shadow:0 2px 4px rgba(0,0,0,.05);font-family:inherit}
+.tab-btn.active{background:var(--primary);color:#fff;box-shadow:0 4px 10px rgba(67,56,202,.3)}
+.tab-btn:hover:not(.active){background:#d1d5db}
+.filters{display:flex;flex-wrap:wrap;gap:15px;background:var(--card-bg);padding:25px;border-radius:12px;box-shadow:0 4px 6px -1px rgba(0,0,0,.1);margin-bottom:25px;align-items:center;justify-content:center}
+.filter-group{display:flex;flex-direction:column;gap:8px}
+.filter-group label{font-weight:bold;font-size:.95rem;color:#4b5563}
+.filter-group input,.filter-group select{padding:10px;border:1px solid #d1d5db;border-radius:8px;font-family:inherit;font-size:1rem}
+.btn-action{background-color:var(--primary);color:#fff;border:none;padding:12px 25px;border-radius:8px;cursor:pointer;font-family:inherit;font-weight:bold;transition:.3s;box-shadow:0 4px 6px rgba(0,0,0,.1)}
+.btn-action:hover{background-color:var(--primary-hover);transform:translateY(-2px)}
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:20px;margin-bottom:25px}
+.stat-card{background:var(--card-bg);padding:25px;border-radius:12px;box-shadow:0 4px 6px -1px rgba(0,0,0,.1);text-align:center;border-bottom:5px solid var(--primary);transition:.3s}
+.stat-card:hover{transform:translateY(-5px);box-shadow:0 10px 15px -3px rgba(0,0,0,.1)}
+.stat-card h3{margin:0;font-size:1.2rem;color:#4b5563}
+.stat-card .value{font-size:2.5rem;font-weight:800;margin:15px 0}
+.stat-card .percent{font-size:1.1rem;font-weight:bold;padding:5px 10px;border-radius:6px;color:#fff;display:inline-block}
+.card-present{border-color:var(--success)}.card-present .value{color:var(--success)}.card-present .percent{background-color:var(--success)}
+.card-absent{border-color:var(--danger)}.card-absent .value{color:var(--danger)}.card-absent .percent{background-color:var(--danger)}
+.card-late{border-color:var(--warning)}.card-late .value{color:var(--warning)}.card-late .percent{background-color:var(--warning)}
+.card-leave{border-color:var(--info)}.card-leave .value{color:var(--info)}.card-leave .percent{background-color:var(--info)}
+.chart-container{background:var(--card-bg);padding:25px;border-radius:12px;box-shadow:0 4px 6px -1px rgba(0,0,0,.1);margin-bottom:25px;height:420px}
+.table-container{background:var(--card-bg);padding:25px;border-radius:12px;box-shadow:0 4px 6px -1px rgba(0,0,0,.1);margin-bottom:25px;overflow-x:auto}
+table{width:100%;border-collapse:collapse;margin-top:15px}
+th,td{border:1px solid #e5e7eb;padding:14px;text-align:center}
+th{background-color:var(--primary);color:#fff;font-size:1.05rem}
+tr:nth-child(even){background-color:#f9fafb}
+tr:hover{background-color:#eff6ff}
+.loading{text-align:center;font-size:1.5rem;color:var(--primary);font-weight:bold;display:none;padding:50px}
+.btn-excuse{background:var(--success);color:#fff;padding:8px 15px;border-radius:6px;font-weight:bold;border:none;cursor:pointer;transition:.3s}
+.btn-excuse:hover{background:#15803d}
+.no-excuse{color:var(--danger);font-weight:bold;background:#fee2e2;padding:6px 10px;border-radius:6px;display:inline-block}
+.copy-cpr-btn{background:#e5e7eb;border:1px solid #d1d5db;padding:4px 8px;border-radius:4px;cursor:pointer;font-family:inherit;font-size:.8rem;margin-right:5px;transition:.3s}
+.copy-cpr-btn:hover{background:#d1d5db}
+.quick-excuse-btn{background:var(--info);color:#fff;padding:6px 10px;border-radius:6px;font-weight:bold;border:none;cursor:pointer;text-decoration:none;font-size:.85rem;margin-top:5px;display:inline-block}
+.quick-excuse-btn:hover{background:#06b6d4}
+.modal{display:none;position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;background-color:rgba(0,0,0,.6);backdrop-filter:blur(4px)}
+.modal-content{background:#fff;margin:5% auto;padding:25px;border-radius:12px;width:90%;max-width:500px;box-shadow:0 20px 25px -5px rgba(0,0,0,.1)}
+.close-btn{color:var(--danger);float:left;font-size:32px;font-weight:bold;cursor:pointer;line-height:1}
+.modal-field{margin-bottom:15px}
+.modal-field label{font-weight:bold;color:#4b5563;display:block;margin-bottom:8px}
+.modal-field div{background:#f3f4f6;padding:12px;border-radius:8px;white-space:pre-wrap;font-size:1.05rem}
+.modal-field select,.modal-field input.mi{width:100%;box-sizing:border-box;padding:10px;border:1px solid #d1d5db;border-radius:8px;font-family:inherit;font-size:1rem;background:#fff}
+.attach-btn{display:inline-block;background:var(--secondary);color:#fff;padding:10px 20px;text-decoration:none;border-radius:8px;margin-top:5px;font-size:.95rem;font-weight:bold;transition:.3s}
+.attach-btn:hover{background:#172554}
 
-        :root {
-            --primary: #4338ca; 
-            --primary-hover: #3730a3;
-            --secondary: #1e3a8a;
-            --success: #16a34a; 
-            --danger: #dc2626; 
-            --warning: #ca8a04; 
-            --info: #0891b2; 
-            --bg-color: #f3f4f6; 
-            --card-bg: #ffffff; 
-            --text-main: #1f2937;
-        }
+/* ===== التقارير الشهرية ===== */
+#printMonthlyArea{display:none}
+.m-sum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
+.m-box{border:2px solid #000;border-radius:8px;padding:6px 4px;text-align:center;min-width:0;box-sizing:border-box}
+.m-lbl{font-size:12px;font-weight:bold;color:#475569}
+.m-num{font-size:24px;font-weight:800;color:#b91c1c}
+.m-h{font-size:16px;margin:14px 0 8px;border-right:5px solid #b91c1c;padding-right:8px}
+.mc{margin:8px 0;text-align:center}
+.mc svg{width:100%;height:auto;max-height:6.6cm}
+.m-st{font-size:14px;font-weight:bold;background:#f1f5f9;padding:5px 10px;border:1px solid #000;margin-top:12px}
+.m-footer{display:flex;justify-content:space-between;margin-top:30px;text-align:center;font-size:13px;page-break-inside:avoid}
+.m-sig{width:32%}.m-role{font-weight:bold;text-decoration:underline;margin-bottom:4px}.m-name{font-weight:bold;margin-bottom:16px}
+.m-prep{text-align:center;margin-top:12px;font-size:13px;font-weight:bold;border-top:1px solid #000;padding-top:6px}
+.pgb{page-break-after:always}
 
-        body { font-family: 'Tajawal', sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; padding: 20px; }
-        .container { max-width: 1250px; margin: 0 auto; }
-        
-        .school-header-container {
-            background-color: #fff;
-            text-align: center;
-            padding: 15px;
-            border-bottom: 4px solid var(--primary);
-            border-radius: 12px 12px 0 0;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
-            margin-bottom: 20px;
-        }
-        .school-header { max-width: 100%; height: auto; display: inline-block; }
+@media print{
+body{background:#fff;padding:0}
+.no-print,.filters,.tabs-container,button,.auth-card{display:none !important}
+.container{max-width:100%}
+.school-header-container{border:none;box-shadow:none;margin-bottom:10px}
+.stat-card{border:1px solid #000;box-shadow:none;break-inside:avoid}
+.percent{-webkit-print-color-adjust:exact;print-color-adjust:exact;color:#000 !important;border:1px solid #000}
+.chart-container{box-shadow:none;border:1px solid #000;page-break-inside:avoid;height:350px !important}
+.table-container{box-shadow:none;border:none;padding:0}
+table{width:100% !important;table-layout:fixed}
+th,td{border:1px solid #000 !important;font-size:12pt;padding:8px;color:#000}
+th{background-color:#e5e7eb !important;color:#000 !important;-webkit-print-color-adjust:exact}
+.details-table th:nth-child(5),.details-table td:nth-child(5){display:none !important}
+.details-table th:nth-child(3),.details-table td:nth-child(3){width:40% !important;font-size:14pt !important;font-weight:bold}
+@page{margin:1cm;size:A4 portrait}
 
-        .header { text-align: center; margin-bottom: 25px; }
-        .header h1 { color: var(--primary); margin: 0 0 5px 0; font-weight: 800; font-size: 2rem;}
-        .header h3 { margin: 0; color: #4b5563; font-weight: 500;}
-
-        .auth-card {
-            background: white; max-width: 450px; margin: 50px auto; padding: 40px 30px;
-            border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center;
-            border-top: 5px solid var(--primary);
-        }
-        .auth-card h3 { color: var(--text-main); margin-bottom: 20px; font-weight: 800; }
-        .auth-card input { width: 80%; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; text-align: center; font-size: 1.1rem; margin-bottom: 20px; font-family: inherit;}
-        .auth-card button { width: 80%; padding: 12px; font-size: 1.1rem; border-radius: 8px; }
-
-        .tabs-container { display: flex; justify-content: center; gap: 15px; margin-bottom: 25px; flex-wrap: wrap; }
-        .tab-btn { padding: 12px 30px; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; background: #e5e7eb; color: #4b5563; transition: 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.05);}
-        .tab-btn.active { background: var(--primary); color: white; box-shadow: 0 4px 10px rgba(67, 56, 202, 0.3); }
-        .tab-btn:hover:not(.active) { background: #d1d5db; }
-
-        .filters { display: flex; flex-wrap: wrap; gap: 15px; background: var(--card-bg); padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 25px; align-items: center; justify-content: center; }
-        .filter-group { display: flex; flex-direction: column; gap: 8px; }
-        .filter-group label { font-weight: bold; font-size: 0.95rem; color: #4b5563; }
-        .filter-group input, .filter-group select { padding: 10px; border: 1px solid #d1d5db; border-radius: 8px; font-family: inherit; font-size: 1rem;}
-        
-        .btn-action { background-color: var(--primary); color: white; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-family: inherit; font-weight: bold; transition: 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.1);}
-        .btn-action:hover { background-color: var(--primary-hover); transform: translateY(-2px);}
-
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 25px; }
-        .stat-card { background: var(--card-bg); padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); text-align: center; border-bottom: 5px solid var(--primary); transition: 0.3s;}
-        .stat-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
-        .stat-card h3 { margin: 0; font-size: 1.2rem; color: #4b5563; }
-        .stat-card .value { font-size: 2.5rem; font-weight: 800; margin: 15px 0; }
-        .stat-card .percent { font-size: 1.1rem; font-weight: bold; padding: 5px 10px; border-radius: 6px; color: white; display: inline-block;}
-        
-        .card-present { border-color: var(--success); } .card-present .value { color: var(--success); } .card-present .percent { background-color: var(--success); }
-        .card-absent { border-color: var(--danger); } .card-absent .value { color: var(--danger); } .card-absent .percent { background-color: var(--danger); }
-        .card-late { border-color: var(--warning); } .card-late .value { color: var(--warning); } .card-late .percent { background-color: var(--warning); }
-        .card-leave { border-color: var(--info); } .card-leave .value { color: var(--info); } .card-leave .percent { background-color: var(--info); }
-
-        .chart-container { background: var(--card-bg); padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 25px; height: 420px; }
-        .table-container { background: var(--card-bg); padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 25px; overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { border: 1px solid #e5e7eb; padding: 14px; text-align: center; }
-        th { background-color: var(--primary); color: white; font-size: 1.05rem;}
-        tr:nth-child(even) { background-color: #f9fafb; }
-        tr:hover { background-color: #eff6ff; }
-        .loading { text-align: center; font-size: 1.5rem; color: var(--primary); font-weight: bold; display: none; padding: 50px; }
-
-        .btn-excuse { background: var(--success); color: white; padding: 8px 15px; border-radius: 6px; font-weight: bold; border: none; cursor: pointer; transition:0.3s;}
-        .btn-excuse:hover { background: #15803d; }
-        .no-excuse { color: var(--danger); font-weight: bold; background: #fee2e2; padding: 6px 10px; border-radius: 6px; display:inline-block;}
-        
-        .copy-cpr-btn { background: #e5e7eb; border: 1px solid #d1d5db; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-family: inherit; font-size: 0.8rem; margin-right: 5px; transition: 0.3s;}
-        .copy-cpr-btn:hover { background: #d1d5db; }
-
-        .quick-excuse-btn { background: var(--info); color: white; padding: 6px 10px; border-radius: 6px; font-weight: bold; border: none; cursor: pointer; text-decoration: none; font-size: 0.85rem; margin-top:5px; display:inline-block;}
-        .quick-excuse-btn:hover { background: #06b6d4; }
-
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); backdrop-filter: blur(4px); }
-        .modal-content { background-color: #fff; margin: 5% auto; padding: 25px; border-radius: 12px; width: 90%; max-width: 500px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
-        .close-btn { color: var(--danger); float: left; font-size: 32px; font-weight: bold; cursor: pointer; line-height: 1;}
-        .modal-field { margin-bottom: 15px; }
-        .modal-field label { font-weight: bold; color: #4b5563; display: block; margin-bottom: 8px; }
-        .modal-field div { background: #f3f4f6; padding: 12px; border-radius: 8px; white-space: pre-wrap; font-size:1.05rem;}
-        .attach-btn { display: inline-block; background: var(--secondary); color: white; padding: 10px 20px; text-decoration: none; border-radius: 8px; margin-top: 5px; font-size: 0.95rem; font-weight: bold; transition:0.3s;}
-        .attach-btn:hover { background: #172554; }
-
-        @media print {
-            body { background: white; padding: 0; }
-            .no-print, .filters, .tabs-container, button, .auth-card { display: none !important; }
-            .container { max-width: 100%; }
-            .school-header-container { border: none; box-shadow: none; margin-bottom: 10px; }
-            .stat-card { border: 1px solid #000; box-shadow: none; break-inside: avoid; }
-            .percent { -webkit-print-color-adjust: exact; print-color-adjust: exact; color: #000 !important; border: 1px solid #000; }
-            .chart-container { box-shadow: none; border: 1px solid #000; page-break-inside: avoid; height: 350px !important; }
-            .table-container { box-shadow: none; border: none; padding: 0; }
-            table { width: 100% !important; table-layout: fixed; }
-            th, td { border: 1px solid #000 !important; font-size: 12pt; padding: 8px; color: #000; }
-            th { background-color: #e5e7eb !important; color: #000 !important; -webkit-print-color-adjust: exact; }
-            .details-table th:nth-child(5), .details-table td:nth-child(5) { display: none !important; } 
-            .details-table th:nth-child(3), .details-table td:nth-child(3) { width: 40% !important; font-size: 14pt !important; font-weight: bold; }
-            @page { margin: 1cm; size: A4; }
-        }
-    </style>
+body.print-monthly .container,body.print-monthly .modal{display:none !important}
+body.print-monthly #printMonthlyArea{display:block !important;width:100%;box-sizing:border-box}
+#printMonthlyArea *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+#printMonthlyArea .pheader{text-align:center;border-bottom:2px solid #000;padding-bottom:8px;margin-bottom:10px}
+#printMonthlyArea .pheader img{max-width:100%;max-height:95px}
+#printMonthlyArea .ptitle{font-size:19px;font-weight:800;margin:8px 0;text-decoration:underline}
+#printMonthlyArea table{table-layout:fixed;width:100%;margin:6px 0 10px;text-align:center}
+#printMonthlyArea th,#printMonthlyArea td{font-size:11pt;padding:5px 4px;word-wrap:break-word}
+#printMonthlyArea tr{page-break-inside:avoid}
+.cblock{page-break-inside:avoid}
+}
+</style>
 </head>
 <body>
 
@@ -141,29 +130,23 @@
     <div class="loading" id="loadingSpinner">جاري جلب وتحليل البيانات... يرجى الانتظار ⏳</div>
 
     <div id="mainContent" style="display:none;">
-        
+
         <div class="tabs-container no-print">
             <button class="tab-btn active" id="tabStatsBtn" onclick="switchTab('stats')">📊 الإحصائيات العامة</button>
             <button class="tab-btn" id="tabSocialBtn" onclick="switchTab('social')">🛡️ الإرشاد الاجتماعي (الأعذار)</button>
-            
-            <!-- 🔴 تم إضافة أزرار الانتقال السريع هنا 🔴 -->
-            <a href="https://sabrysci.github.io/b/absences.html" class="tab-btn" style="background: #d97706; color: white; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+            <button class="tab-btn" style="background:#0f766e;color:#fff;" onclick="openMonthly()">📅 التقارير الشهرية</button>
+
+            <a href="https://sabrysci.github.io/b/absences.html" class="tab-btn" style="background:#d97706;color:white;text-decoration:none;display:inline-flex;align-items:center;gap:8px;box-shadow:0 4px 6px rgba(0,0,0,.1);">
                 <span>⚠️</span> سجل الغياب التراكمي الشامل
             </a>
-            <a href="https://sabrysci.github.io/b/violations.html" class="tab-btn" style="background: #dc2626; color: white; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+            <a href="https://sabrysci.github.io/b/violations.html" class="tab-btn" style="background:#dc2626;color:white;text-decoration:none;display:inline-flex;align-items:center;gap:8px;box-shadow:0 4px 6px rgba(0,0,0,.1);">
                 <span>🛑</span> سجل المخالفات السلوكية
             </a>
         </div>
 
         <div class="filters no-print">
-            <div class="filter-group">
-                <label>تاريخ البداية (اليوم):</label>
-                <input type="date" id="startDate">
-            </div>
-            <div class="filter-group">
-                <label>تاريخ النهاية (للرسم البياني):</label>
-                <input type="date" id="endDate">
-            </div>
+            <div class="filter-group"><label>تاريخ البداية (اليوم):</label><input type="date" id="startDate"></div>
+            <div class="filter-group"><label>تاريخ النهاية (للرسم البياني):</label><input type="date" id="endDate"></div>
             <div class="filter-group">
                 <label>المرحلة / الصف:</label>
                 <select id="stageFilter">
@@ -175,64 +158,47 @@
                 </select>
             </div>
             <button class="btn-action" onclick="refreshData()" id="refreshBtn">🔄 تحديث البيانات (جلب الأعذار الجديدة)</button>
-            <button class="btn-action" onclick="window.print()" style="background-color: #4b5563;">🖨️ طباعة التقرير</button>
+            <button class="btn-action" onclick="window.print()" style="background-color:#4b5563;">🖨️ طباعة التقرير</button>
         </div>
 
-        <h3 id="reportTitle" style="text-align: center; border-bottom: 2px dashed #d1d5db; padding-bottom:15px; color: #374151;">التقرير المخصص للتاريخ المحدد</h3>
+        <h3 id="reportTitle" style="text-align:center;border-bottom:2px dashed #d1d5db;padding-bottom:15px;color:#374151;">التقرير المخصص للتاريخ المحدد</h3>
 
-        <!-- قسم الإحصائيات -->
         <div id="viewStats">
             <div class="stats-grid">
-                <div class="stat-card card-present">
-                    <h3>حضور تام</h3><div class="value" id="valPresent">0</div><div class="percent" id="percPresent">0%</div>
-                </div>
-                <div class="stat-card card-absent">
-                    <h3>غياب كلي</h3><div class="value" id="valAbsent">0</div><div class="percent" id="percAbsent">0%</div>
-                </div>
-                <div class="stat-card card-late">
-                    <h3>تأخير (جزئي)</h3><div class="value" id="valLate">0</div><div class="percent" id="percLate">0%</div>
-                </div>
-                <div class="stat-card card-leave">
-                    <h3>استئذان</h3><div class="value" id="valLeave">0</div><div class="percent" id="percLeave">0%</div>
-                </div>
+                <div class="stat-card card-present"><h3>حضور تام</h3><div class="value" id="valPresent">0</div><div class="percent" id="percPresent">0%</div></div>
+                <div class="stat-card card-absent"><h3>غياب كلي</h3><div class="value" id="valAbsent">0</div><div class="percent" id="percAbsent">0%</div></div>
+                <div class="stat-card card-late"><h3>تأخير (جزئي)</h3><div class="value" id="valLate">0</div><div class="percent" id="percLate">0%</div></div>
+                <div class="stat-card card-leave"><h3>استئذان</h3><div class="value" id="valLeave">0</div><div class="percent" id="percLeave">0%</div></div>
             </div>
 
             <div class="chart-container"><canvas id="trendChart"></canvas></div>
 
             <div class="table-container">
-                <h3 style="color:var(--primary); margin-top:0;">تفصيل الإحصائيات (العدد والنسبة المئوية)</h3>
+                <h3 style="color:var(--primary);margin-top:0;">تفصيل الإحصائيات (العدد والنسبة المئوية)</h3>
                 <table id="breakdownTable">
-                    <thead>
-                        <tr><th>القسم</th><th>العدد الكلي</th><th>الحضور</th><th>الغياب الكلي</th><th>تأخير صباحي</th><th>خروج باستئذان</th></tr>
-                    </thead>
+                    <thead><tr><th>القسم</th><th>العدد الكلي</th><th>الحضور</th><th>الغياب الكلي</th><th>تأخير صباحي</th><th>خروج باستئذان</th></tr></thead>
                     <tbody></tbody>
                 </table>
             </div>
 
             <div class="table-container">
-                <h3 style="color:var(--primary); margin-top:0;">تفاصيل سجلات الغياب والتأخير</h3>
+                <h3 style="color:var(--primary);margin-top:0;">تفاصيل سجلات الغياب والتأخير</h3>
                 <table class="details-table" id="detailsTable">
-                    <thead>
-                        <tr><th>التاريخ</th><th>الصف</th><th>اسم الطالب</th><th>الحالة</th><th>الراصدون</th></tr>
-                    </thead>
+                    <thead><tr><th>التاريخ</th><th>الصف</th><th>اسم الطالب</th><th>الحالة</th><th>الراصدون</th></tr></thead>
                     <tbody></tbody>
                 </table>
             </div>
         </div>
 
-        <!-- قسم الإرشاد الاجتماعي -->
         <div id="viewSocial" style="display:none;">
             <div class="table-container">
-                <h3 style="color:var(--primary); margin-top:0;">مطابقة سجل الغياب مع الأعذار (حسب تاريخ البداية)</h3>
+                <h3 style="color:var(--primary);margin-top:0;">مطابقة سجل الغياب مع الأعذار (حسب تاريخ البداية)</h3>
                 <table id="socialTable">
-                    <thead>
-                        <tr><th>تاريخ الغياب</th><th>الرقم الشخصي</th><th>اسم الطالب</th><th>الصف</th><th>الحصص المفقودة</th><th>موقف العذر</th></tr>
-                    </thead>
+                    <thead><tr><th>تاريخ الغياب</th><th>الرقم الشخصي</th><th>اسم الطالب</th><th>الصف</th><th>الحصص المفقودة</th><th>موقف العذر</th></tr></thead>
                     <tbody></tbody>
                 </table>
             </div>
         </div>
-
     </div>
 </div>
 
@@ -240,15 +206,51 @@
 <div id="excuseModal" class="modal no-print">
     <div class="modal-content">
         <span class="close-btn" onclick="closeModal()">&times;</span>
-        <h3 style="margin-top:0; border-bottom: 2px solid #e5e7eb; padding-bottom:15px; color:var(--primary);">تفاصيل العذر المقدم</h3>
+        <h3 style="margin-top:0;border-bottom:2px solid #e5e7eb;padding-bottom:15px;color:var(--primary);">تفاصيل العذر المقدم</h3>
         <div class="modal-field"><label>وقت التقديم:</label><div id="m-time"></div></div>
-        <div class="modal-field"><label>رقم ولي الأمر:</label><div id="m-phone" style="direction: ltr; text-align: right;"></div></div>
+        <div class="modal-field"><label>رقم ولي الأمر:</label><div id="m-phone" style="direction:ltr;text-align:right;"></div></div>
         <div class="modal-field"><label>سبب الغياب المكتوب:</label><div id="m-reason"></div></div>
-        <div class="modal-field">
-            <label>المرفقات والصور:</label>
-            <div id="m-files" style="background:transparent; padding:0;"></div>
-        </div>
+        <div class="modal-field"><label>المرفقات والصور:</label><div id="m-files" style="background:transparent;padding:0;"></div></div>
     </div>
+</div>
+
+<!-- نافذة التقارير الشهرية -->
+<div id="monthlyModal" class="modal no-print">
+    <div class="modal-content" style="max-width:450px;">
+        <span class="close-btn" onclick="closeMonthly()">&times;</span>
+        <h3 style="margin-top:0;border-bottom:2px solid #e5e7eb;padding-bottom:15px;color:#0f766e;">📅 التقارير الشهرية</h3>
+        <div class="modal-field"><label>نوع التقرير:</label>
+            <select id="mType">
+                <option value="att">📊 تقرير الحضور والغياب والاستئذان والتأخير</option>
+                <option value="vio">🛑 تقرير المخالفات السلوكية</option>
+            </select>
+        </div>
+        <div class="modal-field"><label>الشهر:</label>
+            <select id="mMonth">
+                <option value="1">يناير</option><option value="2">فبراير</option><option value="3">مارس</option><option value="4">أبريل</option>
+                <option value="5">مايو</option><option value="6">يونيو</option><option value="7">يوليو</option><option value="8">أغسطس</option>
+                <option value="9">سبتمبر</option><option value="10">أكتوبر</option><option value="11">نوفمبر</option><option value="12">ديسمبر</option>
+            </select>
+        </div>
+        <div class="modal-field"><label>السنة:</label><input type="number" id="mYear" class="mi" min="2020" max="2100"></div>
+        <button class="btn-action" id="mBtn" style="width:100%;background:#0f766e;" onclick="genMonthly()">🖨️ إنشاء وطباعة التقرير</button>
+    </div>
+</div>
+
+<!-- منطقة طباعة التقرير الشهري -->
+<div id="printMonthlyArea">
+    <div class="pheader">
+        <img src="https://i.postimg.cc/K88X7RLb/trwysyh-dhhbyt.png" alt="ترويسة المدرسة">
+        <div class="ptitle" id="pmTitle"></div>
+        <div style="font-size:15px;font-weight:bold;" id="pmSub"></div>
+    </div>
+    <div id="pmBody"></div>
+    <div class="m-footer">
+        <div class="m-sig"><div class="m-role">المرشد الاجتماعي</div><div class="m-name">الأستاذ: السيد عبدالله الكامل</div><div>..................</div></div>
+        <div class="m-sig"><div class="m-role">المدير المساعد</div><div class="m-name">الأستاذ: عبدالله أحمد دليم</div><div>..................</div></div>
+        <div class="m-sig"><div class="m-role">يعتمد مدير المدرسة</div><div class="m-name">الأستاذ: محمد إبراهيم محمد ناصر</div><div>..................</div></div>
+    </div>
+    <div class="m-prep">إعداد: صبري محمد حمد</div>
 </div>
 
 <script>
@@ -273,10 +275,8 @@
     function authenticate() {
         const pass = document.getElementById('passInput').value;
         if (!pass) return alert('أدخل كلمة المرور');
-        
         document.getElementById('authSection').style.display = 'none';
         document.getElementById('loadingSpinner').style.display = 'block';
-
         fetch(`${SCRIPT_URL}?action=dashboard_data&pass=${pass}`)
             .then(res => res.json())
             .then(data => {
@@ -300,12 +300,10 @@
     function refreshData() {
         const pass = document.getElementById('passInput').value;
         if (!pass) return alert('يرجى تسجيل الدخول أولاً');
-        
         const btn = document.getElementById('refreshBtn');
         const originalText = btn.innerText;
         btn.innerText = "⏳ جاري التحديث...";
         btn.disabled = true;
-
         fetch(`${SCRIPT_URL}?action=dashboard_data&pass=${pass}`)
             .then(res => res.json())
             .then(data => {
@@ -315,9 +313,7 @@
                     rawData = data;
                     applyFilters();
                     alert("✅ تم جلب أحدث البيانات والأعذار بنجاح!");
-                } else {
-                    alert('خطأ: ' + data.message);
-                }
+                } else { alert('خطأ: ' + data.message); }
             }).catch(err => {
                 btn.innerText = originalText;
                 btn.disabled = false;
@@ -337,9 +333,29 @@
     function copyCPR(cprVal) {
         navigator.clipboard.writeText(cprVal).then(() => {
             alert("تم نسخ الرقم الشخصي: " + cprVal);
-        }).catch(err => {
-            alert("تعذر النسخ التلقائي، يمكنك تحديده ونسخه يدوياً.");
-        });
+        }).catch(err => { alert("تعذر النسخ التلقائي، يمكنك تحديده ونسخه يدوياً."); });
+    }
+
+    // الطالب يُحتسب غائباً (كلياً) فقط إذا غاب عن جميع حصص صفه في ذلك اليوم
+    let _absIdx = null;
+    function isFullAbs(rec) {
+        if (!_absIdx || _absIdx.src !== rawData) {
+            const cp = {}, sp = {};
+            rawData.records.forEach(r => {
+                if (!r.date || !r.period) return;
+                const ck = r.date + '|' + r.className;
+                (cp[ck] = cp[ck] || {})[r.period] = 1;
+                if (r.studentName && !r.studentName.includes('لا يوجد')) {
+                    const sk = ck + '|' + r.studentName.replace(/^[\d\s._-]+/, '').trim();
+                    (sp[sk] = sp[sk] || {})[r.period] = 1;
+                }
+            });
+            _absIdx = { src: rawData, cp, sp };
+        }
+        const ck = rec.date + '|' + rec.className;
+        const tot = Object.keys(_absIdx.cp[ck] || {}).length;
+        const ab = Object.keys(_absIdx.sp[ck + '|' + String(rec.studentName).replace(/^[\d\s._-]+/, '').trim()] || {}).length;
+        return tot > 0 ? ab >= tot : true;
     }
 
     function applyFilters() {
@@ -347,7 +363,6 @@
         const startDate = document.getElementById('startDate').value;
         const endDate = document.getElementById('endDate').value;
         const stageFilter = document.getElementById('stageFilter').value;
-        
         document.getElementById('reportTitle').innerText = `التقرير المخصص للفترة من ${startDate} إلى ${endDate}`;
 
         let dailyStats = {}; 
@@ -373,13 +388,13 @@
             if(dailyStats[rec.date] && rec.studentName && !rec.studentName.includes('لا يوجد')) {
                 let sName = rec.studentName.replace(/^[\d\s._-]+/, '').trim();
                 let stg = extractStage(rec.className);
-                
-                if(!dailyStats[rec.date].students[sName]) {
-                    dailyStats[rec.date].students[sName] = { className: rec.className, stage: stg, state: 'absent', teachers: rec.teacher };
-                } else if(dailyStats[rec.date].students[sName].state === 'absent') {
-                    if(!dailyStats[rec.date].students[sName].teachers.includes(rec.teacher)) dailyStats[rec.date].students[sName].teachers += ' ، ' + rec.teacher;
+                if(isFullAbs(rec)) {
+                    if(!dailyStats[rec.date].students[sName]) {
+                        dailyStats[rec.date].students[sName] = { className: rec.className, stage: stg, state: 'absent', teachers: rec.teacher };
+                    } else if(dailyStats[rec.date].students[sName].state === 'absent') {
+                        if(!dailyStats[rec.date].students[sName].teachers.includes(rec.teacher)) dailyStats[rec.date].students[sName].teachers += ' ، ' + rec.teacher;
+                    }
                 }
-
                 if(rec.date === startDate) {
                     let key = sName;
                     if(!absMapForSocial[key]) absMapForSocial[key] = { className: rec.className, rawName: rec.studentName, periods: [] };
@@ -412,7 +427,7 @@
                 }
             }
         }
-        
+
         let totalPresent = totalStudents - totalAbsent;
         document.getElementById('valPresent').innerText = totalPresent; document.getElementById('percPresent').innerText = calcPercent(totalPresent, totalStudents);
         document.getElementById('valAbsent').innerText = totalAbsent; document.getElementById('percAbsent').innerText = calcPercent(totalAbsent, totalStudents);
@@ -424,10 +439,10 @@
         for(let k in breakDown) {
             let r = breakDown[k]; let rP = r.total - r.absent;
             tBodyBreakdown.innerHTML += `<tr><td style="font-weight:bold;">${k}</td><td>${r.total}</td>
-                <td style="color:var(--success); font-weight:bold;">${rP} <br><span class="percent" style="background:var(--success); font-size:0.85rem; margin-top:5px;">${calcPercent(rP, r.total)}</span></td>
-                <td style="color:var(--danger); font-weight:bold;">${r.absent} <br><span class="percent" style="background:var(--danger); font-size:0.85rem; margin-top:5px;">${calcPercent(r.absent, r.total)}</span></td>
-                <td style="color:var(--warning); font-weight:bold;">${r.late} <br><span class="percent" style="background:var(--warning); font-size:0.85rem; margin-top:5px;">${calcPercent(r.late, r.total)}</span></td>
-                <td style="color:var(--info); font-weight:bold;">${r.leave} <br><span class="percent" style="background:var(--info); font-size:0.85rem; margin-top:5px;">${calcPercent(r.leave, r.total)}</span></td></tr>`;
+                <td style="color:var(--success);font-weight:bold;">${rP} <br><span class="percent" style="background:var(--success);font-size:.85rem;margin-top:5px;">${calcPercent(rP, r.total)}</span></td>
+                <td style="color:var(--danger);font-weight:bold;">${r.absent} <br><span class="percent" style="background:var(--danger);font-size:.85rem;margin-top:5px;">${calcPercent(r.absent, r.total)}</span></td>
+                <td style="color:var(--warning);font-weight:bold;">${r.late} <br><span class="percent" style="background:var(--warning);font-size:.85rem;margin-top:5px;">${calcPercent(r.late, r.total)}</span></td>
+                <td style="color:var(--info);font-weight:bold;">${r.leave} <br><span class="percent" style="background:var(--info);font-size:.85rem;margin-top:5px;">${calcPercent(r.leave, r.total)}</span></td></tr>`;
         }
 
         let tBodyDetails = document.querySelector('#detailsTable tbody');
@@ -438,7 +453,7 @@
                 if((stageFilter === 'all') || (stageFilter === info.stage) || (stageFilter === info.className)) {
                     let stateAr = info.state === 'absent' ? 'غياب كلي' : (info.state === 'late' ? 'تأخير صباحي' : 'خروج باستئذان');
                     let color = info.state === 'absent' ? 'var(--danger)' : (info.state === 'late' ? 'var(--warning)' : 'var(--info)');
-                    tBodyDetails.innerHTML += `<tr><td>${startDate}</td><td>${info.className}</td><td class="student-col" style="font-weight:bold;">${sName}</td><td style="color:${color}; font-weight:bold;">${stateAr}</td><td class="teacher-col" style="font-size:0.9rem; color:#4b5563;">${info.teachers}</td></tr>`;
+                    tBodyDetails.innerHTML += `<tr><td>${startDate}</td><td>${info.className}</td><td class="student-col" style="font-weight:bold;">${sName}</td><td style="color:${color};font-weight:bold;">${stateAr}</td><td class="teacher-col" style="font-size:.9rem;color:#4b5563;">${info.teachers}</td></tr>`;
                 }
             }
         }
@@ -479,35 +494,28 @@
             let info = absMapForSocial[name];
             let exKey = startDate + "_" + name;
             let excuse = globalExcuses[exKey];
-            
             let cleanN = info.rawName.replace(/^[\d\s._-]+/, '').trim();
             let studentCpr = rawData.cprMap && rawData.cprMap[cleanN] ? rawData.cprMap[cleanN] : "غير متوفر";
-            
             let match = (stageFilter === 'all') || (stageFilter === extractStage(info.className)) || (stageFilter === info.className);
             if(match) {
                 let excuseHtml = '';
                 if (excuse) {
                     excuseHtml = `<button class="btn-excuse" onclick="openModal('${exKey}')">📄 يوجد عذر (عرض)</button>`;
                 } else {
-                    excuseHtml = `
-                        <div style="margin-bottom:5px;"><span class="no-excuse">لم يقدم عذر</span></div>
-                        <a href="excuse.html" target="_blank" class="quick-excuse-btn">📝 إضافة عذر بالنيابة</a>
-                    `;
+                    excuseHtml = `<div style="margin-bottom:5px;"><span class="no-excuse">لم يقدم عذر</span></div><a href="excuse.html" target="_blank" class="quick-excuse-btn">📝 إضافة عذر بالنيابة</a>`;
                 }
-                
                 socialTbody.innerHTML += `
                     <tr>
                         <td>${startDate}</td>
-                        <td style="font-weight:bold; color:var(--primary); font-size:1.1rem;">
+                        <td style="font-weight:bold;color:var(--primary);font-size:1.1rem;">
                             ${studentCpr}
                             ${studentCpr !== "غير متوفر" ? `<br><button class="copy-cpr-btn no-print" onclick="copyCPR('${studentCpr}')">نسخ 📋</button>` : ''}
                         </td>
-                        <td style="font-weight:bold; font-size:1.05rem;">${info.rawName}</td>
+                        <td style="font-weight:bold;font-size:1.05rem;">${info.rawName}</td>
                         <td>${info.className}</td>
                         <td>${info.periods.join(' ، ')}</td>
                         <td>${excuseHtml}</td>
-                    </tr>
-                `;
+                    </tr>`;
             }
         });
     }
@@ -518,7 +526,6 @@
         document.getElementById('m-time').innerText = ex.time;
         document.getElementById('m-phone').innerText = ex.parentPhone;
         document.getElementById('m-reason').innerText = ex.reason || "لم يكتب ملاحظات";
-
         let fContainer = document.getElementById('m-files');
         fContainer.innerHTML = '';
         if(ex.files && ex.files.trim() !== "") {
@@ -527,12 +534,250 @@
                 if(l.trim() !== "") fContainer.innerHTML += `<a href="${l.trim()}" target="_blank" class="attach-btn">📎 فتح المرفق ${i + 1}</a> `;
             });
         } else {
-            fContainer.innerHTML = '<span style="color:#6b7280; font-weight:bold;">لا توجد مرفقات</span>';
+            fContainer.innerHTML = '<span style="color:#6b7280;font-weight:bold;">لا توجد مرفقات</span>';
         }
         document.getElementById('excuseModal').style.display = 'block';
     }
 
     function closeModal() { document.getElementById('excuseModal').style.display = 'none'; }
+
+    // ======================================================
+    // ================== التقارير الشهرية ==================
+    // ======================================================
+    const $ = id => document.getElementById(id);
+    const MN = ["","يناير","فبراير","مارس","أبريل","مايو","يونيو","يوليو","أغسطس","سبتمبر","أكتوبر","نوفمبر","ديسمبر"];
+    const STG = [
+        { k: 'سادس ابتدائي', l: 'السادس الابتدائي', c: '#2563eb' },
+        { k: 'أول إعدادي',   l: 'الأول الإعدادي',   c: '#d97706' },
+        { k: 'ثاني إعدادي',  l: 'الثاني الإعدادي',  c: '#059669' },
+        { k: 'ثالث إعدادي',  l: 'الثالث الإعدادي',  c: '#b91c1c' }
+    ];
+    const pad2 = n => ('0' + n).slice(-2);
+    const cleanN = n => String(n || '').replace(/^[\d\s._-]+/, '').trim();
+    const pc = (a, b) => b ? (a / b * 100).toFixed(1) + '%' : '0%';
+    const PB = '<div class="pgb"></div>';
+    const H2 = t => `<h3 class="m-h">${t}</h3>`;
+    const CH = h => `<div class="mc">${h}</div>`;
+    const BX = (l, v, sm) => `<div class="m-box"><div class="m-lbl">${l}</div><div class="m-num"${sm ? ' style="font-size:14px"' : ''}>${v}</div></div>`;
+    const TB = (h, r) => `<table><thead><tr>${h.map(x => `<th>${x}</th>`).join('')}</tr></thead><tbody>${r.map(x => `<tr>${x.map((c, i) => `<td${i === 0 ? ' style="font-weight:bold"' : ''}>${c}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+
+    function pd(s) {
+        s = String(s || '').trim();
+        let a = s.match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
+        if (a) return a[1] + '-' + pad2(a[2]) + '-' + pad2(a[3]);
+        let b = s.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+        if (b) return b[3] + '-' + pad2(b[2]) + '-' + pad2(b[1]);
+        return '';
+    }
+
+    function activeStages() {
+        const cl = Object.keys(rawData.classTotals);
+        return STG.map(s => ({ ...s, classes: cl.filter(c => extractStage(c) === s.k).sort() })).filter(s => s.classes.length);
+    }
+
+    // ---------- رسم أعمدة (مفرد أو مجمّع) ----------
+    function barSVG(labels, series, title) {
+        const W = 700, H = 330, pL = 40, pR = 15, pT = 66, pB = 60, cw = W - pL - pR, ch = H - pT - pB, n = labels.length;
+        const mx = Math.max(1, ...series.flatMap(s => s.values));
+        const nm = Math.max(4, Math.ceil(mx / 4) * 4), slot = cw / n, gw = Math.min(slot * .72, series.length * 60), bw = gw / series.length;
+        let o = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="font-family:Tajawal,Arial,sans-serif;direction:rtl;background:#fff"><text x="${W/2}" y="22" text-anchor="middle" font-size="16" font-weight="bold" fill="#1e293b">${title}</text>`;
+        if (series.length > 1) series.forEach((s, i) => {
+            const lx = W / 2 + ((series.length - 1) / 2 - i) * 150;
+            o += `<rect x="${lx + 10}" y="36" width="14" height="14" rx="3" fill="${s.color}"/><text x="${lx + 4}" y="48" text-anchor="start" font-size="13" font-weight="bold" fill="#1e293b">${s.name}</text>`;
+        });
+        for (let i = 0; i <= 4; i++) {
+            const v = nm * i / 4, y = pT + ch - v / nm * ch;
+            o += `<line x1="${pL}" y1="${y}" x2="${W - pR}" y2="${y}" stroke="#e2e8f0"/><text x="${pL - 6}" y="${y + 4}" text-anchor="end" font-size="11" fill="#64748b">${Math.round(v)}</text>`;
+        }
+        o += `<line x1="${pL}" y1="${pT + ch}" x2="${W - pR}" y2="${pT + ch}" stroke="#334155" stroke-width="1.5"/>`;
+        const vals = series[0].values, mxv = Math.max(...vals), mnv = Math.min(...vals), tag = series.length === 1 && n > 1 && mxv !== mnv;
+        const fs = n > 14 ? 8 : 12;
+        labels.forEach((lb, i) => {
+            const cx = W - pR - slot * i - slot / 2;
+            series.forEach((s, j) => {
+                const v = s.values[i], h = v / nm * ch, x = cx + gw / 2 - bw * (j + 1), y = pT + ch - h;
+                const hl = tag && (v === mxv || v === mnv);
+                o += `<rect x="${x}" y="${y}" width="${bw - 1}" height="${Math.max(h, 0)}" fill="${s.color}" rx="3"${hl ? ' stroke="#000" stroke-width="2"' : ''}/>`;
+                if (n <= 14 || v > 0) o += `<text x="${x + bw / 2}" y="${y - 4}" text-anchor="middle" font-size="${series.length > 1 && n <= 14 ? 11 : fs}" font-weight="bold" fill="#1e293b">${v}</text>`;
+                if (hl) o += `<text x="${x + bw / 2}" y="${y - 20}" text-anchor="middle" font-size="11" font-weight="bold" fill="#000">${v === mxv ? '▲ الأعلى' : '▼ الأقل'}</text>`;
+            });
+            o += `<text x="${cx}" y="${pT + ch + 18}" text-anchor="middle" font-size="${n > 14 ? 9 : 12}" font-weight="bold" fill="#1e293b">${lb}</text>`;
+        });
+        return o + '</svg>';
+    }
+
+    // ---------- رسم دائري ----------
+    function pieSVG(items, title, emptyMsg) {
+        const W = 700, H = 300, cx = 190, cy = 165, r = 105, tot = items.reduce((a, b) => a + b.value, 0);
+        let o = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" style="font-family:Tajawal,Arial,sans-serif;direction:rtl;background:#fff"><text x="${W/2}" y="24" text-anchor="middle" font-size="16" font-weight="bold" fill="#1e293b">${title}</text>`;
+        if (!tot) return o + `<text x="${W/2}" y="${H/2}" text-anchor="middle" font-size="16" fill="#64748b">${emptyMsg}</text></svg>`;
+        let ang = -Math.PI / 2;
+        items.forEach(it => {
+            if (it.value <= 0) return;
+            const f = it.value / tot;
+            if (f === 1) { o += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${it.color}"/>`; return; }
+            const a1 = ang + f * 2 * Math.PI, x0 = cx + r * Math.cos(ang), y0 = cy + r * Math.sin(ang), x1 = cx + r * Math.cos(a1), y1 = cy + r * Math.sin(a1);
+            o += `<path d="M ${cx} ${cy} L ${x0} ${y0} A ${r} ${r} 0 ${a1 - ang > Math.PI ? 1 : 0} 1 ${x1} ${y1} Z" fill="${it.color}" stroke="#fff" stroke-width="2"/>`;
+            if (f >= .06) { const md = ang + (a1 - ang) / 2; o += `<text x="${cx + r * .65 * Math.cos(md)}" y="${cy + r * .65 * Math.sin(md) + 4}" text-anchor="middle" font-size="13" font-weight="bold" fill="#fff">${(f * 100).toFixed(0)}%</text>`; }
+            ang = a1;
+        });
+        items.forEach((it, i) => {
+            const y = 100 + i * 36;
+            o += `<rect x="620" y="${y - 12}" width="18" height="18" rx="3" fill="${it.color}"/><text x="612" y="${y + 2}" text-anchor="start" font-size="14" font-weight="bold" fill="#1e293b">${it.label}: ${it.value} (${pc(it.value, tot)})</text>`;
+        });
+        return o + '</svg>';
+    }
+
+    function openMonthly() {
+        const n = new Date();
+        $('mMonth').value = n.getMonth() + 1;
+        $('mYear').value = n.getFullYear();
+        $('monthlyModal').style.display = 'block';
+    }
+    function closeMonthly() { $('monthlyModal').style.display = 'none'; }
+
+    function printMonthly(title, sub, body) {
+        $('pmTitle').innerText = title;
+        $('pmSub').innerText = sub;
+        $('pmBody').innerHTML = body;
+        closeMonthly();
+        document.body.classList.add('print-monthly');
+        setTimeout(() => { window.print(); setTimeout(() => document.body.classList.remove('print-monthly'), 1000); }, 300);
+    }
+
+    async function genMonthly() {
+        const t = $('mType').value, m = +$('mMonth').value, y = +$('mYear').value;
+        if (!rawData) return alert('يرجى تسجيل الدخول أولاً');
+        if (!m || !y) return alert('يرجى اختيار الشهر والسنة.');
+        const btn = $('mBtn'); btn.disabled = true; btn.innerText = '⏳ جاري تجهيز التقرير...';
+        try {
+            if (t === 'vio') {
+                const [a, b] = await Promise.all([
+                    fetch(`${SCRIPT_URL}?action=getViolations`).then(r => r.json()),
+                    fetch(`${SCRIPT_URL}?action=getTeacherViolations`).then(r => r.json())
+                ]);
+                printMonthly('التقرير الشهري الإحصائي للمخالفات السلوكية', 'شهر: ' + MN[m] + ' ' + y, vioBody(y, m, a.data || [], b.data || []));
+            } else {
+                const body = attBody(y, m);
+                if (body) printMonthly('التقرير الشهري للحضور والغياب والاستئذان والتأخير', 'شهر: ' + MN[m] + ' ' + y, body);
+            }
+        } catch (e) { alert('تعذر تجهيز التقرير، تأكد من الاتصال وحاول مرة أخرى.'); }
+        btn.disabled = false; btn.innerText = '🖨️ إنشاء وطباعة التقرير';
+    }
+
+    // ---------- تقرير الحضور والغياب ----------
+    function attBody(y, m) {
+        const pre = y + '-' + pad2(m), days = {}, S = {}, seen = {}, ex = {}, seenP = {};
+        let PA = 0;
+        rawData.excuses.forEach(e => { ex[e.date + '_' + cleanN(e.studentName)] = 1; });
+        const day = d => days[d] || (days[d] = { a: 0, l: 0, v: 0 });
+        const stu = (n, c) => S[n] || (S[n] = { n, c, a: 0, l: 0, v: 0, e: 0 });
+        rawData.records.forEach(r => { if (r.date && r.date.startsWith(pre)) day(r.date); });
+        rawData.lates.forEach(l => {
+            if (!l.date || !l.date.startsWith(pre)) return;
+            const n = cleanN(l.studentName), k = l.date + '_' + n; if (seen[k]) return; seen[k] = 1;
+            const v = String(l.excuseType).includes('استئذان'); day(l.date)[v ? 'v' : 'l']++; stu(n, l.className)[v ? 'v' : 'l']++;
+        });
+        rawData.records.forEach(r => {
+            if (!r.date || !r.date.startsWith(pre) || !r.studentName || r.studentName.includes('لا يوجد')) return;
+            const n = cleanN(r.studentName), k = r.date + '_' + n;
+            if (!isFullAbs(r)) { if (!seen[k] && !seenP[k]) { seenP[k] = 1; PA++; } return; }
+            if (seen[k]) return; seen[k] = 1;
+            day(r.date).a++; const s = stu(n, r.className); s.a++; if (ex[k]) s.e++;
+        });
+        const dk = Object.keys(days).sort(), D = dk.length;
+        if (!D) { alert('لا توجد سجلات حضور وغياب في هذا الشهر.'); return null; }
+
+        const stages = activeStages(), N = Object.values(rawData.classTotals).reduce((a, b) => a + b, 0);
+        let A = 0, L = 0, V = 0, E = 0;
+        dk.forEach(d => { A += days[d].a; L += days[d].l; V += days[d].v; });
+        Object.values(S).forEach(s => { E += s.e; });
+        const agg = f => { const o = { a: 0, l: 0, v: 0 }; Object.values(S).forEach(s => { if (f(s)) { o.a += s.a; o.l += s.l; o.v += s.v; } }); return o; };
+        const rate = (a, n) => n ? (100 - a / (n * D) * 100).toFixed(1) + '%' : '-';
+        const crit = Object.values(S).filter(s => s.a >= 3).length;
+        const ttl = ' - ' + MN[m] + ' ' + y;
+        const SER = (a, l, v) => [{ name: 'غياب كلي', color: '#dc2626', values: a }, { name: 'تأخير', color: '#ca8a04', values: l }, { name: 'استئذان', color: '#0891b2', values: v }];
+
+        let h = `<div class="m-sum">${BX('عدد أيام الدوام المسجلة', D)}${BX('إجمالي عدد الطلاب', N)}${BX('متوسط نسبة الحضور اليومي', rate(A, N))}${BX('أيام الغياب (طالب/يوم)', A)}${BX('حالات التأخير الصباحي', L)}${BX('حالات الاستئذان', V)}</div>`;
+        h += `<div style="font-size:13px;margin-bottom:4px;">طلاب غابوا 3 أيام فأكثر: <b>${crit}</b> &nbsp;|&nbsp; أعذار مقدمة لأيام الغياب: <b>${E}</b> من <b>${A}</b> (${pc(E, A)}) &nbsp;|&nbsp; غياب جزئي (حضر حصة على الأقل): <b>${PA}</b><br><span style="font-size:11px;color:#475569">* يُحتسب الطالب غائباً فقط إذا لم يحضر أي حصة في يومه، ومن حضر حصة واحدة على الأقل يُحتسب حاضراً.</span></div>`;
+
+        const sg = stages.map(s => ({ s, n: s.classes.reduce((q, c) => q + rawData.classTotals[c], 0), ...agg(x => extractStage(x.c) === s.k) }));
+        h += H2('أولاً: مقارنة الحضور والغياب بين المراحل الدراسية');
+        h += TB(['المرحلة', 'عدد الطلاب', 'أيام الغياب', 'التأخير', 'الاستئذان', 'نسبة الحضور'], sg.map(o => [o.s.l, o.n, o.a, o.l, o.v, rate(o.a, o.n)]));
+        h += CH(barSVG(sg.map(o => o.s.l), SER(sg.map(o => o.a), sg.map(o => o.l), sg.map(o => o.v)), 'مقارنة الغياب والتأخير والاستئذان بين المراحل' + ttl));
+        h += PB;
+
+        h += H2('ثانياً: توزيع الحالات خلال الشهر');
+        h += CH(pieSVG([{ label: 'غياب كلي', value: A, color: '#dc2626' }, { label: 'تأخير صباحي', value: L, color: '#ca8a04' }, { label: 'استئذان', value: V, color: '#0891b2' }], 'نسبة توزيع الحالات' + ttl, 'لا توجد حالات غياب في هذا الشهر'));
+        h += H2('ثالثاً: المؤشر اليومي للغياب');
+        h += CH(barSVG(dk.map(d => d.slice(8)), SER(dk.map(d => days[d].a), dk.map(d => days[d].l), dk.map(d => days[d].v)), 'عدد الحالات يومياً (اليوم من الشهر)' + ttl));
+        const top5 = dk.slice().sort((p, q) => days[q].a - days[p].a).slice(0, 5);
+        h += TB(['أعلى 5 أيام غياباً', 'الغياب الكلي', 'التأخير', 'الاستئذان', 'نسبة الغياب'], top5.map(d => [d, days[d].a, days[d].l, days[d].v, pc(days[d].a, N)]));
+        h += PB;
+
+        h += H2('رابعاً: تفصيل صفوف كل مرحلة');
+        sg.forEach((o, i) => {
+            const rows = o.s.classes.map(c => { const a = agg(x => x.c === c), n = rawData.classTotals[c]; return { c, n, ...a }; });
+            h += `<div class="cblock"><div class="m-st">${o.s.l}</div>` +
+                TB(['الصف', 'عدد الطلاب', 'أيام الغياب', 'التأخير', 'الاستئذان', 'نسبة الحضور'], rows.map(r => [r.c, r.n, r.a, r.l, r.v, rate(r.a, r.n)])) +
+                CH(barSVG(rows.map(r => r.c), SER(rows.map(r => r.a), rows.map(r => r.l), rows.map(r => r.v)), 'الغياب في صفوف ' + o.s.l + ttl)) + '</div>';
+            if (i % 2 === 1 && i < sg.length - 1) h += PB;
+        });
+        h += PB;
+
+        h += H2('خامساً: أكثر الطلاب غياباً خلال الشهر');
+        const ts = Object.values(S).filter(s => s.a + s.l + s.v > 0).sort((p, q) => q.a - p.a || q.l - p.l).slice(0, 10);
+        h += TB(['الطالب', 'الصف', 'أيام الغياب', 'التأخير', 'الاستئذان', 'أعذار مقدمة'], ts.length ? ts.map(s => [s.n, s.c, s.a, s.l, s.v, s.e]) : [['لا توجد بيانات', '-', '-', '-', '-', '-']]);
+        return h;
+    }
+
+    // ---------- تقرير المخالفات السلوكية ----------
+    function vioBody(y, m, vs, ts) {
+        const pre = y + '-' + pad2(m), cls = {}, types = {}, stu = {}; let tot = 0;
+        const add = (c, n, t) => {
+            c = c || 'غير محدد'; cls[c] = (cls[c] || 0) + 1; tot++;
+            const k = c + '|' + n; (stu[k] = stu[k] || { n, c, v: 0 }).v++;
+            t = String(t || '').split(' | ')[0].trim() || 'غير محدد'; types[t] = (types[t] || 0) + 1;
+        };
+        ts.forEach(r => { if (!r.vType) return; const d = pd(r.vDate) || pd(r.timestamp); if (d.startsWith(pre)) add(r.className, cleanN(r.studentName), r.vType); });
+        vs.forEach(r => {
+            if (String(r.violationType || '').indexOf('تدخل إداري وإغلاق بلاغ') === 0) return;
+            if (pd(r.date).startsWith(pre)) add(r.className, cleanN(r.studentName), r.violationType);
+        });
+        const stages = activeStages(), N = Object.values(rawData.classTotals).reduce((a, b) => a + b, 0), ns = Object.keys(stu).length;
+        const sg = stages.map(s => ({ s, v: Object.keys(cls).filter(c => extractStage(c) === s.k).reduce((q, c) => q + cls[c], 0) }));
+        const mx = Math.max(...sg.map(o => o.v)), mn = Math.min(...sg.map(o => o.v));
+        const nm = f => sg.filter(o => o.v === f).map(o => o.s.l).join(' / ');
+        const ttl = ' - ' + MN[m] + ' ' + y;
+
+        let h = `<div class="m-sum">${BX('إجمالي المخالفات', tot)}${BX('عدد الطلاب المخالفين', ns)}${BX('نسبة المخالفين من الطلاب', pc(ns, N))}${BX('المرحلة الأعلى مخالفات', tot ? nm(mx) + ' (' + mx + ')' : '-', 1)}${BX('المرحلة الأقل مخالفات', tot ? nm(mn) + ' (' + mn + ')' : '-', 1)}${BX('متوسط المخالفات للطالب', ns ? (tot / ns).toFixed(1) : '0')}</div>`;
+        h += H2('أولاً: مقارنة المخالفات بين المراحل الدراسية');
+        h += TB(['المرحلة', 'عدد المخالفات', 'النسبة من الإجمالي'], sg.map(o => [o.s.l, o.v, pc(o.v, tot)]).concat([['الإجمالي', tot, tot ? '100%' : '0%']]));
+        h += CH(barSVG(sg.map(o => o.s.l), [{ name: 'المخالفات', color: '#b91c1c', values: sg.map(o => o.v) }], 'مقارنة عدد المخالفات بين المراحل' + ttl));
+        h += PB;
+
+        h += H2('ثانياً: نسبة توزيع المخالفات على المراحل');
+        h += CH(pieSVG(sg.map(o => ({ label: o.s.l, value: o.v, color: o.s.c })), 'توزيع المخالفات على المراحل' + ttl, 'لا توجد مخالفات في هذا الشهر'));
+        h += H2('ثالثاً: أكثر أنواع المخالفات تكراراً');
+        const tp = Object.keys(types).map(t => ({ t, c: types[t] })).sort((p, q) => q.c - p.c).slice(0, 10);
+        h += TB(['نوع المخالفة', 'التكرار', 'النسبة'], tp.length ? tp.map(o => [o.t, o.c, pc(o.c, tot)]) : [['لا توجد مخالفات مسجلة', '-', '-']]);
+        h += PB;
+
+        h += H2('رابعاً: المخالفات في صفوف كل مرحلة');
+        sg.forEach((o, i) => {
+            const items = o.s.classes.map(c => ({ c, v: cls[c] || 0 }));
+            h += `<div class="cblock"><div class="m-st">${o.s.l} — إجمالي المخالفات: ${o.v}</div>` +
+                TB(['الصف', 'عدد المخالفات', 'النسبة داخل المرحلة'], items.map(r => [r.c, r.v, pc(r.v, o.v)])) +
+                CH(barSVG(items.map(r => r.c), [{ name: 'المخالفات', color: o.s.c, values: items.map(r => r.v) }], 'المخالفات في صفوف ' + o.s.l + ttl)) + '</div>';
+            if (i % 2 === 1 && i < sg.length - 1) h += PB;
+        });
+        h += PB;
+
+        h += H2('خامساً: الطلاب الأكثر تسجيلاً للمخالفات');
+        const tops = Object.values(stu).sort((p, q) => q.v - p.v).slice(0, 10);
+        h += TB(['الطالب', 'الصف', 'عدد المخالفات'], tops.length ? tops.map(s => [s.n, s.c, s.v]) : [['لا توجد بيانات', '-', '-']]);
+        return h;
+    }
 </script>
 </body>
 </html>
