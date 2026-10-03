@@ -1,313 +1,246 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>كشف متابعة حالة الغياب اليومي - وزارة التربية والتعليم</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap');
-
-        :root {
-            --primary: #1e40af;
-            --accent: #ca8a04;
-            --danger: #dc2626;
-            --success: #16a34a;
-            --border: #000000;
-        }
-
-        body { font-family: 'Tajawal', sans-serif; background-color: #f1f5f9; color: #000; margin: 0; padding: 20px; }
-
-        .auth-card { max-width: 400px; margin: 80px auto; padding: 30px; text-align: center; background: #fff; border-radius: 12px; border: 1px solid #cbd5e1; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); }
-        .auth-card input { width: 100%; padding: 12px; text-align: center; font-size: 1.1rem; border: 1px solid #cbd5e1; border-radius: 8px; box-sizing: border-box; margin: 15px 0; font-family: inherit; }
-        
-        .btn { border: none; padding: 10px 20px; border-radius: 6px; font-family: inherit; font-weight: 800; font-size: 1rem; cursor: pointer; transition: 0.2s; color: #fff; display: inline-flex; align-items: center; justify-content: center; gap: 8px;}
-        .btn-blue { background-color: #2563eb; } .btn-blue:hover { background-color: #1d4ed8; }
-        .btn-green { background-color: #059669; } .btn-green:hover { background-color: #047857; }
-        
-        /* أدوات التحكم العلوية */
-        .controls-bar { background: #fff; padding: 15px 25px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; margin-bottom: 20px; gap: 15px; border: 1px solid #cbd5e1; }
-        .date-picker { display: flex; align-items: center; gap: 10px; font-weight: bold; font-size: 1.1rem;}
-        .date-picker input { padding: 8px 15px; font-family: inherit; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 1rem; outline: none;}
-
-        /* تنسيق الورقة الرسمية (A4 Landscape محاكاة) */
-        .a4-wrapper { background: #fff; max-width: 1300px; margin: 0 auto; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-radius: 5px; overflow-x: auto;}
-        
-        .form-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; border-bottom: 3px double #000; padding-bottom: 15px;}
-        .form-header img { max-height: 85px; }
-        .form-title { text-align: center; flex-grow: 1; }
-        .form-title h2 { margin: 0 0 10px 0; font-size: 1.6rem; font-weight: 800; }
-        .header-info { display: flex; justify-content: center; gap: 40px; font-size: 1.1rem; font-weight: 700; }
-        
-        /* الجدول الوزاري الموحد */
-        .ministry-table { width: 100%; border-collapse: collapse; min-width: 1000px; }
-        .ministry-table th, .ministry-table td { border: 1px solid #000; padding: 8px; text-align: center; vertical-align: middle; font-size: 14px;}
-        .ministry-table th { background-color: #f8fafc; font-weight: 800; padding: 12px 8px;}
-        
-        /* تنسيق الخيارات داخل الجدول */
-        .options-col { text-align: right; padding-right: 15px !important; line-height: 1.8; }
-        .radio-lbl { display: flex; align-items: center; gap: 6px; cursor: pointer; font-weight: 500; font-size: 13px;}
-        .radio-lbl input[type="radio"], .radio-lbl input[type="checkbox"] { margin: 0; width: 14px; height: 14px; accent-color: #000;}
-        .text-input { width: 90%; border: none; border-bottom: 1px dashed #000; outline: none; font-family: inherit; background: transparent; font-size: 13px; text-align: center; padding: 4px;}
-        .text-input:focus { border-bottom: 1px solid var(--primary); }
-
-        .loading-overlay { display: none; text-align: center; padding: 50px; font-size: 1.5rem; font-weight: bold; color: var(--primary); }
-
-        /* تنسيقات الطباعة الصارمة */
-        @media print {
-            @page { size: A4 landscape; margin: 10mm; }
-            body { background: #fff; padding: 0; }
-            .controls-bar, .auth-card { display: none !important; }
-            .a4-wrapper { box-shadow: none; padding: 0; max-width: 100%; border-radius: 0; overflow: visible;}
-            .ministry-table th { background-color: #f1f5f9 !important; -webkit-print-color-adjust: exact; }
-            .text-input { border-bottom: 1px dotted #000; }
-            .radio-lbl input[type="radio"], .radio-lbl input[type="checkbox"] { -webkit-print-color-adjust: exact; }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>كشف متابعة حالة الغياب اليومي</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#14213d;--navy:#1b3a6b;--teal:#0f766e;--gold:#b7791f;--line:#1f2937;--soft:#eef2f7;--bg:#e8edf3}
+*{box-sizing:border-box}
+body{font-family:'IBM Plex Sans Arabic','Segoe UI',Tahoma,sans-serif;background:var(--bg);color:var(--ink);margin:0;padding:18px}
+.btn{border:0;border-radius:8px;padding:10px 16px;font:600 .95rem inherit;font-family:inherit;color:#fff;cursor:pointer}
+.btn:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.b-navy{background:var(--navy)}.b-teal{background:var(--teal)}.b-gold{background:var(--gold)}
+.auth{max-width:380px;margin:80px auto;background:#fff;padding:28px;border-radius:14px;text-align:center;box-shadow:0 12px 30px rgba(20,33,61,.15)}
+.auth img{max-width:100%;max-height:90px}
+.auth input{width:100%;padding:12px;margin:14px 0;border:1px solid #c5cedb;border-radius:8px;text-align:center;font:inherit}
+.bar{max-width:1250px;margin:0 auto 14px;background:#fff;border-radius:12px;padding:14px 18px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between}
+.bar .grp{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.bar label{font-weight:600;font-size:.9rem}
+.bar input,.bar select{padding:8px 10px;border:1px solid #c5cedb;border-radius:8px;font:inherit;font-size:.9rem;background:#fff}
+.stats{max-width:1250px;margin:0 auto 14px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.chip{background:#fff;border-radius:999px;padding:6px 16px;font-weight:600;font-size:.9rem;border:1px solid #d3dbe6}
+.chip b{color:var(--navy);margin-inline-start:4px}
+#saveState{margin-inline-start:auto;font-size:.85rem;font-weight:600;color:var(--teal)}
+#saveState.dirty{color:#b91c1c}
+/* الصفحة */
+.page{background:#fff;max-width:1250px;margin:0 auto 18px;padding:18px 22px;border-radius:6px;box-shadow:0 8px 24px rgba(20,33,61,.12);display:flex;flex-direction:column}
+.hd{text-align:center;border-bottom:3px solid var(--navy);padding-bottom:6px;position:relative}
+.hd img{max-height:70px;display:block;margin:0 auto 4px}
+.hd h2{margin:0;font-size:1.35rem;font-weight:700;color:var(--navy)}
+.meta{display:flex;justify-content:center;gap:34px;margin-top:6px;font-weight:600;font-size:.95rem}
+.meta span span{border-bottom:1px solid var(--line);padding:0 12px;display:inline-block;min-width:70px}
+.pg{position:absolute;left:0;top:6px;font-size:.8rem;font-weight:600;color:var(--gold)}
+table{width:100%;border-collapse:collapse;margin-top:8px;table-layout:fixed}
+th,td{border:1px solid var(--line);padding:6px 7px;vertical-align:middle;text-align:center;font-size:12.5px}
+th{background:var(--soft);font-weight:700;color:var(--navy);padding:8px 4px;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+tbody tr{height:37mm}
+td.nm{font-weight:700;text-align:right;font-size:13px}
+td.op{text-align:right;line-height:1.7}
+.opt{display:flex;gap:6px;align-items:center;font-size:12px;cursor:pointer}
+.opt input{margin:0;width:13px;height:13px;accent-color:#000}
+.ti{width:100%;border:0;border-bottom:1px dashed #555;background:transparent;font:inherit;font-size:12px;padding:3px;text-align:center;outline:0}
+.ti:focus{border-bottom:1px solid var(--teal)}
+.empty td{height:auto!important;padding:40px;font-weight:700;color:var(--teal);font-size:1.1rem}
+.ft{display:flex;justify-content:space-around;gap:20px;margin-top:auto;padding-top:8px;font-weight:600;font-size:.88rem}
+.ft div{flex:1;text-align:center}
+.ft small{display:block;font-weight:500;font-size:.85rem;margin-top:2px}
+.ft i{display:block;border-bottom:1px dotted #000;height:26px;margin-top:6px}
+.ft em{font-style:normal;font-weight:500;font-size:.78rem;color:#555}
+.by{text-align:center;margin-top:8px;padding-top:5px;border-top:1px solid var(--navy);font-weight:600;font-size:.82rem;color:var(--navy)}
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 20px;border-radius:8px;font-weight:600;display:none;z-index:9}
+.load{text-align:center;padding:50px;font-weight:700;color:var(--navy);display:none}
+@media(max-width:900px){.page{overflow-x:auto}table{min-width:1000px}}
+@media print{
+ @page{size:A4 landscape;margin:8mm}
+ body{background:#fff;padding:0}
+ .bar,.stats,.auth,.toast,.load{display:none!important}
+ .page{box-shadow:none;border-radius:0;margin:0;padding:0;max-width:none;height:192mm;break-after:page;page-break-after:always;overflow:hidden}
+ .page:last-child{break-after:auto;page-break-after:auto}
+ .ti{border-bottom:1px dotted #000}
+}
+</style>
 </head>
 <body>
 
-    <!-- شاشة المصادقة -->
-    <div id="authScreen" class="auth-card">
-        <img src="https://i.postimg.cc/K88X7RLb/trwysyh-dhhbyt.png" alt="شعار" style="max-height: 70px; margin-bottom: 15px;">
-        <h2 style="margin-top: 0; color: #1e40af;">سجل الغياب اليومي الوزاري</h2>
-        <p style="color: #64748b; font-size: 0.9rem;">يرجى إدخال كلمة المرور (الإشراف العام)</p>
-        <input type="password" id="passInput" placeholder="••••••••">
-        <button class="btn btn-blue" style="width: 100%;" onclick="authenticate()">دخول وتهيئة السجل</button>
+<div id="auth" class="auth">
+  <img src="https://i.postimg.cc/K88X7RLb/trwysyh-dhhbyt.png" alt="الترويسة">
+  <h2 style="color:var(--navy)">سجل الغياب اليومي</h2>
+  <input type="password" id="pass" placeholder="كلمة المرور" onkeydown="if(event.key==='Enter')login()">
+  <button class="btn b-navy" style="width:100%" onclick="login()">دخول</button>
+</div>
+
+<div id="app" style="display:none">
+  <div class="bar">
+    <div class="grp">
+      <label>التاريخ</label><input type="date" id="date" onchange="loadLive()">
+      <label>الصف</label><select id="cls" onchange="render()"><option value="">كل الصفوف</option></select>
+      <label>سجلات محفوظة</label><select id="saved" onchange="loadSaved(this.value)"><option value="">اختر تاريخاً…</option></select>
     </div>
-
-    <!-- لوحة التحكم وتحديد التاريخ -->
-    <div id="dashboardArea" style="display: none;">
-        <div class="controls-bar no-print">
-            <div class="date-picker">
-                <label>تاريخ السجل:</label>
-                <input type="date" id="targetDate" onchange="fetchAbsencesForDate()">
-            </div>
-            <div style="display: flex; gap: 10px;">
-                <button class="btn btn-blue" onclick="fetchAbsencesForDate()">🔄 سحب بيانات الغياب</button>
-                <button class="btn btn-green" onclick="window.print()">🖨️ طباعة النموذج للاعتماد</button>
-            </div>
-        </div>
-
-        <div id="loading" class="loading-overlay">⏳ جاري جلب وتحليل السجلات من قاعدة البيانات...</div>
-
-        <!-- النموذج الوزاري الورقي -->
-        <div id="formWrapper" class="a4-wrapper" style="display: none;">
-            <div class="form-header">
-                <div style="width: 150px;"></div> <!-- توازن الترويسة -->
-                <div class="form-title">
-                    <img src="https://i.postimg.cc/K88X7RLb/trwysyh-dhhbyt.png" alt="وزارة التربية والتعليم">
-                    <h2>كشف متابعة حالة الغياب اليومي</h2>
-                    <div class="header-info">
-                        <div>اسم المدرسة: <span style="border-bottom: 1px solid #000; padding: 0 15px;">البلاد القديم الابتدائية الإعدادية للبنين</span></div>
-                        <div>اليوم: <span id="lblDay" style="border-bottom: 1px solid #000; padding: 0 15px; min-width:80px; display:inline-block;"></span></div>
-                        <div>التاريخ: <span id="lblDate" style="border-bottom: 1px solid #000; padding: 0 15px; direction:ltr; display:inline-block;"></span></div>
-                    </div>
-                </div>
-                <div style="width: 150px; text-align: left;">
-                    <!-- يمكن وضع شعار رؤية 2030 هنا إن وجد -->
-                </div>
-            </div>
-
-            <table class="ministry-table">
-                <thead>
-                    <tr>
-                        <th style="width: 3%;">الرقم</th>
-                        <th style="width: 15%;">اسم الطالب</th>
-                        <th style="width: 8%;">الصف</th>
-                        <th style="width: 10%;">أرقام التواصل</th>
-                        <th style="width: 12%;">حالة الغياب</th>
-                        <th style="width: 22%;">الإجراء المتخذ</th>
-                        <th style="width: 10%;">حالة الاستجابة</th>
-                        <th style="width: 12%;">سبب الغياب</th>
-                        <th style="width: 8%;">اعتماد المبلغ عن الغياب</th>
-                    </tr>
-                </thead>
-                <tbody id="tableBody">
-                    <!-- سيتم تعبئة الطلاب هنا آلياً -->
-                </tbody>
-            </table>
-        </div>
+    <div class="grp">
+      <button class="btn b-navy" onclick="loadLive()">سحب الغياب الحالي</button>
+      <button class="btn b-teal" onclick="saveLog()">حفظ في السجل</button>
+      <button class="btn b-gold" onclick="window.print()">طباعة A4</button>
     </div>
+  </div>
+  <div class="stats" id="stats"></div>
+  <div id="load" class="load">جاري جلب البيانات…</div>
+  <div id="sheet"></div>
+</div>
+<div id="toast" class="toast"></div>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxlJnpJN9y9h04cOswtY3BGGwUS8rhybOisxDFkIQJ6_9nFSPMJeK-wiuFEECnBY3v5/exec";
-    let apiData = null;
+const SCRIPT_URL="https://script.google.com/macros/s/AKfycbxlJnpJN9y9h04cOswtY3BGGwUS8rhybOisxDFkIQJ6_9nFSPMJeK-wiuFEECnBY3v5/exec";
+const PER_PAGE=3;
+const STATUS=["غياب","بعذر","بدون عذر","انقطاع"];
+const ACTS=["إشعار بالغياب عبر SMS أو WhatsApp","الاتصال بولي الأمر","إشعار ولي الأمر المسبق بالغياب","تواصل ولي الأمر مع المعلم"];
+const RESP=["تم الرد","لا يوجد رد","الهاتف مغلق"];
+let PASS="",rows=[],curDate="";
 
-    document.addEventListener("DOMContentLoaded", () => {
-        document.getElementById('targetDate').value = new Date().toLocaleDateString('en-CA');
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const clean=n=>String(n||'').replace(/^[\d\s._-]+/,'').trim();
+const $=id=>document.getElementById(id);
+function toast(m){const t=$('toast');t.textContent=m;t.style.display='block';setTimeout(()=>t.style.display='none',2800)}
+function dayName(d){return ['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'][new Date(d+'T12:00:00').getDay()]||''}
+function dirty(on=true){const s=$('saveState');if(s){s.textContent=on?'● تغييرات غير محفوظة':'✓ محفوظ';s.className=on?'dirty':''}}
+
+document.addEventListener('DOMContentLoaded',()=>{$('date').value=new Date().toLocaleDateString('en-CA')});
+
+async function login(){
+  PASS=$('pass').value.trim();
+  if(!PASS)return toast('أدخل كلمة المرور');
+  $('auth').style.display='none';$('app').style.display='block';
+  const ok=await loadLive();
+  if(!ok){$('auth').style.display='block';$('app').style.display='none'}
+  else refreshSavedDates();
+}
+
+async function refreshSavedDates(){
+  try{
+    const r=await fetch(`${SCRIPT_URL}?action=listAbsenceLogDates&pass=${encodeURIComponent(PASS)}`).then(r=>r.json());
+    const sel=$('saved');sel.innerHTML='<option value="">اختر تاريخاً…</option>';
+    (r.dates||[]).forEach(d=>sel.innerHTML+=`<option value="${d}">${d} — ${dayName(d)}</option>`);
+  }catch(e){}
+}
+
+async function loadLive(){
+  curDate=$('date').value;
+  $('sheet').innerHTML='';$('load').style.display='block';
+  try{
+    const [a,s]=await Promise.all([
+      fetch(`${SCRIPT_URL}?action=supervisor&pass=${encodeURIComponent(PASS)}`).then(r=>r.json()),
+      fetch(`${SCRIPT_URL}?action=social_init&pass=social123`).then(r=>r.json())
+    ]);
+    if(a.status!=="success"){toast(a.message||'خطأ في جلب البيانات');$('load').style.display='none';return false}
+    buildRows(a,s.fullDataMap||{});
+    $('load').style.display='none';
+    render();dirty(true);return true;
+  }catch(e){toast('تعذر الاتصال بالخادم');$('load').style.display='none';return false}
+}
+
+function buildRows(api,map){
+  const ex={},late={},periods={},stu={};
+  (api.excuses||[]).forEach(e=>{if(e.date===curDate)ex[clean(e.studentName)]=e});
+  (api.lates||[]).forEach(l=>{if(l.date===curDate)late[clean(l.studentName)]=1});
+  (api.data||[]).forEach(r=>{
+    if(r.date!==curDate||r.studentName.includes('لا يوجد'))return;
+    const p=String(r.period),n=clean(r.studentName);
+    (periods[r.className]=periods[r.className]||new Set()).add(p);
+    (stu[n]=stu[n]||{cls:r.className,raw:r.studentName,p:new Set()}).p.add(p);
+  });
+  rows=[];
+  Object.keys(stu).forEach(n=>{
+    if(late[n])return;
+    const s=stu[n],tot=periods[s.cls]?periods[s.cls].size:0;
+    if(tot>0&&s.p.size>=tot){
+      const m=map[n]||{};
+      rows.push({name:s.raw,cls:s.cls,phone:m["رقم الهاتف المعتمد (واتساب)"]||"",
+        status:ex[n]?"بعذر":"بدون عذر",acts:[false,false,false,false],other:"",resp:"",reason:ex[n]?ex[n].reason:""});
+    }
+  });
+  rows.sort((a,b)=>a.cls.localeCompare(b.cls)||a.name.localeCompare(b.name));
+  const sel=$('cls');sel.innerHTML='<option value="">كل الصفوف</option>';
+  [...new Set(rows.map(r=>r.cls))].forEach(c=>sel.innerHTML+=`<option>${esc(c)}</option>`);
+}
+
+async function loadSaved(d){
+  if(!d)return;
+  $('date').value=d;curDate=d;$('load').style.display='block';$('sheet').innerHTML='';
+  try{
+    const r=await fetch(`${SCRIPT_URL}?action=getAbsenceLog&pass=${encodeURIComponent(PASS)}&date=${d}`).then(r=>r.json());
+    $('load').style.display='none';
+    if(r.status!=="success"||!r.rows.length){toast('لا يوجد سجل محفوظ لهذا التاريخ');return}
+    rows=r.rows.map(x=>{
+      const parts=String(x.actions||'').split(/\s*،\s*/).filter(Boolean);
+      const oth=parts.find(p=>p.startsWith('أخرى:'));
+      return{name:x.name,cls:x.cls,phone:x.phone,status:x.status,resp:x.resp,reason:x.reason,
+        acts:ACTS.map(a=>parts.includes(a)),other:oth?oth.replace('أخرى:','').trim():""};
     });
+    const sel=$('cls');sel.innerHTML='<option value="">كل الصفوف</option>';
+    [...new Set(rows.map(r=>r.cls))].forEach(c=>sel.innerHTML+=`<option>${esc(c)}</option>`);
+    render();dirty(false);toast('تم استرجاع السجل المحفوظ');
+  }catch(e){$('load').style.display='none';toast('تعذر جلب السجل')}
+}
 
-    function authenticate() {
-        const pass = document.getElementById('passInput').value.trim();
-        if(!pass) return alert("يرجى إدخال كلمة المرور");
-        
-        document.getElementById('authScreen').style.display = 'none';
-        document.getElementById('dashboardArea').style.display = 'block';
-        fetchAbsencesForDate(pass);
-    }
+async function saveLog(){
+  if(!rows.length)return toast('لا توجد بيانات للحفظ');
+  const payload={action:"saveAbsenceLog",pass:PASS,date:curDate,day:dayName(curDate),
+    rows:rows.map(r=>({name:r.name,cls:r.cls,phone:r.phone,status:r.status,
+      actions:[...ACTS.filter((a,i)=>r.acts[i]),...(r.other?['أخرى: '+r.other]:[])].join(' ، '),
+      resp:r.resp,reason:r.reason}))};
+  try{
+    const r=await fetch(SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)}).then(r=>r.json());
+    if(r.status==="success"){dirty(false);toast('تم حفظ السجل');refreshSavedDates()}else toast(r.message||'فشل الحفظ');
+  }catch(e){toast('تعذر الحفظ')}
+}
 
-    function getDayNameAr(dateString) {
-        const days = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
-        const d = new Date(dateString);
-        return isNaN(d.getTime()) ? "" : days[d.getDay()];
-    }
+function set(i,k,v){rows[i][k]=v;dirty();if(k==='status')stats()}
+function tog(i,k,v){rows[i].acts[k]=v;dirty()}
 
-    async function fetchAbsencesForDate(initialPass = null) {
-        const pass = initialPass || document.getElementById('passInput').value;
-        const targetDate = document.getElementById('targetDate').value;
-        
-        document.getElementById('formWrapper').style.display = 'none';
-        document.getElementById('loading').style.display = 'block';
+function stats(){
+  const v=$('cls').value,l=rows.filter(r=>!v||r.cls===v),c=s=>l.filter(r=>r.status===s).length;
+  $('stats').innerHTML=`<span class="chip">إجمالي الغياب الكلي<b>${l.length}</b></span><span class="chip">بعذر<b>${c('بعذر')}</b></span><span class="chip">بدون عذر<b>${c('بدون عذر')}</b></span><span class="chip">انقطاع<b>${c('انقطاع')}</b></span><span class="chip">عدد الصفحات<b>${Math.max(1,Math.ceil(l.length/PER_PAGE))}</b></span><span id="saveState"></span>`;
+}
 
-        try {
-            // جلب بيانات الرصد والأعذار والأرقام الشخصية
-            const [resAbs, resSocial] = await Promise.all([
-                fetch(`${SCRIPT_URL}?action=supervisor&pass=${pass}`).then(r => r.json()),
-                fetch(`${SCRIPT_URL}?action=social_init&pass=social123`).then(r => r.json())
-            ]);
+function rowHtml(o,n){
+  const r=o.r,i=o.i;
+  const st=STATUS.map((v,k)=>`<label class="opt"><input type="radio" name="st${i}" ${r.status===v?'checked':''} onchange="set(${i},'status',STATUS[${k}])">${v}</label>`).join('');
+  const ac=ACTS.map((v,k)=>`<label class="opt"><input type="checkbox" ${r.acts[k]?'checked':''} onchange="tog(${i},${k},this.checked)">${v}</label>`).join('');
+  const rs=RESP.map((v,k)=>`<label class="opt"><input type="radio" name="rs${i}" ${r.resp===v?'checked':''} onchange="set(${i},'resp',RESP[${k}])">${v}</label>`).join('');
+  return`<tr><td><b>${n}</b></td><td class="nm">${esc(r.name)}</td><td>${esc(r.cls)}</td>
+  <td><input class="ti" value="${esc(r.phone)}" oninput="set(${i},'phone',this.value)"></td>
+  <td class="op">${st}</td>
+  <td class="op">${ac}<label class="opt">أخرى:<input class="ti" value="${esc(r.other)}" oninput="set(${i},'other',this.value)"></label></td>
+  <td class="op">${rs}</td>
+  <td><input class="ti" value="${esc(r.reason)}" oninput="set(${i},'reason',this.value)"></td><td></td></tr>`;
+}
 
-            if (resAbs.status !== "success") {
-                alert(resAbs.message || "خطأ في جلب البيانات");
-                document.getElementById('loading').style.display = 'none';
-                document.getElementById('authScreen').style.display = 'block';
-                document.getElementById('dashboardArea').style.display = 'none';
-                return;
-            }
-
-            apiData = resAbs;
-            const fullDataMap = resSocial.fullDataMap || {}; // لجلب أرقام الهواتف إن أمكن
-
-            // تحديث الترويسة
-            document.getElementById('lblDate').innerText = targetDate;
-            document.getElementById('lblDay').innerText = getDayNameAr(targetDate);
-
-            processAndRenderAbsentees(targetDate, fullDataMap);
-
-        } catch (error) {
-            alert("حدث خطأ في الاتصال بالخادم");
-            document.getElementById('loading').style.display = 'none';
-        }
-    }
-
-    function processAndRenderAbsentees(targetDate, fullDataMap) {
-        // 1. تحديد الأعذار والتأخير لتاريخ اليوم
-        let dailyExcuses = {};
-        let dailyLates = {};
-        
-        if (apiData.excuses) {
-            apiData.excuses.forEach(ex => {
-                if (ex.date === targetDate) {
-                    let sClean = ex.studentName.replace(/^[\d\s._-]+/, '').trim();
-                    dailyExcuses[sClean] = ex;
-                }
-            });
-        }
-        
-        if (apiData.lates) {
-            apiData.lates.forEach(l => {
-                if (l.date === targetDate) {
-                    let sClean = l.studentName.replace(/^[\d\s._-]+/, '').trim();
-                    dailyLates[sClean] = true;
-                }
-            });
-        }
-
-        // 2. حساب الغياب الكلي (غاب جميع الحصص المسجلة للصف)
-        let classPeriodsByDate = {}; 
-        let studentAbsByDate = {};   
-
-        apiData.data.forEach(r => {
-            if (r.date !== targetDate || r.studentName.includes('لا يوجد')) return;
-            
-            let p = String(r.period);
-            let sClean = r.studentName.replace(/^[\d\s._-]+/, '').trim();
-
-            if(!classPeriodsByDate[r.className]) classPeriodsByDate[r.className] = new Set();
-            classPeriodsByDate[r.className].add(p);
-
-            if(!studentAbsByDate[sClean]) studentAbsByDate[sClean] = { cls: r.className, rawName: r.studentName, periods: new Set() };
-            studentAbsByDate[sClean].periods.add(p);
-        });
-
-        let finalAbsentees = [];
-
-        Object.keys(studentAbsByDate).forEach(sClean => {
-            if (dailyLates[sClean]) return; // استبعاد المتأخرين (هم حضور جزئي)
-
-            let st = studentAbsByDate[sClean];
-            let totalClassPeriods = classPeriodsByDate[st.cls] ? classPeriodsByDate[st.cls].size : 0;
-            
-            if (st.periods.size >= totalClassPeriods && totalClassPeriods > 0) {
-                finalAbsentees.push({
-                    cleanName: sClean,
-                    rawName: st.rawName,
-                    className: st.cls,
-                    hasExcuse: !!dailyExcuses[sClean],
-                    excuseReason: dailyExcuses[sClean] ? dailyExcuses[sClean].reason : ""
-                });
-            }
-        });
-
-        // 3. ترتيب ورسم الجدول
-        finalAbsentees.sort((a, b) => a.className.localeCompare(b.className) || a.rawName.localeCompare(b.rawName));
-
-        const tbody = document.getElementById('tableBody');
-        tbody.innerHTML = '';
-
-        if (finalAbsentees.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="9" style="padding: 40px; font-size: 1.2rem; font-weight: bold; color: var(--success);">✅ لا يوجد غياب كلي مسجل لهذا اليوم.</td></tr>`;
-        } else {
-            finalAbsentees.forEach((stu, index) => {
-                // جلب رقم الهاتف إذا كان متوفراً في القاعدة
-                let phone = "";
-                if(fullDataMap[stu.cleanName] && fullDataMap[stu.cleanName]["رقم الهاتف المعتمد (واتساب)"]) {
-                    phone = fullDataMap[stu.cleanName]["رقم الهاتف المعتمد (واتساب)"];
-                }
-
-                // تحديد التعليم الآلي لسبب الغياب (بعذر / بدون عذر)
-                let c_excused = stu.hasExcuse ? 'checked' : '';
-                let c_unexcused = !stu.hasExcuse ? 'checked' : '';
-
-                tbody.innerHTML += `
-                    <tr>
-                        <td style="font-weight: bold;">${index + 1}</td>
-                        <td style="font-weight: bold; text-align: right;">${stu.rawName}</td>
-                        <td>${stu.className}</td>
-                        <td><input type="text" class="text-input" value="${phone}"></td>
-                        
-                        <td class="options-col">
-                            <label class="radio-lbl"><input type="radio" name="st_${index}" value="غياب"> غياب</label>
-                            <label class="radio-lbl"><input type="radio" name="st_${index}" value="بعذر" ${c_excused}> بعذر</label>
-                            <label class="radio-lbl"><input type="radio" name="st_${index}" value="بدون عذر" ${c_unexcused}> بدون عذر</label>
-                            <label class="radio-lbl"><input type="radio" name="st_${index}" value="انقطاع"> انقطاع</label>
-                        </td>
-
-                        <td class="options-col">
-                            <label class="radio-lbl"><input type="checkbox" name="act1_${index}"> إشعار بالغياب عبر SMS أو WhatsApp</label>
-                            <label class="radio-lbl"><input type="checkbox" name="act2_${index}"> الاتصال بولي الأمر</label>
-                            <label class="radio-lbl"><input type="checkbox" name="act3_${index}"> إشعار ولي الأمر المسبق بالغياب</label>
-                            <label class="radio-lbl"><input type="checkbox" name="act4_${index}"> تواصل ولي الأمر مع المعلم</label>
-                            <label class="radio-lbl"><input type="checkbox" name="act5_${index}"> أخرى: <input type="text" class="text-input" style="width: 60%;"></label>
-                        </td>
-
-                        <td class="options-col">
-                            <label class="radio-lbl"><input type="radio" name="res_${index}" value="تم الرد"> تم الرد</label>
-                            <label class="radio-lbl"><input type="radio" name="res_${index}" value="لا يوجد رد"> لا يوجد رد</label>
-                            <label class="radio-lbl"><input type="radio" name="res_${index}" value="الهاتف مغلق"> الهاتف مغلق</label>
-                        </td>
-
-                        <td><input type="text" class="text-input" style="width: 95%;" value="${stu.excuseReason || ''}"></td>
-                        
-                        <td><!-- اعتماد المبلغ --></td>
-                    </tr>
-                `;
-            });
-        }
-
-        document.getElementById('loading').style.display = 'none';
-        document.getElementById('formWrapper').style.display = 'block';
-    }
-
+function render(){
+  const v=$('cls').value,list=rows.map((r,i)=>({r,i})).filter(o=>!v||o.r.cls===v);
+  const pages=Math.max(1,Math.ceil(list.length/PER_PAGE));let h='';
+  for(let p=0;p<pages;p++){
+    const chunk=list.slice(p*PER_PAGE,p*PER_PAGE+PER_PAGE);
+    const body=chunk.length?chunk.map((o,k)=>rowHtml(o,p*PER_PAGE+k+1)).join(''):'<tr class="empty"><td colspan="9">✅ لا يوجد غياب كلي مسجل لهذا اليوم</td></tr>';
+    h+=`<section class="page">
+    <div class="hd"><img src="https://i.postimg.cc/K88X7RLb/trwysyh-dhhbyt.png" alt="وزارة التربية والتعليم">
+      <span class="pg">صفحة ${p+1} من ${pages}</span>
+      <h2>كشف متابعة حالة الغياب اليومي</h2>
+      <div class="meta"><span>المدرسة: <span>البلاد القديم الابتدائية الإعدادية للبنين</span></span><span>اليوم: <span>${dayName(curDate)}</span></span><span>التاريخ: <span dir="ltr">${curDate}</span></span></div></div>
+    <table><colgroup><col style="width:3%"><col style="width:15%"><col style="width:8%"><col style="width:10%"><col style="width:10%"><col style="width:22%"><col style="width:10%"><col style="width:13%"><col style="width:9%"></colgroup>
+    <thead><tr><th>م</th><th>اسم الطالب</th><th>الصف</th><th>أرقام التواصل</th><th>حالة الغياب</th><th>الإجراء المتخذ</th><th>حالة الاستجابة</th><th>سبب الغياب</th><th>اعتماد المبلغ</th></tr></thead>
+    <tbody>${body}</tbody></table>
+    <div class="ft">
+      <div>المرشد الاجتماعي<small>الأستاذ: السيد عبدالله الكامل</small><i></i><em>التوقيع</em></div>
+      <div>المدير المساعد<small>الأستاذ: عبدالله أحمد دليم</small><i></i><em>التوقيع</em></div>
+      <div>يعتمد مدير المدرسة<small>الأستاذ: محمد ابراهيم محمد ناصر</small><i></i><em>التوقيع</em></div>
+    </div>
+    <div class="by">إعداد: صبري محمد حمد</div>
+    </section>`;
+  }
+  $('sheet').innerHTML=h;stats();
+}
 </script>
 </body>
 </html>
