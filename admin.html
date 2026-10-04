@@ -1,532 +1,265 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>بوابة المدير - لوحة التحكم الشاملة</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap');
-
-        :root {
-            --primary: #4338ca; 
-            --primary-hover: #3730a3;
-            --secondary: #1e3a8a;
-            --success: #16a34a; 
-            --danger: #dc2626; 
-            --warning: #ca8a04; 
-            --info: #0891b2; 
-            --bg-color: #f3f4f6; 
-            --card-bg: #ffffff; 
-            --text-main: #1f2937;
-        }
-
-        body { font-family: 'Tajawal', sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; padding: 20px; }
-        .container { max-width: 1250px; margin: 0 auto; }
-        
-        .school-header-container {
-            background-color: #fff;
-            text-align: center;
-            padding: 15px;
-            border-bottom: 4px solid var(--primary);
-            border-radius: 12px 12px 0 0;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
-            margin-bottom: 20px;
-        }
-        .school-header { max-width: 100%; height: auto; display: inline-block; }
-
-        .header { text-align: center; margin-bottom: 25px; }
-        .header h1 { color: var(--primary); margin: 0 0 5px 0; font-weight: 800; font-size: 2rem;}
-        .header h3 { margin: 0; color: #4b5563; font-weight: 500;}
-
-        .auth-card {
-            background: white; max-width: 450px; margin: 50px auto; padding: 40px 30px;
-            border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center;
-            border-top: 5px solid var(--primary);
-        }
-        .auth-card h3 { color: var(--text-main); margin-bottom: 20px; font-weight: 800; }
-        .auth-card input { width: 80%; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; text-align: center; font-size: 1.1rem; margin-bottom: 20px; font-family: inherit;}
-        .auth-card button { width: 80%; padding: 12px; font-size: 1.1rem; border-radius: 8px; }
-
-        .tabs-container { display: flex; justify-content: center; gap: 15px; margin-bottom: 25px; flex-wrap: wrap; }
-        .tab-btn { padding: 12px 30px; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; cursor: pointer; background: #e5e7eb; color: #4b5563; transition: 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.05);}
-        .tab-btn.active { background: var(--primary); color: white; box-shadow: 0 4px 10px rgba(67, 56, 202, 0.3); }
-        .tab-btn:hover:not(.active) { background: #d1d5db; }
-
-        .filters { display: flex; flex-wrap: wrap; gap: 15px; background: var(--card-bg); padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 25px; align-items: center; justify-content: center; }
-        .filter-group { display: flex; flex-direction: column; gap: 8px; }
-        .filter-group label { font-weight: bold; font-size: 0.95rem; color: #4b5563; }
-        .filter-group input, .filter-group select { padding: 10px; border: 1px solid #d1d5db; border-radius: 8px; font-family: inherit; font-size: 1rem;}
-        
-        .btn-action { background-color: var(--primary); color: white; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-family: inherit; font-weight: bold; transition: 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.1);}
-        .btn-action:hover { background-color: var(--primary-hover); transform: translateY(-2px);}
-
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 25px; }
-        .stat-card { background: var(--card-bg); padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); text-align: center; border-bottom: 5px solid var(--primary); transition: 0.3s;}
-        .stat-card:hover { transform: translateY(-5px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
-        .stat-card h3 { margin: 0; font-size: 1.2rem; color: #4b5563; }
-        .stat-card .value { font-size: 2.5rem; font-weight: 800; margin: 15px 0; }
-        .stat-card .percent { font-size: 1.1rem; font-weight: bold; padding: 5px 10px; border-radius: 6px; color: white; display: inline-block;}
-        
-        .card-present { border-color: var(--success); } .card-present .value { color: var(--success); } .card-present .percent { background-color: var(--success); }
-        .card-absent { border-color: var(--danger); } .card-absent .value { color: var(--danger); } .card-absent .percent { background-color: var(--danger); }
-        .card-late { border-color: var(--warning); } .card-late .value { color: var(--warning); } .card-late .percent { background-color: var(--warning); }
-        .card-leave { border-color: var(--info); } .card-leave .value { color: var(--info); } .card-leave .percent { background-color: var(--info); }
-
-        .chart-container { background: var(--card-bg); padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 25px; height: 420px; }
-        .table-container { background: var(--card-bg); padding: 25px; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-bottom: 25px; overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
-        th, td { border: 1px solid #e5e7eb; padding: 14px; text-align: center; }
-        th { background-color: var(--primary); color: white; font-size: 1.05rem;}
-        tr:nth-child(even) { background-color: #f9fafb; }
-        tr:hover { background-color: #eff6ff; }
-        .loading { text-align: center; font-size: 1.5rem; color: var(--primary); font-weight: bold; display: none; padding: 50px; }
-
-        .btn-excuse { background: var(--success); color: white; padding: 8px 15px; border-radius: 6px; font-weight: bold; border: none; cursor: pointer; transition:0.3s;}
-        .btn-excuse:hover { background: #15803d; }
-        .no-excuse { color: var(--danger); font-weight: bold; background: #fee2e2; padding: 6px 10px; border-radius: 6px; display:inline-block;}
-        
-        .copy-cpr-btn { background: #e5e7eb; border: 1px solid #d1d5db; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-family: inherit; font-size: 0.8rem; margin-right: 5px; transition: 0.3s;}
-        .copy-cpr-btn:hover { background: #d1d5db; }
-
-        .quick-excuse-btn { background: var(--info); color: white; padding: 6px 10px; border-radius: 6px; font-weight: bold; border: none; cursor: pointer; text-decoration: none; font-size: 0.85rem; margin-top:5px; display:inline-block;}
-        .quick-excuse-btn:hover { background: #06b6d4; }
-
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); backdrop-filter: blur(4px); }
-        .modal-content { background-color: #fff; margin: 5% auto; padding: 25px; border-radius: 12px; width: 90%; max-width: 500px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
-        .close-btn { color: var(--danger); float: left; font-size: 32px; font-weight: bold; cursor: pointer; line-height: 1;}
-        .modal-field { margin-bottom: 15px; }
-        .modal-field label { font-weight: bold; color: #4b5563; display: block; margin-bottom: 8px; }
-        .modal-field div { background: #f3f4f6; padding: 12px; border-radius: 8px; white-space: pre-wrap; font-size:1.05rem;}
-        .attach-btn { display: inline-block; background: var(--secondary); color: white; padding: 10px 20px; text-decoration: none; border-radius: 8px; margin-top: 5px; font-size: 0.95rem; font-weight: bold; transition:0.3s;}
-        .attach-btn:hover { background: #172554; }
-
-        @media print {
-            body { background: white; padding: 0; }
-            .no-print, .filters, .tabs-container, button, .auth-card { display: none !important; }
-            .container { max-width: 100%; }
-            .school-header-container { border: none; box-shadow: none; margin-bottom: 10px; }
-            .stat-card { border: 1px solid #000; box-shadow: none; break-inside: avoid; }
-            .percent { -webkit-print-color-adjust: exact; print-color-adjust: exact; color: #000 !important; border: 1px solid #000; }
-            .chart-container { box-shadow: none; border: 1px solid #000; page-break-inside: avoid; height: 350px !important; }
-            .table-container { box-shadow: none; border: none; padding: 0; }
-            table { width: 100% !important; table-layout: fixed; }
-            th, td { border: 1px solid #000 !important; font-size: 12pt; padding: 8px; color: #000; }
-            th { background-color: #e5e7eb !important; color: #000 !important; -webkit-print-color-adjust: exact; }
-            .details-table th:nth-child(5), .details-table td:nth-child(5) { display: none !important; } 
-            .details-table th:nth-child(3), .details-table td:nth-child(3) { width: 40% !important; font-size: 14pt !important; font-weight: bold; }
-            @page { margin: 1cm; size: A4; }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow">
+<meta name="referrer" content="no-referrer">
+<title>بوابة المدير - مدرسة البلاد القديم</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap');
+:root{--p:#4338ca;--pd:#312e81;--bg:#f1f5f9;--tx:#1e293b;--bd:#e2e8f0}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Tajawal',sans-serif;background:var(--bg);color:var(--tx)}
+button{font-family:inherit}
+#login{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px}
+.card{background:#fff;width:100%;max-width:400px;padding:28px;border-radius:16px;box-shadow:0 12px 30px rgba(0,0,0,.12);border-top:5px solid var(--p);text-align:center}
+.card img{max-width:100%;max-height:80px}
+.card h2{margin:12px 0 4px;color:var(--p)}
+.card p{margin:0 0 16px;color:#64748b;font-size:.9rem}
+.card input{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:8px;text-align:center;font:inherit;font-size:1.1rem;margin-bottom:12px}
+.card button{width:100%;padding:12px;border:0;border-radius:8px;background:var(--p);color:#fff;font-size:1.1rem;font-weight:800;cursor:pointer}
+.card button:disabled{opacity:.6}
+#msg{color:#dc2626;font-weight:700;margin-top:10px;min-height:1.2em}
+#app{display:none;height:100vh}
+#app.on{display:flex}
+aside{width:270px;background:var(--pd);color:#fff;display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0}
+.brand{padding:14px;text-align:center;border-bottom:1px solid rgba(255,255,255,.15);font-weight:800}
+.brand img{max-width:100%;background:#fff;border-radius:8px;padding:4px;margin-bottom:6px}
+.grp{padding:12px 16px 4px;font-size:.78rem;opacity:.65;font-weight:800}
+.nav{display:block;width:100%;padding:10px 16px;background:none;border:0;border-right:4px solid transparent;color:#fff;font-weight:700;font-size:.95rem;text-align:right;cursor:pointer}
+.nav:hover{background:rgba(255,255,255,.08)}
+.nav.on{background:rgba(255,255,255,.16);border-right-color:#fbbf24}
+main{flex:1;display:flex;flex-direction:column;min-width:0}
+header{display:flex;align-items:center;gap:8px;padding:10px 16px;background:#fff;border-bottom:1px solid var(--bd)}
+header h1{margin:0;font-size:1.1rem}
+.hb{padding:8px 12px;border:1px solid var(--bd);border-radius:8px;background:#fff;font-weight:700;cursor:pointer;text-decoration:none;color:var(--tx);font-size:.9rem}
+#menuBtn{display:none}
+#home{padding:20px;overflow-y:auto;flex:1}
+#home h2{margin:0 0 14px}
+#home h2 small{font-weight:500;color:#64748b;font-size:.85rem;margin-right:8px}
+.kg{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.k{background:#fff;border-radius:12px;padding:14px;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,.06);border-bottom:4px solid var(--p)}
+.k b{display:block;font-size:1.9rem;margin-top:4px}
+.k span{font-size:.85rem;color:#64748b;font-weight:700}
+.k.r{border-color:#dc2626}.k.r b{color:#dc2626}.k.y{border-color:#ca8a04}.k.y b{color:#ca8a04}.k.c{border-color:#0891b2}.k.c b{color:#0891b2}.k.g{border-color:#16a34a}.k.g b{color:#16a34a}
+#kt{font-size:.8rem;color:#64748b;margin:8px 0 18px}
+#home h3{margin:18px 0 10px}
+.sg{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
+.s{background:#fff;border:1px solid var(--bd);border-radius:10px;padding:14px;text-align:right;font-weight:700;cursor:pointer}
+.s:hover{border-color:var(--p);box-shadow:0 4px 10px rgba(67,56,202,.15)}
+#frameWrap{flex:1;position:relative;display:none}
+#frame{width:100%;height:100%;border:0;background:#fff}
+#spin{position:absolute;inset:0;background:rgba(255,255,255,.9);display:none;align-items:center;justify-content:center;font-weight:800;color:var(--p);font-size:1.2rem}
+@media(max-width:800px){
+aside{position:fixed;top:0;bottom:0;right:0;z-index:50;transform:translateX(100%);transition:.2s}
+aside.open{transform:none}
+#menuBtn{display:inline-block}
+}
+</style>
 </head>
 <body>
 
-<div class="container">
-    <div class="school-header-container">
-        <img src="https://i.postimg.cc/K88X7RLb/trwysyh-dhhbyt.png" alt="ترويسة مدرسة البلاد القديم" class="school-header">
-    </div>
-
-    <div class="header" id="mainHeader" style="display:none;">
-        <h1>لوحة التحكم الشاملة (الإدارة والإشراف والإرشاد)</h1>
-        <h3>مدرسة البلاد القديم الابتدائية الإعدادية للبنين</h3>
-    </div>
-
-    <div id="authSection" class="auth-card">
-        <h3>الرجاء إدخال كلمة المرور للوصول للنظام</h3>
-        <input type="password" id="passInput" placeholder="كلمة المرور">
-        <br>
-        <button class="btn-action" onclick="authenticate()">دخول آمن</button>
-    </div>
-
-    <div class="loading" id="loadingSpinner">جاري جلب وتحليل البيانات... يرجى الانتظار ⏳</div>
-
-    <div id="mainContent" style="display:none;">
-        
-        <div class="tabs-container no-print">
-            <button class="tab-btn active" id="tabStatsBtn" onclick="switchTab('stats')">📊 الإحصائيات العامة</button>
-            <button class="tab-btn" id="tabSocialBtn" onclick="switchTab('social')">🛡️ الإرشاد الاجتماعي (الأعذار)</button>
-        </div>
-
-        <div class="filters no-print">
-            <div class="filter-group">
-                <label>تاريخ البداية (اليوم):</label>
-                <input type="date" id="startDate">
-            </div>
-            <div class="filter-group">
-                <label>تاريخ النهاية (للرسم البياني):</label>
-                <input type="date" id="endDate">
-            </div>
-            <div class="filter-group">
-                <label>المرحلة / الصف:</label>
-                <select id="stageFilter">
-                    <option value="all">كل الفصول المتاحة لي</option>
-                    <option value="سادس ابتدائي">سادس ابتدائي</option>
-                    <option value="أول إعدادي">أول إعدادي</option>
-                    <option value="ثاني إعدادي">ثاني إعدادي</option>
-                    <option value="ثالث إعدادي">ثالث إعدادي</option>
-                </select>
-            </div>
-            <!-- تم تعديل هذا الزر ليجلب البيانات من السيرفر مباشرة -->
-            <button class="btn-action" onclick="refreshData()" id="refreshBtn">🔄 تحديث البيانات (جلب الأعذار الجديدة)</button>
-            <button class="btn-action" onclick="window.print()" style="background-color: #4b5563;">🖨️ طباعة التقرير</button>
-        </div>
-
-        <h3 id="reportTitle" style="text-align: center; border-bottom: 2px dashed #d1d5db; padding-bottom:15px; color: #374151;">التقرير المخصص للتاريخ المحدد</h3>
-
-        <!-- قسم الإحصائيات -->
-        <div id="viewStats">
-            <div class="stats-grid">
-                <div class="stat-card card-present">
-                    <h3>حضور تام</h3><div class="value" id="valPresent">0</div><div class="percent" id="percPresent">0%</div>
-                </div>
-                <div class="stat-card card-absent">
-                    <h3>غياب كلي</h3><div class="value" id="valAbsent">0</div><div class="percent" id="percAbsent">0%</div>
-                </div>
-                <div class="stat-card card-late">
-                    <h3>تأخير (جزئي)</h3><div class="value" id="valLate">0</div><div class="percent" id="percLate">0%</div>
-                </div>
-                <div class="stat-card card-leave">
-                    <h3>استئذان</h3><div class="value" id="valLeave">0</div><div class="percent" id="percLeave">0%</div>
-                </div>
-            </div>
-
-            <div class="chart-container"><canvas id="trendChart"></canvas></div>
-
-            <div class="table-container">
-                <h3 style="color:var(--primary); margin-top:0;">تفصيل الإحصائيات (العدد والنسبة المئوية)</h3>
-                <table id="breakdownTable">
-                    <thead>
-                        <tr><th>القسم</th><th>العدد الكلي</th><th>الحضور</th><th>الغياب الكلي</th><th>تأخير صباحي</th><th>خروج باستئذان</th></tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-
-            <div class="table-container">
-                <h3 style="color:var(--primary); margin-top:0;">تفاصيل سجلات الغياب والتأخير</h3>
-                <table class="details-table" id="detailsTable">
-                    <thead>
-                        <tr><th>التاريخ</th><th>الصف</th><th>اسم الطالب</th><th>الحالة</th><th>الراصدون</th></tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- قسم الإرشاد الاجتماعي -->
-        <div id="viewSocial" style="display:none;">
-            <div class="table-container">
-                <h3 style="color:var(--primary); margin-top:0;">مطابقة سجل الغياب مع الأعذار (حسب تاريخ البداية)</h3>
-                <table id="socialTable">
-                    <thead>
-                        <tr><th>تاريخ الغياب</th><th>الرقم الشخصي</th><th>اسم الطالب</th><th>الصف</th><th>الحصص المفقودة</th><th>موقف العذر</th></tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
-            </div>
-        </div>
-
+<div id="login">
+    <div class="card">
+        <img src="https://i.postimg.cc/K88X7RLb/trwysyh-dhhbyt.png" alt="">
+        <h2>بوابة المدير</h2>
+        <p>أدخل كلمة مرور المدير للدخول إلى جميع الأنظمة</p>
+        <input type="password" id="pw" placeholder="كلمة المرور" autocomplete="current-password" onkeydown="if(event.key==='Enter')login()">
+        <button id="lbtn" onclick="login()">دخول</button>
+        <div id="msg"></div>
     </div>
 </div>
 
-<!-- نافذة عرض العذر -->
-<div id="excuseModal" class="modal no-print">
-    <div class="modal-content">
-        <span class="close-btn" onclick="closeModal()">&times;</span>
-        <h3 style="margin-top:0; border-bottom: 2px solid #e5e7eb; padding-bottom:15px; color:var(--primary);">تفاصيل العذر المقدم</h3>
-        <div class="modal-field"><label>وقت التقديم:</label><div id="m-time"></div></div>
-        <div class="modal-field"><label>رقم ولي الأمر:</label><div id="m-phone" style="direction: ltr; text-align: right;"></div></div>
-        <div class="modal-field"><label>سبب الغياب المكتوب:</label><div id="m-reason"></div></div>
-        <div class="modal-field">
-            <label>المرفقات والصور:</label>
-            <div id="m-files" style="background:transparent; padding:0;"></div>
-        </div>
-    </div>
+<div id="app">
+    <aside id="aside">
+        <div class="brand"><img src="https://i.postimg.cc/K88X7RLb/trwysyh-dhhbyt.png" alt=""><div>مدرسة البلاد القديم</div></div>
+        <nav id="nav"></nav>
+        <div style="flex:1"></div>
+        <button class="nav" onclick="logout()">🚪 تسجيل الخروج</button>
+    </aside>
+    <main>
+        <header>
+            <button class="hb" id="menuBtn" onclick="$('aside').classList.toggle('open')">☰</button>
+            <h1 id="title"></h1>
+            <span style="flex:1"></span>
+            <button class="hb" id="refBtn" onclick="kpis()">🔄 تحديث المؤشرات</button>
+            <button class="hb" id="prBtn" onclick="printFrame()">🖨️ طباعة</button>
+            <a class="hb" id="openNew" target="_blank" rel="noopener" title="قد تطلب الصفحة كلمة المرور من جديد">↗ تبويب جديد</a>
+        </header>
+
+        <section id="home">
+            <h2>مرحباً بك أستاذ محمد 👋 <small id="today"></small></h2>
+            <div class="kg">
+                <div class="k"><span>إجمالي الطلاب</span><b id="k1">—</b></div>
+                <div class="k r"><span>غياب كلي اليوم</span><b id="k2">—</b></div>
+                <div class="k y"><span>تأخير صباحي</span><b id="k3">—</b></div>
+                <div class="k c"><span>استئذان</span><b id="k4">—</b></div>
+                <div class="k g"><span>نسبة الحضور</span><b id="k5">—</b></div>
+            </div>
+            <div id="kt"></div>
+            <h3>الوصول السريع</h3>
+            <div class="sg" id="sg"></div>
+        </section>
+
+        <div id="frameWrap"><div id="spin">⏳ جاري التحميل...</div><iframe id="frame" title="content"></iframe></div>
+    </main>
 </div>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxlJnpJN9y9h04cOswtY3BGGwUS8rhybOisxDFkIQJ6_9nFSPMJeK-wiuFEECnBY3v5/exec"; 
-    let rawData = null;
-    let chartInstance = null;
-    let globalExcuses = {};
+    // رابط Google Apps Script الرئيسي
+    const API = "https://script.google.com/macros/s/AKfycbxlJnpJN9y9h04cOswtY3BGGwUS8rhybOisxDFkIQJ6_9nFSPMJeK-wiuFEECnBY3v5/exec";
 
-    document.addEventListener("DOMContentLoaded", () => {
-        const today = new Date().toLocaleDateString('en-CA');
-        document.getElementById('startDate').value = today;
-        document.getElementById('endDate').value = today;
-    });
+    // ⚙️ عدّل أسماء الملفات (u) هنا إن اختلفت في المستودع. login = اسم دالة الدخول في الصفحة ليتم تنفيذها تلقائياً بالرمز.
+    const MENU = [
+        { g: 'الرئيسية', items: [{ id: 'home', t: '🏠 الصفحة الرئيسية' }] },
+        { g: 'الحضور والغياب', items: [
+            { id: 'stats', t: '📊 الإحصائيات والتقارير الشهرية', u: 'statistics.html', login: 'authenticate' },
+            { id: 'sup',   t: '⚡ الرصد اللحظي للحصص',          u: 'supervisor.html', login: 'authenticateSupervisor' },
+            { id: 'cum',   t: '⚠️ الغياب التراكمي',             u: 'absences.html' },
+            { id: 'daily', t: '📋 كشف الغياب اليومي (وزاري)',   u: 'daily_absence_report.html', login: 'authenticate' }
+        ]},
+        { g: 'السلوك', items: [
+            { id: 'vio', t: '🛑 سجل المخالفات السلوكية',     u: 'violations.html' },
+            { id: 'beh', t: '📝 النظام الموحد لمتابعة السلوك', u: 'Behavioral_Violation.html' }
+        ]},
+        { g: 'الإرشاد الاجتماعي', items: [
+            { id: 'soc', t: '⏱️ التأخير والاستئذان',          u: 'social.html', login: 'loginSocial' },
+            { id: 'exc', t: '📄 نموذج العذر (ولي الأمر)',      u: 'excuse.html' }
+        ]},
+        { g: 'الطلاب والمعلمون', items: [
+            { id: 'stu', t: '🔍 البحث وملف الطالب',           u: 'Student_search.html' },
+            { id: 'tea', t: '👨‍🏫 بوابة المعلمين',              u: 'teacher.html' }
+        ]},
+        { g: 'أخرى', items: [
+            { id: 'vis', t: '👥 سجل الزوار', u: '/Visitors/' }
+        ]}
+    ];
+    const ALL = MENU.flatMap(m => m.items);
+    const $ = id => document.getElementById(id);
+    let tok = sessionStorage.getItem('adm_tok');
 
-    function switchTab(tab) {
-        document.getElementById('viewStats').style.display = (tab === 'stats') ? 'block' : 'none';
-        document.getElementById('viewSocial').style.display = (tab === 'social') ? 'block' : 'none';
-        document.getElementById('tabStatsBtn').className = (tab === 'stats') ? 'tab-btn active' : 'tab-btn';
-        document.getElementById('tabSocialBtn').className = (tab === 'social') ? 'tab-btn active' : 'tab-btn';
+    async function post(body) {
+        const r = await fetch(API, { method: 'POST', body: JSON.stringify(body) });
+        return r.json();
     }
 
-    function authenticate() {
-        const pass = document.getElementById('passInput').value;
-        if (!pass) return alert('أدخل كلمة المرور');
-        
-        document.getElementById('authSection').style.display = 'none';
-        document.getElementById('loadingSpinner').style.display = 'block';
+    async function login() {
+        const p = $('pw').value;
+        if (!p) return;
+        $('lbtn').disabled = true; $('msg').textContent = '';
+        try {
+            const r = await post({ action: 'adminLogin', password: p });
+            if (r.status === 'success' && r.token) {
+                tok = r.token;
+                sessionStorage.setItem('adm_tok', tok);
+                $('pw').value = '';
+                start();
+            } else { $('msg').textContent = r.message || 'كلمة المرور غير صحيحة'; }
+        } catch (e) { $('msg').textContent = 'تعذر الاتصال بالخادم'; }
+        $('lbtn').disabled = false;
+    }
 
-        fetch(`${SCRIPT_URL}?action=dashboard_data&pass=${pass}`)
-            .then(res => res.json())
-            .then(data => {
-                document.getElementById('loadingSpinner').style.display = 'none';
-                if(data.status === "success") {
-                    rawData = data;
-                    document.getElementById('mainHeader').style.display = 'block';
-                    document.getElementById('mainContent').style.display = 'block';
-                    applyFilters();
-                } else {
-                    alert('خطأ: ' + data.message);
-                    document.getElementById('authSection').style.display = 'block';
-                }
-            }).catch(err => {
-                alert('حدث خطأ في الاتصال');
-                document.getElementById('authSection').style.display = 'block';
-                document.getElementById('loadingSpinner').style.display = 'none';
+    async function boot() {
+        if (!tok) return;
+        try {
+            const r = await (await fetch(`${API}?action=adminCheck&token=${encodeURIComponent(tok)}`)).json();
+            if (r.status === 'success') return start();
+        } catch (e) {}
+        sessionStorage.removeItem('adm_tok'); tok = null;
+    }
+
+    function logout() {
+        if (tok) post({ action: 'adminLogout', token: tok }).catch(() => {});
+        sessionStorage.removeItem('adm_tok');
+        location.hash = '';
+        location.reload();
+    }
+
+    function start() {
+        $('login').style.display = 'none';
+        $('app').classList.add('on');
+        $('today').textContent = new Date().toLocaleDateString('ar-BH', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        let nav = '', sg = '';
+        MENU.forEach(m => {
+            nav += `<div class="grp">${m.g}</div>`;
+            m.items.forEach(i => {
+                nav += `<button class="nav" data-id="${i.id}" onclick="go('${i.id}')">${i.t}</button>`;
+                if (i.u) sg += `<button class="s" onclick="go('${i.id}')">${i.t}</button>`;
             });
+        });
+        $('nav').innerHTML = nav; $('sg').innerHTML = sg;
+        go(location.hash.slice(1) || 'home');
+        kpis();
     }
 
-    // الدالة الجديدة لجلب التحديثات من السيرفر عند الضغط على زر "تحديث البيانات"
-    function refreshData() {
-        const pass = document.getElementById('passInput').value;
-        if (!pass) return alert('يرجى تسجيل الدخول أولاً');
-        
-        const btn = document.getElementById('refreshBtn');
-        const originalText = btn.innerText;
-        btn.innerText = "⏳ جاري التحديث...";
-        btn.disabled = true;
+    function go(id) {
+        const it = ALL.find(x => x.id === id) || ALL[0];
+        document.querySelectorAll('.nav[data-id]').forEach(b => b.classList.toggle('on', b.dataset.id === it.id));
+        $('title').textContent = it.t;
+        $('aside').classList.remove('open');
+        location.hash = it.id;
+        const home = it.id === 'home';
+        $('home').style.display = home ? 'block' : 'none';
+        $('frameWrap').style.display = home ? 'none' : 'block';
+        $('refBtn').style.display = home ? '' : 'none';
+        $('openNew').style.display = home ? 'none' : '';
+        if (home) return;
+        $('openNew').href = it.u;
+        $('spin').style.display = 'flex';
+        const f = $('frame');
+        f.onload = () => afterLoad(f, it);
+        f.src = it.u;
+    }
 
-        fetch(`${SCRIPT_URL}?action=dashboard_data&pass=${pass}`)
-            .then(res => res.json())
-            .then(data => {
-                btn.innerText = originalText;
-                btn.disabled = false;
-                if(data.status === "success") {
-                    rawData = data;
-                    applyFilters();
-                    alert("✅ تم جلب أحدث البيانات والأعذار بنجاح!");
-                } else {
-                    alert('خطأ: ' + data.message);
+    // تسجيل الدخول التلقائي داخل الصفحة المحمّلة (نفس النطاق) باستخدام رمز المدير
+    function afterLoad(f, it) {
+        $('spin').style.display = 'none';
+        if (!it.login) return;
+        try {
+            const w = f.contentWindow, i = f.contentDocument.getElementById('passInput');
+            if (i && typeof w[it.login] === 'function') { i.value = tok; w[it.login](); }
+        } catch (e) {}
+    }
+
+    function printFrame() {
+        try { $('frame').contentWindow.focus(); $('frame').contentWindow.print(); } catch (e) { window.print(); }
+    }
+
+    const cl = n => String(n || '').replace(/^[\d\s._-]+/, '').trim();
+    async function kpis() {
+        $('kt').textContent = '⏳ جاري جلب مؤشرات اليوم...';
+        try {
+            const r = await (await fetch(`${API}?action=dashboard_data&pass=${encodeURIComponent(tok)}`)).json();
+            if (r.status !== 'success') { $('kt').textContent = 'تعذر جلب المؤشرات: ' + (r.message || ''); return; }
+            const t = new Date().toLocaleDateString('en-CA'), cp = {}, sp = {}, ls = {};
+            let late = 0, leave = 0, abs = 0;
+            r.records.forEach(x => {
+                if (x.date !== t || !x.period) return;
+                (cp[x.className] = cp[x.className] || {})[x.period] = 1;
+                if (!String(x.studentName).includes('لا يوجد')) {
+                    const k = x.className + '|' + cl(x.studentName);
+                    (sp[k] = sp[k] || {})[x.period] = 1;
                 }
-            }).catch(err => {
-                btn.innerText = originalText;
-                btn.disabled = false;
-                alert('حدث خطأ في الاتصال');
             });
-    }
-
-    function calcPercent(part, total) { return total === 0 ? "0%" : ((part / total) * 100).toFixed(1) + "%"; }
-    function extractStage(className) {
-        if(className.includes('سادس')) return 'سادس ابتدائي';
-        if(className.includes('أول')) return 'أول إعدادي';
-        if(className.includes('ثاني')) return 'ثاني إعدادي';
-        if(className.includes('ثالث')) return 'ثالث إعدادي';
-        return 'أخرى';
-    }
-
-    function copyCPR(cprVal) {
-        navigator.clipboard.writeText(cprVal).then(() => {
-            alert("تم نسخ الرقم الشخصي: " + cprVal);
-        }).catch(err => {
-            alert("تعذر النسخ التلقائي، يمكنك تحديده ونسخه يدوياً.");
-        });
-    }
-
-    function applyFilters() {
-        if(!rawData) return;
-        const startDate = document.getElementById('startDate').value;
-        const endDate = document.getElementById('endDate').value;
-        const stageFilter = document.getElementById('stageFilter').value;
-        
-        document.getElementById('reportTitle').innerText = `التقرير المخصص للفترة من ${startDate} إلى ${endDate}`;
-
-        let dailyStats = {}; 
-        let d = new Date(startDate); let endD = new Date(endDate);
-        while(d <= endD) { dailyStats[d.toLocaleDateString('en-CA')] = { students: {} }; d.setDate(d.getDate() + 1); }
-
-        globalExcuses = {};
-        rawData.excuses.forEach(ex => {
-            let sName = ex.studentName.replace(/^[\d\s._-]+/, '').trim();
-            globalExcuses[ex.date + "_" + sName] = ex;
-        });
-
-        rawData.lates.forEach(late => {
-            if(dailyStats[late.date]) {
-                if(!dailyStats[late.date].students[late.studentName]) {
-                    dailyStats[late.date].students[late.studentName] = { className: late.className, stage: extractStage(late.className), state: late.excuseType.includes('استئذان') ? 'leave' : 'late', teachers: 'الإدارة' };
-                }
-            }
-        });
-
-        let absMapForSocial = {}; 
-        rawData.records.forEach(rec => {
-            if(dailyStats[rec.date] && rec.studentName && !rec.studentName.includes('لا يوجد')) {
-                let sName = rec.studentName.replace(/^[\d\s._-]+/, '').trim();
-                let stg = extractStage(rec.className);
-                
-                if(!dailyStats[rec.date].students[sName]) {
-                    dailyStats[rec.date].students[sName] = { className: rec.className, stage: stg, state: 'absent', teachers: rec.teacher };
-                } else if(dailyStats[rec.date].students[sName].state === 'absent') {
-                    if(!dailyStats[rec.date].students[sName].teachers.includes(rec.teacher)) dailyStats[rec.date].students[sName].teachers += ' ، ' + rec.teacher;
-                }
-
-                if(rec.date === startDate) {
-                    let key = sName;
-                    if(!absMapForSocial[key]) absMapForSocial[key] = { className: rec.className, rawName: rec.studentName, periods: [] };
-                    if(!absMapForSocial[key].periods.includes(rec.period)) absMapForSocial[key].periods.push(rec.period);
-                }
-            }
-        });
-
-        let totalStudents = 0; let totalAbsent = 0; let totalLate = 0; let totalLeave = 0; let breakDown = {}; 
-        Object.keys(rawData.classTotals).forEach(cls => {
-            let stg = extractStage(cls);
-            if(stageFilter === 'all' || stageFilter === stg || stageFilter === cls) {
-                totalStudents += rawData.classTotals[cls];
-                let key = stageFilter === 'all' ? stg : cls;
-                if(!breakDown[key]) breakDown[key] = { total: 0, absent: 0, late: 0, leave: 0 };
-                breakDown[key].total += rawData.classTotals[cls];
-            }
-        });
-
-        let focusDateObj = dailyStats[startDate];
-        if(focusDateObj) {
-            for(let sName in focusDateObj.students) {
-                let info = focusDateObj.students[sName];
-                if((stageFilter === 'all') || (stageFilter === info.stage) || (stageFilter === info.className)) {
-                    let bKey = stageFilter === 'all' ? info.stage : info.className;
-                    if(!breakDown[bKey]) breakDown[bKey] = { total: 0, absent: 0, late: 0, leave: 0 };
-                    if(info.state === 'absent') { totalAbsent++; breakDown[bKey].absent++; }
-                    if(info.state === 'late') { totalLate++; breakDown[bKey].late++; }
-                    if(info.state === 'leave') { totalLeave++; breakDown[bKey].leave++; }
-                }
-            }
-        }
-        
-        let totalPresent = totalStudents - totalAbsent;
-        document.getElementById('valPresent').innerText = totalPresent; document.getElementById('percPresent').innerText = calcPercent(totalPresent, totalStudents);
-        document.getElementById('valAbsent').innerText = totalAbsent; document.getElementById('percAbsent').innerText = calcPercent(totalAbsent, totalStudents);
-        document.getElementById('valLate').innerText = totalLate; document.getElementById('percLate').innerText = calcPercent(totalLate, totalStudents);
-        document.getElementById('valLeave').innerText = totalLeave; document.getElementById('percLeave').innerText = calcPercent(totalLeave, totalStudents);
-
-        let tBodyBreakdown = document.querySelector('#breakdownTable tbody');
-        tBodyBreakdown.innerHTML = '';
-        for(let k in breakDown) {
-            let r = breakDown[k]; let rP = r.total - r.absent;
-            tBodyBreakdown.innerHTML += `<tr><td style="font-weight:bold;">${k}</td><td>${r.total}</td>
-                <td style="color:var(--success); font-weight:bold;">${rP} <br><span class="percent" style="background:var(--success); font-size:0.85rem; margin-top:5px;">${calcPercent(rP, r.total)}</span></td>
-                <td style="color:var(--danger); font-weight:bold;">${r.absent} <br><span class="percent" style="background:var(--danger); font-size:0.85rem; margin-top:5px;">${calcPercent(r.absent, r.total)}</span></td>
-                <td style="color:var(--warning); font-weight:bold;">${r.late} <br><span class="percent" style="background:var(--warning); font-size:0.85rem; margin-top:5px;">${calcPercent(r.late, r.total)}</span></td>
-                <td style="color:var(--info); font-weight:bold;">${r.leave} <br><span class="percent" style="background:var(--info); font-size:0.85rem; margin-top:5px;">${calcPercent(r.leave, r.total)}</span></td></tr>`;
-        }
-
-        let tBodyDetails = document.querySelector('#detailsTable tbody');
-        tBodyDetails.innerHTML = '';
-        if(focusDateObj) {
-            for(let sName in focusDateObj.students) {
-                let info = focusDateObj.students[sName];
-                if((stageFilter === 'all') || (stageFilter === info.stage) || (stageFilter === info.className)) {
-                    let stateAr = info.state === 'absent' ? 'غياب كلي' : (info.state === 'late' ? 'تأخير صباحي' : 'خروج باستئذان');
-                    let color = info.state === 'absent' ? 'var(--danger)' : (info.state === 'late' ? 'var(--warning)' : 'var(--info)');
-                    tBodyDetails.innerHTML += `<tr><td>${startDate}</td><td>${info.className}</td><td class="student-col" style="font-weight:bold;">${sName}</td><td style="color:${color}; font-weight:bold;">${stateAr}</td><td class="teacher-col" style="font-size:0.9rem; color:#4b5563;">${info.teachers}</td></tr>`;
-                }
-            }
-        }
-
-        let cLabels = []; let cAbs = []; let cLate = [];
-        Object.keys(dailyStats).sort().forEach(dKey => {
-            cLabels.push(dKey); let a=0; let l=0;
-            for(let sn in dailyStats[dKey].students) {
-                let i = dailyStats[dKey].students[sn];
-                if((stageFilter === 'all') || (stageFilter === i.stage) || (stageFilter === i.className)) {
-                    if(i.state === 'absent') a++;
-                    if(i.state === 'late' || i.state === 'leave') l++;
-                }
-            }
-            cAbs.push(a); cLate.push(l);
-        });
-
-        if(chartInstance) chartInstance.destroy();
-        chartInstance = new Chart(document.getElementById('trendChart').getContext('2d'), {
-            type: 'bar', data: { labels: cLabels, datasets: [{ label: 'الغياب الكلي', data: cAbs, backgroundColor: '#dc2626', borderRadius: 5 }, { label: 'غياب جزئي (تأخير/استئذان)', data: cLate, backgroundColor: '#ca8a04', borderRadius: 5 }] },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: 'مؤشر الغياب للفترة المحددة', font: {size: 18, family: 'Tajawal'} } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
-        });
-
-        let socialTbody = document.querySelector('#socialTable tbody');
-        socialTbody.innerHTML = '';
-
-        Object.keys(globalExcuses).forEach(key => {
-            let ex = globalExcuses[key];
-            if(ex.date === startDate) {
-                let sName = ex.studentName.replace(/^[\d\s._-]+/, '').trim();
-                if(!absMapForSocial[sName]) {
-                    absMapForSocial[sName] = { className: ex.className, rawName: ex.studentName, periods: ['(تم تقديم العذر مسبقاً)'] };
-                }
-            }
-        });
-
-        Object.keys(absMapForSocial).sort().forEach(name => {
-            let info = absMapForSocial[name];
-            let exKey = startDate + "_" + name;
-            let excuse = globalExcuses[exKey];
-            
-            let cleanN = info.rawName.replace(/^[\d\s._-]+/, '').trim();
-            let studentCpr = rawData.cprMap && rawData.cprMap[cleanN] ? rawData.cprMap[cleanN] : "غير متوفر";
-            
-            let match = (stageFilter === 'all') || (stageFilter === extractStage(info.className)) || (stageFilter === info.className);
-            if(match) {
-                let excuseHtml = '';
-                if (excuse) {
-                    excuseHtml = `<button class="btn-excuse" onclick="openModal('${exKey}')">📄 يوجد عذر (عرض)</button>`;
-                } else {
-                    excuseHtml = `
-                        <div style="margin-bottom:5px;"><span class="no-excuse">لم يقدم عذر</span></div>
-                        <a href="excuse.html" target="_blank" class="quick-excuse-btn">📝 إضافة عذر بالنيابة</a>
-                    `;
-                }
-                
-                socialTbody.innerHTML += `
-                    <tr>
-                        <td>${startDate}</td>
-                        <td style="font-weight:bold; color:var(--primary); font-size:1.1rem;">
-                            ${studentCpr}
-                            ${studentCpr !== "غير متوفر" ? `<br><button class="copy-cpr-btn no-print" onclick="copyCPR('${studentCpr}')">نسخ 📋</button>` : ''}
-                        </td>
-                        <td style="font-weight:bold; font-size:1.05rem;">${info.rawName}</td>
-                        <td>${info.className}</td>
-                        <td>${info.periods.join(' ، ')}</td>
-                        <td>${excuseHtml}</td>
-                    </tr>
-                `;
-            }
-        });
-    }
-
-    function openModal(exKey) {
-        let ex = globalExcuses[exKey];
-        if(!ex) return;
-        document.getElementById('m-time').innerText = ex.time;
-        document.getElementById('m-phone').innerText = ex.parentPhone;
-        document.getElementById('m-reason').innerText = ex.reason || "لم يكتب ملاحظات";
-
-        let fContainer = document.getElementById('m-files');
-        fContainer.innerHTML = '';
-        if(ex.files && ex.files.trim() !== "") {
-            let links = ex.files.split('\n');
-            links.forEach((l, i) => {
-                if(l.trim() !== "") fContainer.innerHTML += `<a href="${l.trim()}" target="_blank" class="attach-btn">📎 فتح المرفق ${i + 1}</a> `;
+            r.lates.forEach(l => {
+                if (l.date !== t) return;
+                ls[cl(l.studentName)] = 1;
+                String(l.excuseType).includes('استئذان') ? leave++ : late++;
             });
-        } else {
-            fContainer.innerHTML = '<span style="color:#6b7280; font-weight:bold;">لا توجد مرفقات</span>';
-        }
-        document.getElementById('excuseModal').style.display = 'block';
+            for (const k in sp) {
+                const [c, n] = k.split('|');
+                if (ls[n]) continue;
+                if (Object.keys(sp[k]).length >= Object.keys(cp[c]).length) abs++;
+            }
+            const N = Object.values(r.classTotals).reduce((a, b) => a + b, 0);
+            $('k1').textContent = N; $('k2').textContent = abs; $('k3').textContent = late; $('k4').textContent = leave;
+            $('k5').textContent = N ? ((N - abs) / N * 100).toFixed(1) + '%' : '-';
+            $('kt').textContent = 'آخر تحديث: ' + new Date().toLocaleTimeString('ar-BH') + ' — الغياب الكلي = من لم يحضر أي حصة في يومه';
+        } catch (e) { $('kt').textContent = 'تعذر الاتصال بالخادم'; }
     }
 
-    function closeModal() { document.getElementById('excuseModal').style.display = 'none'; }
+    boot();
 </script>
 </body>
 </html>
