@@ -77,6 +77,7 @@
         .btn-purple { background-color: #7c3aed; }
         .btn-gray { background-color: #64748b; }
         .btn-red { background-color: #dc2626; }
+        .btn-teal { background-color: #0f766e; } /* لون جديد للتبويب */
 
         .date-picker-box {
             display: flex; align-items: center; gap: 6px; background: #fff; padding: 4px 8px;
@@ -150,10 +151,12 @@
                 <button class="btn btn-purple" onclick="openExcusesModal()">🛡️ مطابقة الأعذار والتأخير</button>
                 <button class="btn btn-amber" onclick="openManualRegisterModal()">➕ تسجيل عذر ورقي</button>
                 
-                <a href="https://sabrysci.github.io/b/violations.html" class="btn btn-red">🛑 سجل المخالفات السلوكية</a>
+                <!-- تبويبات الروابط الخارجية -->
+                <a href="https://sabrysci.github.io/b/violations.html" class="btn btn-red" target="_blank">🛑 سجل المخالفات السلوكية</a>
+                <a href="https://sabrysci.github.io/b/absences.html" class="btn btn-amber" style="background-color: #b45309;" target="_blank">⚠ سجل الغياب التراكمي</a>
                 
-                <!-- الزر الجديد للغياب التراكمي -->
-                <a href="https://sabrysci.github.io/b/absences.html" class="btn btn-amber" style="background-color: #b45309;">⚠️️ سجل الغياب التراكمي</a>
+                <!-- التبويب الجديد لتقرير الغياب اليومي -->
+                <a href="https://sabrysci.github.io/b/daily_absence_report.html" class="btn btn-teal" target="_blank">📋 تقرير الغياب اليومي</a>
 
                 <div class="date-picker-box">
                     <span>تاريخ العرض:</span>
@@ -181,7 +184,7 @@
             </div>
         </div>
 
-        <!-- البطاقات الإحصائية (تم تعديل عنوان مربع الغياب ليعكس الغياب الصافي) -->
+        <!-- البطاقات الإحصائية -->
         <div class="stats-cards-grid">
             <div class="stat-badge-card card-c1"><div class="stat-label">إجمالي الطلاب</div><div class="stat-val" id="valTotalStudents">0</div></div>
             <div class="stat-badge-card card-c2"><div class="stat-label">الحاضرون (في الحصة المحددة)</div><div class="stat-val" id="valPresentStudents">0</div></div>
@@ -335,7 +338,7 @@
 
         Object.keys(studentAbsenceMap).forEach(sClean => {
             let st = studentAbsenceMap[sClean];
-            if (cachedLatesMap[sClean]) return; // مستثنى لأنه متأخر
+            if (cachedLatesMap[sClean]) return;
 
             if(totalRecordedCount === 0 || st.periods.length >= totalRecordedCount) {
                 trueDailyAbsentees[sClean] = st;
@@ -371,8 +374,8 @@
         }
 
         let stageTotal = 0;
-        let rawAbsentCountTotal = 0; // الغياب الفعلي عن الحصة (لحساب نسبة الحضور البدني)
-        let netAbsentCountTotal = 0; // الغياب الصافي للمشرف (بعد خصم التأخير والأعذار)
+        let rawAbsentCountTotal = 0;
+        let netAbsentCountTotal = 0;
         
         const tbody = document.getElementById('classesTableBody');
         tbody.innerHTML = '';
@@ -391,13 +394,12 @@
 
             let periodAbsenteesHtml = '';
             
-            // فلتر لحساب "الغياب الصافي" في هذه الحصة
             absInPeriod.forEach(ab => {
                 let sClean = ab.studentName.replace(/^[\d\s._-]+/, '').trim();
                 let isExcusedOrLate = cachedLatesMap[sClean] || cachedExcusesMap[sClean];
                 
                 if (!isExcusedOrLate) {
-                    netAbsentCountTotal++; // زيادة العداد للغياب الصافي فقط
+                    netAbsentCountTotal++;
                 }
                 
                 periodAbsenteesHtml += `<span class="tag-period-absent">❌ ${ab.studentName}</span> `;
@@ -407,7 +409,6 @@
                 periodAbsenteesHtml = isRecorded ? '<span style="color:var(--success); font-weight:700;">لا غياب بالحصة</span>' : '<span style="color:var(--text-muted);">—</span>';
             }
 
-            // موقف اليوم (تأخير / استئذان / غياب كلي)
             let dailyStatusHtml = '';
             
             if (apiData.lates) {
@@ -443,16 +444,12 @@
             `;
         });
 
-        // الحاضرون = إجمالي الطلاب ناقص الطلاب الغائبين فيزيائياً عن الحصة
         let presentTotal = stageTotal - rawAbsentCountTotal; 
         let percent = stageTotal > 0 ? ((presentTotal / stageTotal) * 100).toFixed(1) : 0;
 
         document.getElementById('valTotalStudents').innerText = stageTotal;
         document.getElementById('valPresentStudents').innerText = presentTotal;
-        
-        // 🔴 التعديل هنا: المربع الآن يعرض (الغياب الصافي) بعد خصم التأخير والأعذار 🔴
         document.getElementById('valAbsentStudents').innerText = netAbsentCountTotal;
-        
         document.getElementById('valPresentPercent').innerText = percent + "%";
     }
 
