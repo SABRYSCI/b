@@ -325,7 +325,7 @@
         </table>
     </div>
 
-    <!-- واجهة سجلات المعلم الخاصة (الجديدة) -->
+    <!-- واجهة سجلات المعلم الخاصة المحدثة بالفلترة -->
     <div id="teacherRecordsView">
         <div style="text-align: center; margin-bottom: 20px;">
             <h2>📝 سجل مخالفاتي</h2>
@@ -334,7 +334,13 @@
 
         <div class="dash-header">
             <button class="btn btn-back" onclick="closeTeacherRecords()">◀ العودة للنموذج</button>
-            <button class="btn btn-refresh" onclick="fetchTeacherRecords()">🔄 تحديث سجلاتي</button>
+            
+            <div class="dash-search-box">
+                <input type="text" id="myRecordsSearchInput" class="dash-input" placeholder="🔍 ابحث باسم الطالب..." style="width: 200px;" oninput="applyTeacherFilter()">
+                <input type="date" id="myRecordsDateFilter" class="dash-input" style="width: 140px; text-align: center;" onchange="applyTeacherFilter()">
+                <button class="btn btn-refresh" style="background-color: #f39c12;" onclick="filterTeacherByToday()">📅 اليوم</button>
+                <button class="btn btn-refresh" onclick="clearTeacherFilter()">🔄 عرض الكل</button>
+            </div>
         </div>
 
         <table class="dash-table">
@@ -361,6 +367,7 @@
         let fetchedRecord = {v1_type:"", v2_type:"", v3_type:"", supervisor_action:""}; 
         let globalDashboardData = []; 
         let globalRawViolations = []; 
+        let globalTeacherRecords = []; // جديد: لحفظ سجلات المعلم الأصلية للاستخدام في الفلترة
 
         const HARDCODED_ROSTERS = {
             "سادس ابتدائي 1": ["ابراهيم على خليل الحايكي", "السيد حسن صالح الموسوي", "السيد علوي ابراهيم ناصر حسن", "السيد هاشم مجيد فيصل محمد", "إيليا سعيد حسن حسن", "حسن على ميرزا خليل", "حسین اسامه عبد الجليل الجشي", "حسين عمار جاسم الاسكافي", "حيدر على ابراهيم حسن", "سيد صادق جعفر على ناصر", "سيد حامد حسین محمد درویش", "صادق على عبدالله اسماعيل", "عبد العزيز جلال عبد العزيز حاجی عبدالله", "عبدالله حسین عبدالله مال الله", "عبدالله على عباس شاهين", "على حسين على عبد على", "على عيسى ابراهيم الستراوي", "على قاسم عباس حسن", "عمار محمد عبد الامير الحصار", "غسان مهند عقيل مرهون", "قاسم جابر جاسم منصور", "قاسم محمد احمد حسن", "ليث محمود مسعود الوطني", "محمد صالح شوقي البناء", "محمد عباس خميس السودان", "نوح زهير عبد الوهاب غزوان", "يوسف كاظم محمد الحايكي"],
@@ -468,8 +475,8 @@
                 
                 if(this.value.trim() !== '' && dateField.value === '') {
                     const today = new Date();
-                    const dd = today.getDate();
-                    const mm = today.getMonth() + 1;
+                    const dd = today.getDate(); // الرقم بدون صفر إضافي
+                    const mm = today.getMonth() + 1; // الرقم بدون صفر إضافي
                     const yyyy = today.getFullYear();
                     const dayName = document.getElementById('sysDay').value;
                     const periodString = calculatePeriod(isPrimary ? 'primary' : 'prep');
@@ -756,10 +763,10 @@
             });
         }
 
-        document.getElementById('dashSearchInput').addEventListener('input', applyFilters);
-        document.getElementById('dashClassFilter').addEventListener('change', applyFilters);
+        document.getElementById('dashSearchInput').addEventListener('input', applyDashboardFilters);
+        document.getElementById('dashClassFilter').addEventListener('change', applyDashboardFilters);
 
-        function applyFilters() {
+        function applyDashboardFilters() {
             let searchTerm = document.getElementById('dashSearchInput').value.trim();
             let classFilter = document.getElementById('dashClassFilter').value;
 
@@ -772,7 +779,7 @@
         }
 
         // ==========================================
-        // وظائف سجل المعلم الخاص (الإضافة الجديدة)
+        // وظائف سجل المعلم الخاص والمفلترة (الإضافات الجديدة)
         // ==========================================
         function openTeacherRecords() {
             let teacherDropdown = document.getElementById('globalTeacherSelect');
@@ -786,6 +793,8 @@
             document.getElementById('mainControls').style.display = 'none';
             document.getElementById('teacherRecordsView').style.display = 'block';
 
+            // مسح حقول الفلترة القديمة عند الفتح
+            clearTeacherFilter(true);
             fetchTeacherRecords();
         }
 
@@ -800,59 +809,135 @@
             tbody.innerHTML = '<tr><td colspan="4" style="padding:20px; font-size:20px;">⏳ جاري جلب سجلاتك الخاصة...</td></tr>';
 
             try {
-                // استخدام نفس رابط جلب جميع البيانات، ثم فلترتها هنا
+                // جلب البيانات الأساسية
                 const response = await fetch(`${WEB_APP_URL}?action=getAll`);
                 const serverData = await response.json();
                 globalRawViolations = serverData.data;
 
-                // استخراج اسم المعلم بدون المادة
+                // استخراج اسم المعلم
                 let currTeacher = document.getElementById('globalTeacherSelect').options[document.getElementById('globalTeacherSelect').selectedIndex].text.split(' - ')[1];
 
-                // فلترة المخالفات التي تخص هذا المعلم فقط والتي ليست فارغة
+                // فلترة المخالفات التي تخص هذا المعلم
                 let myViolations = globalRawViolations.filter(row => row.teacher === currTeacher && row.v_type && String(row.v_type).trim() !== "");
 
-                // تجميع المخالفات حسب الطالب
+                // تجميع المخالفات حسب الطالب لتسهيل عرضها
                 let grouped = {};
                 myViolations.forEach(v => {
                     let key = v.student + "|" + v.className;
                     if(!grouped[key]) {
-                        grouped[key] = { student: v.student, className: v.className, violations: [] };
+                        grouped[key] = { student: v.student, className: v.className, violationsHtml: [], rawDates: [] };
                     }
                     let vNumTxt = v.v_num.replace("المخالفة", "م");
                     let shortDate = v.v_date ? String(v.v_date).replace(/\n/g, ' ') : '';
-                    grouped[key].violations.push(`
+                    
+                    grouped[key].violationsHtml.push(`
                         <div style="background:#f1f5f9; padding:5px; margin-bottom:5px; border-radius:4px; text-align:right; font-size:16px;">
                             <strong>${vNumTxt}:</strong> ${v.v_type} <span style="color:#64748b;">(${shortDate})</span>
                         </div>
                     `);
+                    
+                    // حفظ التاريخ للبحث والفلترة
+                    grouped[key].rawDates.push(shortDate);
                 });
 
-                tbody.innerHTML = "";
-                let count = 0;
-                for(let key in grouped) {
-                    count++;
-                    let g = grouped[key];
-                    tbody.innerHTML += `
-                        <tr>
-                            <td style="font-size: 18px; font-weight:bold;">${g.student}</td>
-                            <td>${g.className}</td>
-                            <td>${g.violations.join('')}</td>
-                            <td>
-                                <button class="btn btn-refresh" onclick="editMyRecord('${g.student}', '${g.className}')">✏️ تعديل</button>
-                                <button class="btn btn-back" style="margin-top:8px;" onclick="deleteMyRecord('${g.student}', '${g.className}')">🗑️ حذف</button>
-                            </td>
-                        </tr>
-                    `;
-                }
-
-                if(count === 0) {
-                    tbody.innerHTML = '<tr><td colspan="4" style="padding:20px; font-size:20px; color:#27ae60;">✅ لا توجد مخالفات مسجلة باسمك حالياً.</td></tr>';
-                }
+                // تخزينها عالمياً لنتمكن من فلترتها دون إعادة التحميل
+                globalTeacherRecords = Object.values(grouped);
+                
+                // تطبيق الفلاتر الحالية (إن وجدت) وتحديث الجدول
+                applyTeacherFilter();
 
             } catch (err) {
                 tbody.innerHTML = '<tr><td colspan="4" style="color:red; padding:20px;">❌ خطأ في الاتصال بالخادم لجلب السجلات.</td></tr>';
             }
         }
+
+        // دالة عرض بيانات المعلم بعد الفلترة
+        function renderTeacherRecordsTable(dataToRender) {
+            const tbody = document.getElementById('teacherRecordsBody');
+            tbody.innerHTML = "";
+
+            if (dataToRender.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="padding:20px; font-size:20px; color:#27ae60;">✅ لا توجد مخالفات مسجلة أو مطابقة للبحث حالياً.</td></tr>';
+                return;
+            }
+
+            dataToRender.forEach(g => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td style="font-size: 18px; font-weight:bold;">${g.student}</td>
+                        <td>${g.className}</td>
+                        <td>${g.violationsHtml.join('')}</td>
+                        <td>
+                            <button class="btn btn-refresh" onclick="editMyRecord('${g.student}', '${g.className}')">✏️ تعديل</button>
+                            <button class="btn btn-back" style="margin-top:8px;" onclick="deleteMyRecord('${g.student}', '${g.className}')">🗑️ حذف</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        // 🟢 دالة تطبيق الفلترة (بحث بالاسم أو التاريخ)
+        function applyTeacherFilter() {
+            let nameTerm = document.getElementById('myRecordsSearchInput').value.trim();
+            let dateVal = document.getElementById('myRecordsDateFilter').value; // يأتي بصيغة YYYY-MM-DD
+            
+            let targetDates = [];
+            
+            if (dateVal) {
+                // تحويل صيغة YYYY-MM-DD إلى الصيغ الموجودة في الإدخال اليدوي أو التلقائي
+                let parts = dateVal.split('-');
+                let yyyy = parts[0];
+                let mm = parseInt(parts[1], 10); // تحويل 05 إلى 5
+                let dd = parseInt(parts[2], 10); // تحويل 09 إلى 9
+                
+                let padDd = String(dd).padStart(2, '0');
+                let padMm = String(mm).padStart(2, '0');
+
+                // الأنماط المحتملة للتاريخ المسجل
+                targetDates.push(`${dd}-${mm}-${yyyy}`); // 4-10-2026
+                targetDates.push(`${padDd}-${padMm}-${yyyy}`); // 04-10-2026
+                targetDates.push(`${dd}/${mm}/${yyyy}`); // 4/10/2026
+                targetDates.push(`${padDd}/${padMm}/${yyyy}`); // 04/10/2026
+            }
+
+            let filtered = globalTeacherRecords.filter(g => {
+                let matchName = g.student.includes(nameTerm);
+                let matchDate = true;
+                
+                if (dateVal) {
+                    // التحقق مما إذا كان أي تاريخ مخزن للطالب يتطابق مع أي من الأنماط المحددة
+                    matchDate = g.rawDates.some(savedDate => {
+                        return targetDates.some(target => savedDate.includes(target));
+                    });
+                }
+                
+                return matchName && matchDate;
+            });
+
+            renderTeacherRecordsTable(filtered);
+        }
+
+        // 🟢 فلترة سريعة لتاريخ اليوم
+        function filterTeacherByToday() {
+            let today = new Date();
+            let yyyy = today.getFullYear();
+            let mm = String(today.getMonth() + 1).padStart(2, '0');
+            let dd = String(today.getDate()).padStart(2, '0');
+            
+            document.getElementById('myRecordsDateFilter').value = `${yyyy}-${mm}-${dd}`;
+            applyTeacherFilter();
+        }
+
+        // 🟢 مسح جميع الفلاتر
+        function clearTeacherFilter(preventRender = false) {
+            document.getElementById('myRecordsSearchInput').value = '';
+            document.getElementById('myRecordsDateFilter').value = '';
+            
+            if (!preventRender && globalTeacherRecords.length > 0) {
+                applyTeacherFilter();
+            }
+        }
+
 
         // دالة التعديل (تنقل المعلم للنموذج وتختار الطالب تلقائياً)
         function editMyRecord(studentName, className) {
